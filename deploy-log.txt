@@ -1,0 +1,6164 @@
+﻿
+node.exe : s:core: {
+At C:\Program Files\n
+odejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (s:core:   
+  {:String) [], R    
+emoteException
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  node: 
+[32m'v22.17.0'[39m,
+  os: 
+[32m'win32'[39m,
+  arch: 
+[32m'x64'[39m,
+  shell: 
+[90mundefined[39m,
+  cwd: [32m'C:\\User
+s\\Administrator\\Des
+ktop\\github\\wait-gi
+thub\\waiterix-backen
+d'[39m,
+  nodeJsPath: 
+[32m'C:\\Program Fil
+es\\nodejs\\node.exe'
+[39m,
+  scriptPath: [32m'C
+:\\Users\\Administrat
+or\\.serverless\\rele
+ases\\4.27.0\\package
+\\dist\\sf-core.js'[
+39m,
+  scriptArgs: [ 
+[32m'deploy'[39m ],
+  logLevel: 
+[32m'debug'[39m,
+  isInteractive: 
+[90mundefined[39m
+}
+Initializing
+Initializing
+s:core:router: {
+  command: [ 
+[32m'deploy'[39m ],
+  options: {},
+  versions: { serverl
+ess_framework: 
+[32m'4.27.0'[39m },
+  compose: 
+[90mundefined[39m
+}
+s:core:router: 
+Selected runner: 
+TraditionalRunner
+Resolving variables
+Authenticating
+s:core:auth:get-authe
+nticated-data: User 
+session found in 
+.serverlessrc
+Resolving variables
+Checking AWS 
+credentials
+s:core:resolver:defau
+lt-aws-credential-res
+olver: Using AWS 
+profile: default
+s:core:utils:credenti
+als:aws:get-aws-crede
+ntial-identity-provid
+er: Resolved AWS 
+credentials for 
+account ID 
+184525266200 and 
+region us-east-1
+Resolving variables
+Loading service 
+details
+s:traditional: error 
+getting service 
+unique id Error: 
+Stack 
+waiterix-backend-dev 
+does not exist
+s:core:runner:sls: {
+  service: {
+    service: [32m'wa
+iterix-backend'[39m,
+    app: 
+[90mundefined[39m,
+    org: 
+[90mundefined[39m,
+    provider: { 
+name: 
+[32m'aws'[39m, 
+runtime: [32m'nodejs
+20.x'[39m, region: 
+[32m'us-east-1'[39m 
+},
+    
+frameworkVersion: 
+[32m'4'[39m,
+    functions: [
+      
+[32m'api'[39m,
+      [32m'websocket
+Connect'[39m,
+      [32m'websocket
+Disconnect'[39m,
+      [32m'websocket
+Message'[39m
+    ],
+    plugins: 
+[90mundefined[39m,
+    licenseKey: 
+[90mundefined[39m,
+    layers: 
+[90mundefined[39m,
+    params: 
+[90mundefined[39m,
+    custom: [ 
+[32m'webpack'[39m, 
+[32m'serverless-offl
+ine'[39m ],
+    stages: 
+[90mundefined[39m,
+    resources: { 
+Resources: [ [32m'We
+bSocketConnectionsTab
+le'[39m ] }
+  },
+  options: {},
+  stage: 
+[32m'dev'[39m,
+  servicePath: [32m'
+C:\\Users\\Administra
+tor\\Desktop\\github\
+\wait-github\\waiteri
+x-backend'[39m,
+  serviceProviderAwsP
+rovider: 
+[36m[AsyncFunction: 
+resolveCredentials][
+39m,
+  serviceProviderAwsR
+egion: [32m'us-east-
+1'[39m,
+  composeServiceParam
+s: 
+[90mundefined[39m,
+  isWithinCompose: 
+[90mundefined[39m,
+  composeOrgName: 
+[90mundefined[39m,
+  command: [ 
+[32m'deploy'[39m ],
+  accessKey: [32m'AK
+8x****T3cO'[39m,
+  licenseKey: 
+[1mnull[22m,
+  orgName: 
+[32m'nomagro'[39m,
+  orgId: [32m'312c3e
+d5-9dbb-4bc0-a8f9-b43
+fea342150'[39m,
+  serviceConfigFileNa
+me: [32m'serverless'
+[39m
+}
+s:sls:lib:serverless:
+ Initializing
+s:sls:plugins:bundled
+: Skipping bundled 
+plugin "serverless-ap
+igateway-service-prox
+y" (disabled by 
+configuration)
+s:sls:plugins:bundled
+: Skipping bundled 
+plugin "serverless-py
+thon-requirements" 
+(disabled by 
+configuration)
+s:sls:lifecycle:comma
+nd:register: package
+s:sls:lifecycle:comma
+nd:register: 
+package:function
+s:sls:lifecycle:comma
+nd:register: deploy
+s:sls:lifecycle:comma
+nd:register: 
+deploy:function
+s:sls:lifecycle:comma
+nd:register: 
+deploy:list
+s:sls:lifecycle:comma
+nd:register: 
+deploy:list:functions
+s:sls:lifecycle:comma
+nd:register: invoke
+s:sls:lifecycle:comma
+nd:register: 
+invoke:local
+s:sls:lifecycle:comma
+nd:register: info
+s:sls:lifecycle:comma
+nd:register: dev
+s:sls:lifecycle:comma
+nd:register: logs
+s:sls:lifecycle:comma
+nd:register: metrics
+s:sls:lifecycle:comma
+nd:register: print
+s:sls:lifecycle:comma
+nd:register: remove
+s:sls:lifecycle:comma
+nd:register: rollback
+s:sls:lifecycle:comma
+nd:register: 
+rollback:function
+s:sls:lifecycle:comma
+nd:register: plugin
+s:sls:lifecycle:comma
+nd:register: plugin
+s:sls:lifecycle:comma
+nd:register: 
+plugin:list
+s:sls:lifecycle:comma
+nd:register: plugin
+s:sls:lifecycle:comma
+nd:register: 
+plugin:search
+s:sls:lifecycle:comma
+nd:register: aws
+s:sls:lifecycle:comma
+nd:register: 
+aws:common
+s:sls:lifecycle:comma
+nd:register: 
+aws:common:validate
+s:sls:lifecycle:comma
+nd:register: aws:comm
+on:cleanupTempDir
+s:sls:lifecycle:comma
+nd:register: aws:comm
+on:moveArtifactsToPac
+kage
+s:sls:lifecycle:comma
+nd:register: aws:comm
+on:moveArtifactsToTem
+p
+s:sls:lifecycle:comma
+nd:register: aws
+s:sls:lifecycle:comma
+nd:register: 
+aws:package
+s:sls:lifecycle:comma
+nd:register: 
+aws:package:finalize
+s:sls:lifecycle:comma
+nd:register: aws
+s:sls:lifecycle:comma
+nd:register: 
+aws:deploy
+s:sls:lifecycle:comma
+nd:register: 
+aws:deploy:deploy
+s:sls:lifecycle:comma
+nd:register: 
+aws:deploy:finalize
+s:sls:lifecycle:comma
+nd:register: 
+dev-build
+s:sls:lifecycle:comma
+nd:register: aws
+s:sls:lifecycle:comma
+nd:register: aws:info
+s:sls:lifecycle:comma
+nd:register: 
+esbuild-package
+s:sls:lifecycle:comma
+nd:register: 
+create_domain
+s:sls:lifecycle:comma
+nd:register: 
+delete_domain
+Deploying 
+"waiterix-backend" 
+to stage "dev" 
+(us-east-1)
+s:sls:aws:request: 
+request: #1 STS.getCa
+llerIdentity [ {} ]
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+deploy
+s:sls:lifecycle:comma
+nd:invoke:hook: [1] 
+< 
+before:deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+package
+s:sls:lifecycle:comma
+nd:invoke:hook: [2]  
+ < before:package:cle
+anup
+Packaging
+s:sls:lifecycle:comma
+nd:invoke:hook: [2]  
+ > before:package:cle
+anup
+s:sls:lifecycle:comma
+nd:invoke:hook: [3]  
+ < package:cleanup
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+aws:common:validate
+s:sls:lifecycle:comma
+nd:invoke:hook: [5]  
+   < aws:common:valid
+ate:validate
+s:sls:lifecycle:comma
+nd:invoke:hook: [5]  
+   > aws:common:valid
+ate:validate
+s:sls:lifecycle:comma
+nd:invoke: Invoke aws
+:common:cleanupTempDi
+r
+s:sls:lifecycle:comma
+nd:invoke:hook: [8]  
+   < aws:common:clean
+upTempDir:cleanup
+s:sls:lifecycle:comma
+nd:invoke:hook: [8]  
+   > aws:common:clean
+upTempDir:cleanup
+s:sls:lifecycle:comma
+nd:invoke:hook: [3]  
+ > package:cleanup
+s:sls:lifecycle:comma
+nd:invoke:hook: [12] 
+  < 
+package:initialize
+s:sls:aws:request: 
+request: #2 CloudForm
+ation.describeStackRe
+source [
+  {
+    StackName: [32m'
+waiterix-backend-dev'
+[39m,
+    
+LogicalResourceId: [
+32m'ServerlessDeploym
+entBucket'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #1 ST
+S.getCallerIdentity {
+  ResponseMetadata: 
+{ RequestId: [32m'51
+a7d799-1027-48cf-a98c
+-ab1d125fbad3'[39m 
+},
+  UserId: [32m'AIDAS
+V5UQDUMJ3X7O4ZWJ'[39
+m,
+  Account: [32m'1845
+25266200'[39m,
+  Arn: [32m'arn:aws:
+iam::184525266200:use
+r/nomagro'[39m
+}
+s:sls:aws:request: 
+request error: #2 - C
+loudFormation.describ
+eStackResource 
+ValidationError: 
+Stack 'waiterix-backe
+nd-dev' does not 
+exist
+s: ValidationError: 
+Stack 'waiterix-backe
+nd-dev' does not 
+exist
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:136175
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18105
+5)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:core:deployment-buc
+ket: Checking if /ser
+verless-framework/dep
+loyment/s3-bucket 
+exists in SSM
+s:core:deployment-buc
+ket: SSM param 
+found: serverless-fra
+mework-deployments-us
+-east-1-a0ae9aec-c274
+ in region us-east-1
+s:core:deployment-buc
+ket: Bucket serverles
+s-framework-deploymen
+ts-us-east-1-a0ae9aec
+-c274 created
+s:sls:lifecycle:comma
+nd:invoke:hook: [12] 
+  > 
+package:initialize
+s:sls:lifecycle:comma
+nd:invoke:hook: [12] 
+  < 
+package:initialize
+s:sls:lifecycle:comma
+nd:invoke:hook: [12] 
+  > 
+package:initialize
+s:sls:lifecycle:comma
+nd:invoke:hook: [15] 
+  < package:setupProv
+iderConfiguration
+s:sls:lifecycle:comma
+nd:invoke:hook: [15] 
+  > package:setupProv
+iderConfiguration
+s:sls:lifecycle:comma
+nd:invoke:hook: [17] 
+  < before:package:cr
+eateDeploymentArtifac
+ts
+s:esbuild: Setting 
+default external for 
+node version  20 
+nodejs20.x
+s:esbuild: Initial 
+External  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  
+[32m'pg-native'[39m
+]
+s:esbuild: Initial 
+Exclude  [ [32m'@aws
+-sdk/*'[39m, 
+[32m'aws-sdk'[39m ]
+s:esbuild: External 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Exclude 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Externals 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Excludes 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Final 
+External  [
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Final 
+Exclude  [
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Setting 
+default external for 
+node version  20 
+nodejs20.x
+s:esbuild: Initial 
+External  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  
+[32m'pg-native'[39m
+]
+s:esbuild: Initial 
+Exclude  [ [32m'@aws
+-sdk/*'[39m, 
+[32m'aws-sdk'[39m ]
+s:esbuild: External 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Exclude 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Externals 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Excludes 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Final 
+External  [
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Final 
+Exclude  [
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Setting 
+default external for 
+node version  20 
+nodejs20.x
+s:esbuild: Initial 
+External  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  
+[32m'pg-native'[39m
+]
+s:esbuild: Initial 
+Exclude  [ [32m'@aws
+-sdk/*'[39m, 
+[32m'aws-sdk'[39m ]
+s:esbuild: External 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Exclude 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Externals 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Excludes 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Final 
+External  [
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Final 
+Exclude  [
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Setting 
+default external for 
+node version  20 
+nodejs20.x
+s:esbuild: Initial 
+External  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  
+[32m'pg-native'[39m
+]
+s:esbuild: Initial 
+Exclude  [ [32m'@aws
+-sdk/*'[39m, 
+[32m'aws-sdk'[39m ]
+s:esbuild: External 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Exclude 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Externals 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Excludes 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Final 
+External  [
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Final 
+Exclude  [
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Setting 
+default external for 
+node version  20 
+nodejs20.x
+s:esbuild: Initial 
+External  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  
+[32m'pg-native'[39m
+]
+s:esbuild: Initial 
+Exclude  [ [32m'@aws
+-sdk/*'[39m, 
+[32m'aws-sdk'[39m ]
+s:esbuild: External 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Exclude 
+After Dependency  [
+  [32m'@aws-sdk/*'[
+39m,
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:esbuild: Externals 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Excludes 
+to Filter  [ [32m'@a
+ws-sdk/*'[39m ]
+s:esbuild: Final 
+External  [
+  [32m'@google-cloud
+/firestore'[39m,
+  [32m'firebase-admi
+n'[39m,
+  [32m'pg-native'[3
+9m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m,
+  [32m'firebase-admi
+n'[39m
+]
+s:esbuild: Final 
+Exclude  [
+  
+[32m'aws-sdk'[39m,
+  [32m'@aws-sdk/clie
+nt-apigatewaymanageme
+ntapi'[39m,
+  [32m'@aws-sdk/clie
+nt-bedrock-runtime'[
+39m,
+  [32m'@aws-sdk/clie
+nt-dynamodb'[39m,
+  [32m'@aws-sdk/clie
+nt-polly'[39m,
+  [32m'@aws-sdk/clie
+nt-s3'[39m,
+  [32m'@aws-sdk/clie
+nt-ses'[39m,
+  [32m'@aws-sdk/clie
+nt-transcribe'[39m,
+  [32m'@aws-sdk/s3-r
+equest-presigner'[39
+m
+]
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+esbuild-package 
+(noop due to no 
+registered hooks)
+s:sls:lifecycle:comma
+nd:invoke:hook: [17] 
+  > before:package:cr
+eateDeploymentArtifac
+ts
+s:sls:lifecycle:comma
+nd:invoke:hook: [21] 
+  < package:createDep
+loymentArtifacts
+s:sls:lifecycle:comma
+nd:invoke:hook: [21] 
+  > package:createDep
+loymentArtifacts
+s:sls:lifecycle:comma
+nd:invoke:hook: [23] 
+  < before:package:co
+mpileLayers
+s:sls:lifecycle:comma
+nd:invoke:hook: [23] 
+  > before:package:co
+mpileLayers
+s:sls:lifecycle:comma
+nd:invoke:hook: [24] 
+  < 
+package:compileLayers
+s:sls:lifecycle:comma
+nd:invoke:hook: [24] 
+  > 
+package:compileLayers
+s:sls:lifecycle:comma
+nd:invoke:hook: [26] 
+  < before:package:co
+mpileFunctions
+s:sls:lifecycle:comma
+nd:invoke:hook: [26] 
+  > before:package:co
+mpileFunctions
+s:sls:lifecycle:comma
+nd:invoke:hook: [26] 
+  < before:package:co
+mpileFunctions
+s:sls:lifecycle:comma
+nd:invoke:hook: [26] 
+  > before:package:co
+mpileFunctions
+s:sls:lifecycle:comma
+nd:invoke:hook: [27] 
+  < package:compileFu
+nctions
+s:sls:lifecycle:comma
+nd:invoke:hook: [27] 
+  > package:compileFu
+nctions
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  < 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [30] 
+  > 
+package:compileEvents
+s:sls:lifecycle:comma
+nd:invoke:hook: [32] 
+  < before:package:fi
+nalize
+s:sls:lifecycle:comma
+nd:invoke:hook: [32] 
+  > before:package:fi
+nalize
+s:sls:lifecycle:comma
+nd:invoke:hook: [33] 
+  < package:finalize
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+aws:package:finalize
+s:sls:lifecycle:comma
+nd:invoke:hook: [35] 
+    < aws:package:fin
+alize:addExportNameFo
+rOutputs
+s:sls:lifecycle:comma
+nd:invoke:hook: [35] 
+    > aws:package:fin
+alize:addExportNameFo
+rOutputs
+s:sls:lifecycle:comma
+nd:invoke:hook: [38] 
+    < aws:package:fin
+alize:mergeCustomProv
+iderResources
+s:sls:lifecycle:comma
+nd:invoke:hook: [38] 
+    > aws:package:fin
+alize:mergeCustomProv
+iderResources
+s:sls:lifecycle:comma
+nd:invoke:hook: [41] 
+    < aws:package:fin
+alize:stripNullPropsF
+romTemplateResources
+s:sls:lifecycle:comma
+nd:invoke:hook: [41] 
+    > aws:package:fin
+alize:stripNullPropsF
+romTemplateResources
+s:sls:lifecycle:comma
+nd:invoke:hook: [44] 
+    < aws:package:fin
+alize:saveServiceStat
+e
+s:sls:lifecycle:comma
+nd:invoke: Invoke aws
+:common:moveArtifacts
+ToPackage
+s:sls:lifecycle:comma
+nd:invoke:hook: [46] 
+      < aws:common:mo
+veArtifactsToPackage:
+move
+s:sls:lifecycle:comma
+nd:invoke:hook: [46] 
+      > aws:common:mo
+veArtifactsToPackage:
+move
+s:sls:lifecycle:comma
+nd:invoke:hook: [44] 
+    > aws:package:fin
+alize:saveServiceStat
+e
+s:sls:lifecycle:comma
+nd:invoke:hook: [33] 
+  > package:finalize
+s:sls:lifecycle:comma
+nd:invoke:hook: [49] 
+  < after:package:fin
+alize
+s:sls:lifecycle:comma
+nd:invoke:hook: [49] 
+  > after:package:fin
+alize
+s:sls:lifecycle:comma
+nd:invoke:hook: [1] 
+> 
+before:deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke:hook: [1] 
+< 
+before:deploy:deploy
+Packaging
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+aws:common:validate
+s:sls:lifecycle:comma
+nd:invoke:hook: [51] 
+  < aws:common:valida
+te:validate
+s:sls:lifecycle:comma
+nd:invoke:hook: [51] 
+  > aws:common:valida
+te:validate
+[!] Function api has 
+a timeout of 30 
+seconds, but it is 
+attached to an API 
+Gateway with a 
+timeout of 29 
+seconds. 
+[!] Function api has 
+a timeout of 30 
+seconds, but it is 
+attached to an API 
+Gateway with a 
+timeout of 29 
+seconds. 
+s:sls:lifecycle:comma
+nd:invoke:hook: [1] 
+> 
+before:deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke:hook: [1] 
+< 
+before:deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke:hook: [1] 
+> 
+before:deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke:hook: [53] 
+< deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke: Invoke 
+aws:deploy:deploy
+s:sls:lifecycle:comma
+nd:invoke:hook: [54] 
+  < before:aws:deploy
+:deploy:createStack
+Retrieving AWS 
+CloudFormation stack
+s:sls:lifecycle:comma
+nd:invoke:hook: [54] 
+  > before:aws:deploy
+:deploy:createStack
+s:sls:lifecycle:comma
+nd:invoke:hook: [55] 
+  < aws:deploy:deploy
+:createStack
+s:sls:aws:request: 
+request: #3 CloudForm
+ation.describeStacks 
+[ { StackName: [32m'
+waiterix-backend-dev'
+[39m } ]
+s:sls:aws:request: 
+request error: #3 - C
+loudFormation.describ
+eStacks 
+ValidationError: 
+Stack with id 
+waiterix-backend-dev 
+does not exist
+s: ValidationError: 
+Stack with id 
+waiterix-backend-dev 
+does not exist
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:136175
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18105
+5)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:sls:lifecycle:comma
+nd:invoke:hook: [55] 
+  > aws:deploy:deploy
+:createStack
+s:sls:lifecycle:comma
+nd:invoke:hook: [58] 
+  < aws:deploy:deploy
+:checkForChanges
+s:sls:aws:request: 
+request: #4 CloudForm
+ation.describeStackRe
+source [
+  {
+    StackName: [32m'
+waiterix-backend-dev'
+[39m,
+    
+LogicalResourceId: [
+32m'ServerlessDeploym
+entBucket'[39m
+  }
+]
+s:sls:aws:request: 
+request error: #4 - C
+loudFormation.describ
+eStackResource 
+ValidationError: 
+Stack 'waiterix-backe
+nd-dev' does not 
+exist
+s: ValidationError: 
+Stack 'waiterix-backe
+nd-dev' does not 
+exist
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:136175
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18105
+5)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:core:deployment-buc
+ket: Checking if /ser
+verless-framework/dep
+loyment/s3-bucket 
+exists in SSM
+s:core:deployment-buc
+ket: SSM param 
+found: serverless-fra
+mework-deployments-us
+-east-1-a0ae9aec-c274
+ in region us-east-1
+s:core:deployment-buc
+ket: Bucket serverles
+s-framework-deploymen
+ts-us-east-1-a0ae9aec
+-c274 created
+s:sls:aws:request: 
+request: #5 
+S3.getBucketLocation 
+[
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #5 
+S3.getBucketLocation 
+{ 
+LocationConstraint: 
+[32m''[39m }
+s:sls:aws:request: 
+request: #6 
+S3.listObjectsV2 [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Prefix: [32m'ser
+verless/waiterix-back
+end/dev/'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #6 
+S3.listObjectsV2 {
+  IsTruncated: 
+[33mfalse[39m,
+  Contents: [
+    {
+      Key: [32m'serv
+erless/waiterix-backe
+nd/dev/1764950398291-
+2025-12-05T15:59:58.2
+91Z/compiled-cloudfor
+mation-template.json'
+[39m,
+      LastModified: 
+[35m2025-12-05T16:00:
+01.000Z[39m,
+      ETag: [32m'"fe
+7cc97489ead9e0f824691
+fe10882d2"'[39m,
+      
+ChecksumAlgorithm: [ 
+[32m'CRC64NVME'[39m
+ ],
+      Size: 
+[33m23784[39m,
+      StorageClass: 
+[32m'STANDARD'[39m
+    },
+    {
+      Key: [32m'serv
+erless/waiterix-backe
+nd/dev/1764950398291-
+2025-12-05T15:59:58.2
+91Z/serverless-state.
+json'[39m,
+      LastModified: 
+[35m2025-12-05T16:00:
+01.000Z[39m,
+      ETag: [32m'"94
+8adb05c72f9e9264558f9
+7988e2812"'[39m,
+      
+ChecksumAlgorithm: [ 
+[32m'CRC64NVME'[39m
+ ],
+      Size: 
+[33m54751[39m,
+      StorageClass: 
+[32m'STANDARD'[39m
+    },
+    {
+      Key: [32m'serv
+erless/waiterix-backe
+nd/dev/1764950398291-
+2025-12-05T15:59:58.2
+91Z/waiterix-backend.
+zip'[39m,
+      LastModified: 
+[35m2025-12-05T16:00:
+01.000Z[39m,
+      ETag: [32m'"28
+6051ccb9c79bf24b5243c
+df51deb21-4"'[39m,
+      
+ChecksumAlgorithm: [ 
+[32m'CRC64NVME'[39m
+ ],
+      Size: 
+[33m17549306[39m,
+      StorageClass: 
+[32m'STANDARD'[39m
+    },
+    {
+      Key: [32m'serv
+erless/waiterix-backe
+nd/dev/1764950483059-
+2025-12-05T16:01:23.0
+59Z/compiled-cloudfor
+mation-template.json'
+[39m,
+      LastModified: 
+[35m2025-12-05T16:01:
+26.000Z[39m,
+      ETag: [32m'"c6
+a310868dcb39e4a079051
+f3aba8ef5"'[39m,
+      
+ChecksumAlgorithm: [ 
+[32m'CRC64NVME'[39m
+ ],
+      Size: 
+[33m23782[39m,
+      StorageClass: 
+[32m'STANDARD'[39m
+    },
+    {
+      Key: [32m'serv
+erless/waiterix-backe
+nd/dev/1764950483059-
+2025-12-05T16:01:23.0
+59Z/serverless-state.
+json'[39m,
+      LastModified: 
+[35m2025-12-05T16:01:
+26.000Z[39m,
+      ETag: [32m'"1f
+9feb64a11c16587cab622
+409fc9f29"'[39m,
+      
+ChecksumAlgorithm: [ 
+[32m'CRC64NVME'[39m
+ ],
+      Size: 
+[33m54748[39m,
+      StorageClass: 
+[32m'STANDARD'[39m
+    },
+    {
+      Key: [32m'serv
+erless/waiterix-backe
+nd/dev/1764950483059-
+2025-12-05T16:01:23.0
+59Z/waiterix-backend.
+zip'[39m,
+      LastModified: 
+[35m2025-12-05T16:01:
+26.000Z[39m,
+      ETag: [32m'"d5
+bb6d82e80f222e9c5a50c
+e9656aca7-4"'[39m,
+      
+ChecksumAlgorithm: [ 
+[32m'CRC64NVME'[39m
+ ],
+      Size: 
+[33m17549306[39m,
+      StorageClass: 
+[32m'STANDARD'[39m
+    }
+  ],
+  Name: [32m'serverl
+ess-framework-deploym
+ents-us-east-1-a0ae9a
+ec-c274'[39m,
+  Prefix: [32m'serve
+rless/waiterix-backen
+d/dev/'[39m,
+  MaxKeys: 
+[33m1000[39m,
+  CommonPrefixes: [],
+  KeyCount: 
+[33m6[39m
+}
+s:sls:aws:request: 
+request: #7 
+S3.headObject [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Key: [32m'server
+less/waiterix-backend
+/dev/1764950483059-20
+25-12-05T16:01:23.059
+Z/waiterix-backend.zi
+p'[39m
+  }
+]
+s:sls:aws:request: 
+request: #8 
+S3.headObject [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Key: [32m'server
+less/waiterix-backend
+/dev/1764950483059-20
+25-12-05T16:01:23.059
+Z/serverless-state.js
+on'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #8 
+S3.headObject {
+  AcceptRanges: 
+[32m'bytes'[39m,
+  LastModified: [35m
+2025-12-05T16:01:26.0
+00Z[39m,
+  ContentLength: 
+[33m54748[39m,
+  ETag: [32m'"1f9feb
+64a11c16587cab622409f
+c9f29"'[39m,
+  VersionId: [32m'Qm
+1vNjezKM2CGrhCV1CBr5s
+DdUlST8cA'[39m,
+  ContentType: [32m'
+application/json'[39
+m,
+  ServerSideEncryptio
+n: 
+[32m'AES256'[39m,
+  Metadata: { 
+filesha256: [32m'J8P
+9LcnQuIHoif70E+ZGsJJv
+RIVicP9MO2p/ATlcaaY='
+[39m }
+}
+s:sls:aws:request: 
+request: #9 
+S3.headObject [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Key: [32m'server
+less/waiterix-backend
+/dev/1764950483059-20
+25-12-05T16:01:23.059
+Z/compiled-cloudforma
+tion-template.json'[
+39m
+  }
+]
+s:sls:aws:request: 
+request result: #7 
+S3.headObject {
+  AcceptRanges: 
+[32m'bytes'[39m,
+  LastModified: [35m
+2025-12-05T16:01:26.0
+00Z[39m,
+  ContentLength: 
+[33m17549306[39m,
+  ETag: [32m'"d5bb6d
+82e80f222e9c5a50ce965
+6aca7-4"'[39m,
+  VersionId: [32m'd4
+_gcfuwiMdBICRZCzfhr2v
+DfhVo_ghd'[39m,
+  ContentType: [32m'
+application/zip'[39m
+,
+  ServerSideEncryptio
+n: 
+[32m'AES256'[39m,
+  Metadata: { 
+filesha256: [32m'97u
+6wzwKBH5LmAuqiLJZy4RB
+KjUXJDDxZkBXkFsP1Pg='
+[39m }
+}
+s:sls:aws:request: 
+request: #10 
+Lambda.getFunction [ 
+{ FunctionName: [32m
+'waiterix-backend-dev
+-api'[39m } ]
+s:sls:aws:request: 
+request result: #9 
+S3.headObject {
+  AcceptRanges: 
+[32m'bytes'[39m,
+  LastModified: [35m
+2025-12-05T16:01:26.0
+00Z[39m,
+  ContentLength: 
+[33m23782[39m,
+  ETag: [32m'"c6a310
+868dcb39e4a079051f3ab
+a8ef5"'[39m,
+  VersionId: [32m'Wh
+IfkI7taYCgMi4sGh72w4G
+rxb0JXP0V'[39m,
+  ContentType: [32m'
+application/json'[39
+m,
+  ServerSideEncryptio
+n: 
+[32m'AES256'[39m,
+  Metadata: { 
+filesha256: [32m'HjL
+AWmZUs8l9bYMgKEBu/edw
+1DIyrrDCAiKTRZpGdXU='
+[39m }
+}
+s:sls:aws:request: 
+request: #11 
+Lambda.getFunction [ 
+{ FunctionName: [32m
+'waiterix-backend-dev
+-websocketConnect'[3
+9m } ]
+s:sls:aws:request: 
+request error: #10 - 
+Lambda.getFunction Re
+sourceNotFoundExcepti
+on: Function not 
+found: arn:aws:lambda
+:us-east-1:1845252662
+00:function:waiterix-
+backend-dev-api
+s: ResourceNotFoundEx
+ception: Function 
+not found: arn:aws:la
+mbda:us-east-1:184525
+266200:function:waite
+rix-backend-dev-api
+    at 
+Object.extractError (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:4
+89:123338)
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:142227
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:sls:aws:request: 
+request: #12 
+Lambda.getFunction [ 
+{ FunctionName: [32m
+'waiterix-backend-dev
+-websocketDisconnect'
+[39m } ]
+s:sls:aws:request: 
+request error: #11 - 
+Lambda.getFunction Re
+sourceNotFoundExcepti
+on: Function not 
+found: arn:aws:lambda
+:us-east-1:1845252662
+00:function:waiterix-
+backend-dev-websocket
+Connect
+s: ResourceNotFoundEx
+ception: Function 
+not found: arn:aws:la
+mbda:us-east-1:184525
+266200:function:waite
+rix-backend-dev-webso
+cketConnect
+    at 
+Object.extractError (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:4
+89:123338)
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:142227
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:sls:aws:request: 
+request: #13 
+Lambda.getFunction [ 
+{ FunctionName: [32m
+'waiterix-backend-dev
+-websocketMessage'[3
+9m } ]
+s:sls:aws:request: 
+request error: #12 - 
+Lambda.getFunction Re
+sourceNotFoundExcepti
+on: Function not 
+found: arn:aws:lambda
+:us-east-1:1845252662
+00:function:waiterix-
+backend-dev-websocket
+Disconnect
+s: ResourceNotFoundEx
+ception: Function 
+not found: arn:aws:la
+mbda:us-east-1:184525
+266200:function:waite
+rix-backend-dev-webso
+cketDisconnect
+    at 
+Object.extractError (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:4
+89:123338)
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:142227
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:sls:aws:request: 
+request error: #13 - 
+Lambda.getFunction Re
+sourceNotFoundExcepti
+on: Function not 
+found: arn:aws:lambda
+:us-east-1:1845252662
+00:function:waiterix-
+backend-dev-websocket
+Message
+s: ResourceNotFoundEx
+ception: Function 
+not found: arn:aws:la
+mbda:us-east-1:184525
+266200:function:waite
+rix-backend-dev-webso
+cketMessage
+    at 
+Object.extractError (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:4
+89:123338)
+    at constructor.ex
+tractError (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:489:142227
+)
+    at constructor.ca
+llListeners (file:///
+C:/Users/Administrato
+r/.serverless/release
+s/4.27.0/package/dist
+/sf-core.js:489:18088
+4)
+    at 
+constructor.emit (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:489:
+180356)
+    at constructor.em
+itEvent (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:490:42015)
+    at constructor.tr
+ansition (file:///C:/
+Users/Administrator/.
+serverless/releases/4
+.27.0/package/dist/sf
+-core.js:490:35841)
+    at AcceptorStateM
+achine.runTo (file://
+/C:/Users/Administrat
+or/.serverless/releas
+es/4.27.0/package/dis
+t/sf-core.js:490:1714
+)
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:490:2050
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:36134)
+    at constructor.<a
+nonymous> (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:490:42093)
+---------------------
+---------------------
+---------------------
+---------------------
+----------------
+s:check-for-changes: 
+function 
+modification dates 
+changed after last 
+deploy - deploy
+s:check-for-changes: 
+no log groups to 
+investigate
+s:sls:lifecycle:comma
+nd:invoke:hook: [58] 
+  > aws:deploy:deploy
+:checkForChanges
+s:sls:lifecycle:comma
+nd:invoke:hook: [60] 
+  < before:aws:deploy
+:deploy:uploadArtifac
+ts
+Uploading
+s:sls:lifecycle:comma
+nd:invoke:hook: [60] 
+  > before:aws:deploy
+:deploy:uploadArtifac
+ts
+s:sls:lifecycle:comma
+nd:invoke:hook: [61] 
+  < aws:deploy:deploy
+:uploadArtifacts
+Uploading (17.55 MB)
+Uploading 
+CloudFormation file 
+to S3
+s:sls:aws:request: 
+request: #14 
+S3.upload [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Key: [32m'server
+less/waiterix-backend
+/dev/1764950673856-20
+25-12-05T16:04:33.856
+Z/compiled-cloudforma
+tion-template.json'[
+39m,
+    Body: [32m'{"AWS
+TemplateFormatVersion
+":"2010-09-09","Descr
+iption":"The AWS 
+CloudFormation 
+template for this 
+Serverless applicatio
+n","Resources":{"ApiL
+ogGroup":{"Type":"AWS
+::Logs::LogGroup","Pr
+operties":{"LogGroupN
+ame":"/aws/lambda/wai
+terix-backend-dev-api
+"}},"WebsocketConnect
+LogGroup":{"Type":"AW
+S::Logs::LogGroup","P
+roperties":{"LogGroup
+Name":"/aws/lambda/wa
+iterix-backend-dev-we
+bsocketConnect"}},"We
+bsocketDisconnectLogG
+roup":{"Type":"AWS::L
+ogs::LogGroup","Prope
+rties":{"LogGroupName
+":"/aws/lambda/waiter
+ix-backend-dev-websoc
+ketDisconnect"}},"Web
+socketMessageLogGroup
+":{"Type":"AWS::Logs:
+:LogGroup","Propertie
+s":{"LogGroupName":"/
+aws/lambda/waiterix-b
+ackend-dev-websocketM
+essage"}},"IamRoleLam
+bdaExecution":{"Type"
+:"AWS::IAM::Role","Pr
+operties":{"AssumeRol
+ePolicyDocument":{"Ve
+rsion":"2012-10-17","
+Statement":[{"Effect"
+:"Allow","Principal":
+{"Service":["lambda.a
+mazonaws.com"]},"Acti
+on":["sts:AssumeRole"
+]}]},"Policies":[{"Po
+licyName":{"Fn::Join"
+:["-",["waiterix-back
+end","dev","lambda"]]
+},"PolicyDocument":{"
+Version":"2012-10-17"
+,"Statement":[{"Effec
+t":"Allow","Action":[
+"logs:CreateLogStream
+","logs:CreateLogGrou
+p","logs:TagResource"
+],"Resource":[{"Fn::S
+ub":"arn:${AWS::Parti
+tion}:logs:${AWS::Reg
+ion}:${AWS::AccountId
+}:log-group:/aws/lamb
+da/waiterix-backend-d
+ev*:*"}]},{"Effect":"
+Allow","Action":["log
+s:PutLogEvents"],"Res
+ource":[{"Fn::Sub":"a
+rn:${AWS::Partition}:
+logs:${AWS::Region}:$
+{AWS::AccountId}:log-
+group:/aws/lambda/wai
+terix-backend-dev*:*:
+*"}]},{"Effect":"Allo
+w","Action":["logs:Cr
+eateLogGroup","logs:C
+reateLogStream","logs
+:PutLogEvents"],"Reso
+urce":"arn:aws:logs:*
+:*:*"},{"Effect":"All
+ow","Action":["bedroc
+k:InvokeModel","bedro
+ck:InvokeModelWithRes
+ponseStream"],"Resour
+ce":["arn:aws:bedrock
+:*::foundation-model/
+anthropic.claude-3-5-
+sonnet-20241022-v2:0"
+,"arn:aws:bedrock:*::
+foundation-model/anth
+ropic.claude-3-haiku-
+20240307-v1:0"]},{"Ef
+fect":"Allow","Action
+":["polly:SynthesizeS
+peech"],"Resource":"*
+"},{"Effect":"Allow",
+"Action":["transcribe
+:StartTranscriptionJo
+b","transcribe:GetTra
+nscriptionJob"],"Reso
+urce":"*"},{"Effect":
+"Allow","Action":["s3
+:GetObject","s3:PutOb
+ject","s3:DeleteObjec
+t"],"Resource":["arn:
+aws:s3:::waiterix-sto
+rage","arn:aws:s3:::w
+aiterix-storage/*","a
+rn:aws:s3:::waiterix-
+transcribe-temp","arn
+:aws:s3:::waiterix-tr
+anscribe-temp/*"]},{"
+Effect":"Allow","Acti
+on":["ses:SendEmail",
+"ses:SendRawEmail"],"
+Resource":"*"},{"Effe
+ct":"Allow","Action":
+["dynamodb:PutItem","
+dynamodb:GetItem","dy
+namodb:DeleteItem","d
+ynamodb:UpdateItem"],
+"Resource":"arn:aws:d
+ynamodb:us-east-1:*:t
+able/waiterix-websock
+et-connections"},{"Ef
+fect":"Allow","Action
+":["execute-api:Manag
+eConnections"],"Resou
+rce":"arn:aws:execute
+-api:us-east-1:*:*/*/
+@connections/*"},{"Ef
+fect":"Allow","Action
+":["execute-api:Manag
+eConnections"],"Resou
+rce":[{"Fn::Sub":"arn
+:${AWS::Partition}:ex
+ecute-api:*:*:*/@conn
+ections/*"}]}]}}],"Pa
+th":"/","RoleName":{"
+Fn::Join":["-",["wait
+erix-backend","dev",{
+"Ref":"AWS::Region"},
+"lambdaRole"]]},"Mana
+gedPolicyArns":[{"Fn:
+:Join":["",["arn:",{"
+Ref":"AWS::Partition"
+},":iam::aws:policy/s
+ervice-role/AWSLambda
+VPCAccessExecutionRol
+e"]]}]}},"ApiLambdaFu
+nction":{"Type":"AWS:
+:Lambda::Function","P
+roperties":{"Code":{"
+S3Bucket":"serverless
+-framework-deployment
+s-us-east-1-a0ae9aec-
+c274","S3Key":"server
+less/waiterix-backend
+/dev/1764950673856-20
+25-12-05T16:04:33.856
+Z/waiterix-backend.zi
+p"},"Handler":"src/ha
+ndlers/api.handler","
+Runtime":"nodejs20.x"
+,"FunctionName":"wait
+erix-backend-dev-api"
+,"MemorySize":1024,"T
+imeout":30,"Environme
+nt":{"Variables":{"NO
+DE_ENV":"dev","DATABA
+SE_URL":"postgresql:/
+/waiterix_user:Mypass
+word407%21@waiterix.c
+ejyqycwo39y.us-east-1
+.rds.amazonaws.com:54
+32/waiterix","DB_HOST
+":"waiterix.cejyqycwo
+39y.us-east-1.rds.ama
+zonaws.com","DB_PORT"
+:"5432","DB_NAME":"wa
+iterix","DB_USER":"wa
+iterix_user","DB_PASS
+WORD":"Mypassword407!
+","DB_SSL":"true","RE
+DIS_HOST":"master.wai
+terix-redis.ufx4zx.us
+e1.cache.amazonaws.co
+m","REDIS_PORT":"6379
+","REDIS_PASSWORD":"A
+llahummasallialaMuham
+mad1!","REDIS_DB":"0"
+,"AWS_S3_BUCKET":"wai
+terix-storage","AWS_S
+3_TRANSCRIBE_BUCKET":
+"waiterix-transcribe-
+temp","AWS_S3_REGION"
+:"us-east-1","AWS_REG
+ION":"us-east-1","SES
+_FROM_EMAIL":"noreply
+@nomagro.com","SUPPOR
+T_EMAIL":"support@nom
+agro.com","WEBSOCKET_
+CONNECTIONS_TABLE":"w
+aiterix-websocket-con
+nections","STRIPE_SEC
+RET_KEY":"sk_test_51S
+XnfY2VZXX1nihiLJ78hL5
+DVPaOqoXhU2TwGCldGBJz
+rAgGNJ6lTxYsNW6bE1bMF
+J7KIBH9Gdz7NJdOUyCYz2
+AE00Ux84umtM","STRIPE
+_WEBHOOK_SECRET":"sk_
+test_51SXnfY2VZXX1nih
+iLJ78hL5DVPaOqoXhU2Tw
+GCldGBJzrAgGNJ6lTxYsN
+W6bE1bMFJ7KIBH9Gdz7NJ
+dOUyCYz2AE00Ux84umtM"
+,"STRIPE_BASE_PRICE_I
+D":"price_1SXnmn2VZXX
+1nihitL4P9y02","STRIP
+E_USAGE_PRICE_ID":"pr
+ice_1SXnkJ2VZXX1nihiN
+A7puV2l","STRIPE_METE
+R_EVENT_NAME":"price_
+1SXnkJ2VZXX1nihiNA7pu
+V2l","PAYSTACK_SECRET
+_KEY":"sk_test_ec72a2
+7e12b915928c86230be77
+02153bb5a779b","PAYST
+ACK_PUBLIC_KEY":"pk_t
+est_b0b9c6670701f7d9b
+6ea379bd447292a34d6f1
+d0","FIREBASE_PROJECT
+_ID":"waiterix-65cc6"
+,"FIREBASE_PRIVATE_KE
+Y":"AIzaSyA_AgNCd2jC6
+5G4W8420ZJEDVh8jHPCSA
+8","FIREBASE_CLIENT_E
+MAIL":"umarkabir@harm
+oniallc.com","FRONTEN
+D_URL":"https://main.
+dtrmx4cj0i1ha.amplify
+app.com/","API_BASE_U
+RL":"","NODE_OPTIONS"
+:"--enable-source-map
+s"}},"Role":{"Fn::Get
+Att":["IamRoleLambdaE
+xecution","Arn"]},"Vp
+cConfig":{"SecurityGr
+oupIds":["sg-0c37f603
+0af724718"],"SubnetId
+s":["subnet-08269a529
+0ccbd69b","subnet-0fc
+4b474540afd23f"]}},"D
+ependsOn":["ApiLogGro
+up"]},"WebsocketConne
+ctLambdaFunction":{"T
+ype":"AWS::Lambda::Fu
+nction","Properties":
+{"Code":{"S3Bucket":"
+serverless-framework-
+deployments-us-east-1
+-a0ae9aec-c274","S3Ke
+y":"serverless/waiter
+ix-backend/dev/176495
+0673856-2025-12-05T16
+:04:33.856Z/waiterix-
+backend.zip"},"Handle
+r":"src/apiGatewayWeb
+Socket.handleConnect"
+,"Runtime":"nodejs20.
+x","FunctionName":"wa
+iterix-backend-dev-we
+bsocketConnect","Memo
+rySize":1024,"Timeout
+":30,"Environment":{"
+Variables":{"NODE_ENV
+":"dev","DATABASE_URL
+":"postgresql://waite
+rix_user:Mypassword40
+7%21@waiterix.cejyqyc
+wo39y.us-east-1.rds.a
+mazonaws.com:5432/wai
+terix","DB_HOST":"wai
+terix.cejyqycwo39y.us
+-east-1.rds.amazonaws
+.com","DB_PORT":"5432
+","DB_NAME":"waiterix
+","DB_USER":"waiterix
+_user","DB_PASSWORD":
+"Mypassword407!","DB_
+SSL":"true","REDIS_HO
+ST":"master.waiterix-
+redis.ufx4zx.use1.cac
+he.amazonaws.com","RE
+DIS_PORT":"6379","RED
+IS_PASSWORD":"Allahum
+masallialaMuhammad1!"
+,"REDIS_DB":"0","AWS_
+S3_BUCKET":"waiterix-
+storage","AWS_S3_TRAN
+SCRIBE_BUCKET":"waite
+rix-transcribe-temp",
+"AWS_S3_REGION":"us-e
+ast-1","AWS_REGION":"
+us-east-1","SES_FROM_
+EMAIL":"noreply@nomag
+ro.com","SUPPORT_EMAI
+L":"support@nomagro.c
+om","WEBSOCKET_CONNEC
+TIONS_TABLE":"waiteri
+x-websocket-connectio
+ns","STRIPE_SECRET_KE
+Y":"sk_test_51SXnfY2V
+ZXX1nihiLJ78hL5DVPaOq
+oXhU2TwGCldGBJzrAgGNJ
+6lTxYsNW6bE1bMFJ7KIBH
+9Gdz7NJdOUyCYz2AE00Ux
+84umtM","STRIPE_WEBHO
+OK_SECRET":"sk_test_5
+1SXnfY2VZXX1nihiLJ78h
+L5DVPaOqoXhU2TwGCldGB
+JzrAgGNJ6lTxYsNW6bE1b
+MFJ7KIBH9Gdz7NJdOUyCY
+z2AE00Ux84umtM","STRI
+PE_BASE_PRICE_ID":"pr
+ice_1SXnmn2VZXX1nihit
+L4P9y02","STRIPE_USAG
+E_PRICE_ID":"price_1S
+XnkJ2VZXX1nihiNA7puV2
+l","STRIPE_METER_EVEN
+T_NAME":"price_1SXnkJ
+2VZXX1nihiNA7puV2l","
+PAYSTACK_SECRET_KEY":
+"sk_test_ec72a27e12b9
+15928c86230be7702153b
+b5a779b","PAYSTACK_PU
+BLIC_KEY":"pk_test_b0
+b9c6670701f7d9b6ea379
+bd447292a34d6f1d0","F
+IREBASE_PROJECT_ID":"
+waiterix-65cc6","FIRE
+BASE_PRIVATE_KEY":"AI
+zaSyA_AgNCd2jC65G4W84
+20ZJEDVh8jHPCSA8","FI
+REBASE_CLIENT_EMAIL":
+"umarkabir@harmoniall
+c.com","FRONTEND_URL"
+:"https://main.dtrmx4
+cj0i1ha.amplifyapp.co
+m/","API_BASE_URL":""
+,"NODE_OPTIONS":"--en
+able-source-maps"}},"
+Role":{"Fn::GetAtt":[
+"IamRoleLambdaExecuti
+on","Arn"]},"VpcConfi
+g":{"SecurityGroupIds
+":["sg-0c37f6030af724
+718"],"SubnetIds":["s
+ubnet-08269a5290ccbd6
+9b","subnet-0fc4b4745
+40afd23f"]}},"Depends
+On":["WebsocketConnec
+tLogGroup"]},"Websock
+etDisconnectLambdaFun
+ction":{"Type":"AWS::
+Lambda::Function","Pr
+operties":{"Code":{"S
+3Bucket":"serverless-
+framework-deployments
+-us-east-1-a0ae9aec-c
+274","S3Key":"serverl
+ess/waiterix-backend/
+dev/1764950673856-202
+5-12-05T16:04:33.856Z
+/waiterix-backend.zip
+"},"Handler":"src/api
+GatewayWebSocket.hand
+leDisconnect","Runtim
+e":"nodejs20.x","Func
+tionName":"waiterix-b
+ackend-dev-websocketD
+isconnect","MemorySiz
+e":1024,"Timeout":30,
+"Environment":{"Varia
+bles":{"NODE_ENV":"de
+v","DATABASE_URL":"po
+stgresql://waiterix_u
+ser:Mypassword407%21@
+waiterix.cejyqycwo39y
+.us-east-1.rds.amazon
+aws.com:5432/waiterix
+","DB_HOST":"waiterix
+.cejyqycwo39y.us-east
+-1.rds.amazonaws.com"
+,"DB_PORT":"5432","DB
+_NAME":"waiterix","DB
+_USER":"waiterix_user
+","DB_PASSWORD":"Mypa
+ssword407!","DB_SSL":
+"true","REDIS_HOST":"
+master.waiterix-redis
+.ufx4zx.use1.cache.am
+azonaws.com","REDIS_P
+ORT":"6379","REDIS_PA
+SSWORD":"Allahummasal
+lialaMuhammad1!","RED
+IS_DB":"0","AWS_S3_BU
+CKET":"waiterix-stora
+ge","AWS_S3_TRANSCRIB
+E_BUCKET":"waiterix-t
+ranscribe-temp","AWS_
+S3_REGION":"us-east-1
+","AWS_REGION":"us-ea
+st-1","SES_FROM_EMAIL
+":"noreply@nomagro.co
+m","SUPPORT_EMAIL":"s
+upport@nomagro.com","
+WEBSOCKET_CONNECTIONS
+_TABLE":"waiterix-web
+socket-connections","
+STRIPE_SECRET_KEY":"s
+k_test_51SXnfY2VZXX1n
+ihiLJ78hL5DVPaOqoXhU2
+TwGCldGBJzrAgGNJ6lTxY
+sNW6bE1bMFJ7KIBH9Gdz7
+NJdOUyCYz2AE00Ux84umt
+M","STRIPE_WEBHOOK_SE
+CRET":"sk_test_51SXnf
+Y2VZXX1nihiLJ78hL5DVP
+aOqoXhU2TwGCldGBJzrAg
+GNJ6lTxYsNW6bE1bMFJ7K
+IBH9Gdz7NJdOUyCYz2AE0
+0Ux84umtM","STRIPE_BA
+SE_PRICE_ID":"price_1
+SXnmn2VZXX1nihitL4P9y
+02","STRIPE_USAGE_PRI
+CE_ID":"price_1SXnkJ2
+VZXX1nihiNA7puV2l","S
+TRIPE_METER_EVENT_NAM
+E":"price_1SXnkJ2VZXX
+1nihiNA7puV2l","PAYST
+ACK_SECRET_KEY":"sk_t
+est_ec72a27e12b915928
+c86230be7702153bb5a77
+9b","PAYSTACK_PUBLIC_
+KEY":"pk_test_b0b9c66
+70701f7d9b6ea379bd447
+292a34d6f1d0","FIREBA
+SE_PROJECT_ID":"waite
+rix-65cc6","FIREBASE_
+PRIVATE_KEY":"AIzaSyA
+_AgNCd2jC65G4W8420ZJE
+DVh8jHPCSA8","FIREBAS
+E_CLIENT_EMAIL":"umar
+kabir@harmoniallc.com
+","FRONTEND_URL":"htt
+ps://main.dtrmx4cj0i1
+ha.amplifyapp.com/","
+API_BASE_URL":"","NOD
+E_OPTIONS":"--enable-
+source-maps"}},"Role"
+:{"Fn::GetAtt":["IamR
+oleLambdaExecution","
+Arn"]},"VpcConfig":{"
+SecurityGroupIds":["s
+g-0c37f6030af724718"]
+,"SubnetIds":["subnet
+-08269a5290ccbd69b","
+subnet-0fc4b474540afd
+23f"]}},"DependsOn":[
+"WebsocketDisconnectL
+ogGroup"]},"Websocket
+MessageLambdaFunction
+":{"Type":"AWS::Lambd
+a::Function","Propert
+ies":{"Code":{"S3Buck
+et":"serverless-frame
+work-deployments-us-e
+ast-1-a0ae9aec-c274",
+"S3Key":"ser'[39m...
+ 13788 more 
+characters,
+    ContentType: [32
+m'application/json'[
+39m,
+    Metadata: { 
+filesha256: [32m'Zo/
+PkmeIm3dSx8YTov479lg0
+TF+5MGiowYtJg7/Q9uw='
+[39m }
+  }
+]
+s:sls:aws:request: 
+request result: #14 
+S3.upload {
+  ETag: [32m'"a63570
+5901c0446094dec189299
+98e05"'[39m,
+  ServerSideEncryptio
+n: 
+[32m'AES256'[39m,
+  VersionId: [32m'4H
+7v3gUNUreC8z.qjmEphy4
+6L4I1BYBW'[39m,
+  Location: [32m'htt
+ps://serverless-frame
+work-deployments-us-e
+ast-1-a0ae9aec-c274.s
+3.amazonaws.com/serve
+rless/waiterix-backen
+d/dev/1764950673856-2
+025-12-05T16%3A04%3A3
+3.856Z/compiled-cloud
+formation-template.js
+on'[39m,
+  key: [32m'serverle
+ss/waiterix-backend/d
+ev/1764950673856-2025
+-12-05T16:04:33.856Z/
+compiled-cloudformati
+on-template.json'[39
+m,
+  Key: [32m'serverle
+ss/waiterix-backend/d
+ev/1764950673856-2025
+-12-05T16:04:33.856Z/
+compiled-cloudformati
+on-template.json'[39
+m,
+  Bucket: [32m'serve
+rless-framework-deplo
+yments-us-east-1-a0ae
+9aec-c274'[39m
+}
+Uploading State file 
+to S3
+s:sls:aws:request: 
+request: #15 
+S3.upload [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Key: [32m'server
+less/waiterix-backend
+/dev/1764950673856-20
+25-12-05T16:04:33.856
+Z/serverless-state.js
+on'[39m,
+    Body: 
+[32m'{\n'[39m +
+      [32m'  
+"service": {\n'[39m 
++
+      [32m'    
+"service": "waiterix-
+backend",\n'[39m +
+      [32m'    
+"serviceObject": 
+{\n'[39m +
+      [32m'      
+"name": "waiterix-bac
+kend"\n'[39m +
+      [32m'    
+},\n'[39m +
+      [32m'    
+"provider": 
+{\n'[39m +
+      [32m'      
+"name": 
+"aws",\n'[39m +
+      [32m'      
+"runtime": "nodejs20.
+x",\n'[39m +
+      [32m'      
+"stage": 
+"dev",\n'[39m +
+      [32m'      
+"region": 
+"us-east-1",\n'[39m 
++
+      [32m'      
+"memorySize": 
+1024,\n'[39m +
+      [32m'      
+"timeout": 
+30,\n'[39m +
+      [32m'      
+"vpc": {\n'[39m +
+      [32m'        
+"securityGroupIds": 
+[\n'[39m +
+      [32m'         
+ "sg-0c37f6030af72471
+8"\n'[39m +
+      [32m'        
+],\n'[39m +
+      [32m'        
+"subnetIds": 
+[\n'[39m +
+      [32m'         
+ "subnet-08269a5290cc
+bd69b",\n'[39m +
+      [32m'         
+ "subnet-0fc4b474540a
+fd23f"\n'[39m +
+      [32m'        
+]\n'[39m +
+      [32m'      
+},\n'[39m +
+      [32m'      
+"environment": 
+{\n'[39m +
+      [32m'        
+"NODE_ENV": 
+"dev",\n'[39m +
+      [32m'        
+"DATABASE_URL": "post
+gresql://waiterix_use
+r:Mypassword407%21@wa
+iterix.cejyqycwo39y.u
+s-east-1.rds.amazonaw
+s.com:5432/waiterix",
+\n'[39m +
+      [32m'        
+"DB_HOST": "waiterix.
+cejyqycwo39y.us-east-
+1.rds.amazonaws.com",
+\n'[39m +
+      [32m'        
+"DB_PORT": 
+"5432",\n'[39m +
+      [32m'        
+"DB_NAME": 
+"waiterix",\n'[39m +
+      [32m'        
+"DB_USER": "waiterix_
+user",\n'[39m +
+      [32m'        
+"DB_PASSWORD": "Mypas
+sword407!",\n'[39m +
+      [32m'        
+"DB_SSL": 
+"true",\n'[39m +
+      [32m'        
+"REDIS_HOST": "master
+.waiterix-redis.ufx4z
+x.use1.cache.amazonaw
+s.com",\n'[39m +
+      [32m'        
+"REDIS_PORT": 
+"6379",\n'[39m +
+      [32m'        
+"REDIS_PASSWORD": "Al
+lahummasallialaMuhamm
+ad1!",\n'[39m +
+      [32m'        
+"REDIS_DB": 
+"0",\n'[39m +
+      [32m'        
+"AWS_S3_BUCKET": "wai
+terix-storage",\n'[3
+9m +
+      [32m'        "
+AWS_S3_TRANSCRIBE_BUC
+KET": "waiterix-trans
+cribe-temp",\n'[39m 
++
+      [32m'        
+"AWS_S3_REGION": 
+"us-east-1",\n'[39m 
++
+      [32m'        
+"AWS_REGION": 
+"us-east-1",\n'[39m 
++
+      [32m'        
+"SES_FROM_EMAIL": "no
+reply@nomagro.com",\n
+'[39m +
+      [32m'        
+"SUPPORT_EMAIL": "sup
+port@nomagro.com",\n'
+[39m +
+      [32m'        "
+WEBSOCKET_CONNECTIONS
+_TABLE": "waiterix-we
+bsocket-connections",
+\n'[39m +
+      [32m'        
+"STRIPE_SECRET_KEY": 
+"sk_test_51SXnfY2VZXX
+1nihiLJ78hL5DVPaOqoXh
+U2TwGCldGBJzrAgGNJ6lT
+xYsNW6bE1bMFJ7KIBH9Gd
+z7NJdOUyCYz2AE00Ux84u
+mtM",\n'[39m +
+      [32m'        "
+STRIPE_WEBHOOK_SECRET
+": "sk_test_51SXnfY2V
+ZXX1nihiLJ78hL5DVPaOq
+oXhU2TwGCldGBJzrAgGNJ
+6lTxYsNW6bE1bMFJ7KIBH
+9Gdz7NJdOUyCYz2AE00Ux
+84umtM",\n'[39m +
+      [32m'        "
+STRIPE_BASE_PRICE_ID"
+: "price_1SXnmn2VZXX1
+nihitL4P9y02",\n'[39
+m +
+      [32m'        "
+STRIPE_USAGE_PRICE_ID
+": "price_1SXnkJ2VZXX
+1nihiNA7puV2l",\n'[3
+9m +
+      [32m'        "
+STRIPE_METER_EVENT_NA
+ME": "price_1SXnkJ2VZ
+XX1nihiNA7puV2l",\n'
+[39m +
+      [32m'        "
+PAYSTACK_SECRET_KEY":
+ "sk_test_ec72a27e12b
+915928c86230be7702153
+bb5a779b",\n'[39m +
+      [32m'        "
+PAYSTACK_PUBLIC_KEY":
+ "pk_test_b0b9c667070
+1f7d9b6ea379bd447292a
+34d6f1d0",\n'[39m +
+      [32m'        "
+FIREBASE_PROJECT_ID":
+ "waiterix-65cc6",\n'
+[39m +
+      [32m'        "
+FIREBASE_PRIVATE_KEY"
+: "AIzaSyA_AgNCd2jC65
+G4W8420ZJEDVh8jHPCSA8
+",\n'[39m +
+      [32m'        "
+FIREBASE_CLIENT_EMAIL
+": "umarkabir@harmoni
+allc.com",\n'[39m +
+      [32m'        
+"FRONTEND_URL": "http
+s://main.dtrmx4cj0i1h
+a.amplifyapp.com/",\n
+'[39m +
+      [32m'        
+"API_BASE_URL": 
+""\n'[39m +
+      [32m'      
+},\n'[39m +
+      [32m'      
+"iam": {\n'[39m +
+      [32m'        
+"role": {\n'[39m +
+      [32m'         
+ "statements": 
+[\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "logs:CreateLo
+gGroup",\n'[39m +
+      [32m'         
+       "logs:CreateLo
+gStream",\n'[39m +
+      [32m'         
+       "logs:PutLogEv
+ents"\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": "arn
+:aws:logs:*:*:*"\n'[
+39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "bedrock:Invok
+eModel",\n'[39m +
+      [32m'         
+       "bedrock:Invok
+eModelWithResponseStr
+eam"\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": 
+[\n'[39m +
+      [32m'         
+       "arn:aws:bedro
+ck:*::foundation-mode
+l/anthropic.claude-3-
+5-sonnet-20241022-v2:
+0",\n'[39m +
+      [32m'         
+       "arn:aws:bedro
+ck:*::foundation-mode
+l/anthropic.claude-3-
+haiku-20240307-v1:0"\
+n'[39m +
+      [32m'         
+     ]\n'[39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "polly:Synthes
+izeSpeech"\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": 
+"*"\n'[39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "transcribe:St
+artTranscriptionJob",
+\n'[39m +
+      [32m'         
+       "transcribe:Ge
+tTranscriptionJob"\n'
+[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": 
+"*"\n'[39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "s3:GetObject"
+,\n'[39m +
+      [32m'         
+       "s3:PutObject"
+,\n'[39m +
+      [32m'         
+       "s3:DeleteObje
+ct"\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": 
+[\n'[39m +
+      [32m'         
+       "arn:aws:s3:::
+waiterix-storage",\n'
+[39m +
+      [32m'         
+       "arn:aws:s3:::
+waiterix-storage/*",\
+n'[39m +
+      [32m'         
+       "arn:aws:s3:::
+waiterix-transcribe-t
+emp",\n'[39m +
+      [32m'         
+       "arn:aws:s3:::
+waiterix-transcribe-t
+emp/*"\n'[39m +
+      [32m'         
+     ]\n'[39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "ses:SendEmail
+",\n'[39m +
+      [32m'         
+       "ses:SendRawEm
+ail"\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": 
+"*"\n'[39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "dynamodb:PutI
+tem",\n'[39m +
+      [32m'         
+       "dynamodb:GetI
+tem",\n'[39m +
+      [32m'         
+       "dynamodb:Dele
+teItem",\n'[39m +
+      [32m'         
+       "dynamodb:Upda
+teItem"\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": "arn
+:aws:dynamodb:us-east
+-1:*:table/waiterix-w
+ebsocket-connections"
+\n'[39m +
+      [32m'         
+   },\n'[39m +
+      [32m'         
+   {\n'[39m +
+      [32m'         
+     "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+     "Action": 
+[\n'[39m +
+      [32m'         
+       "execute-api:M
+anageConnections"\n'
+[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Resource": "arn
+:aws:execute-api:us-e
+ast-1:*:*/*/@connecti
+ons/*"\n'[39m +
+      [32m'         
+   }\n'[39m +
+      [32m'         
+ ]\n'[39m +
+      [32m'        
+}\n'[39m +
+      [32m'      
+},\n'[39m +
+      [32m'      
+"versionFunctions": 
+true,\n'[39m +
+      [32m'      "co
+mpiledCloudFormationT
+emplate": {\n'[39m +
+      [32m'        "
+AWSTemplateFormatVers
+ion": "2010-09-09",\n
+'[39m +
+      [32m'        
+"Description": "The 
+AWS CloudFormation 
+template for this 
+Serverless applicatio
+n",\n'[39m +
+      [32m'        
+"Resources": 
+{\n'[39m +
+      [32m'         
+ "ApiLogGroup": 
+{\n'[39m +
+      [32m'         
+   "Type": "AWS::Logs
+::LogGroup",\n'[39m 
++
+      [32m'         
+   "Properties": 
+{\n'[39m +
+      [32m'         
+     "LogGroupName": 
+"/aws/lambda/waiterix
+-backend-dev-api"\n'
+[39m +
+      [32m'         
+   }\n'[39m +
+      [32m'         
+ },\n'[39m +
+      [32m'         
+ "WebsocketConnectLog
+Group": {\n'[39m +
+      [32m'         
+   "Type": "AWS::Logs
+::LogGroup",\n'[39m 
++
+      [32m'         
+   "Properties": 
+{\n'[39m +
+      [32m'         
+     "LogGroupName": 
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tConnect"\n'[39m +
+      [32m'         
+   }\n'[39m +
+      [32m'         
+ },\n'[39m +
+      [32m'         
+ "WebsocketDisconnect
+LogGroup": {\n'[39m 
++
+      [32m'         
+   "Type": "AWS::Logs
+::LogGroup",\n'[39m 
++
+      [32m'         
+   "Properties": 
+{\n'[39m +
+      [32m'         
+     "LogGroupName": 
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tDisconnect"\n'[39m 
++
+      [32m'         
+   }\n'[39m +
+      [32m'         
+ },\n'[39m +
+      [32m'         
+ "WebsocketMessageLog
+Group": {\n'[39m +
+      [32m'         
+   "Type": "AWS::Logs
+::LogGroup",\n'[39m 
++
+      [32m'         
+   "Properties": 
+{\n'[39m +
+      [32m'         
+     "LogGroupName": 
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tMessage"\n'[39m +
+      [32m'         
+   }\n'[39m +
+      [32m'         
+ },\n'[39m +
+      [32m'         
+ "IamRoleLambdaExecut
+ion": {\n'[39m +
+      [32m'         
+   "Type": "AWS::IAM:
+:Role",\n'[39m +
+      [32m'         
+   "Properties": 
+{\n'[39m +
+      [32m'         
+     "AssumeRolePolic
+yDocument": 
+{\n'[39m +
+      [32m'         
+       "Version": "20
+12-10-17",\n'[39m +
+      [32m'         
+       "Statement": 
+[\n'[39m +
+      [32m'         
+         {\n'[39m +
+      [32m'         
+           "Effect": 
+"Allow",\n'[39m +
+      [32m'         
+           
+"Principal": 
+{\n'[39m +
+      [32m'         
+             
+"Service": [\n'[39m 
++
+      [32m'         
+               "lambd
+a.amazonaws.com"\n'[
+39m +
+      [32m'         
+             
+]\n'[39m +
+      [32m'         
+           
+},\n'[39m +
+      [32m'         
+           "Action": 
+[\n'[39m +
+      [32m'         
+             "sts:Ass
+umeRole"\n'[39m +
+      [32m'         
+           ]\n'[39m 
++
+      [32m'         
+         }\n'[39m +
+      [32m'         
+       ]\n'[39m +
+      [32m'         
+     },\n'[39m +
+      [32m'         
+     "Policies": 
+[\n'[39m +
+      [32m'         
+       {\n'[39m +
+      [32m'         
+         
+"PolicyName": 
+{\n'[39m +
+      [32m'         
+           
+"Fn::Join": 
+[\n'[39m +
+      [32m'         
+             
+"-",\n'[39m +
+      [32m'         
+             
+[\n'[39m +
+      [32m'         
+               "waite
+rix-backend",\n'[39m
+ +
+      [32m'         
+               
+"dev",\n'[39m +
+      [32m'         
+               
+"lambda"\n'[39m +
+      [32m'         
+             
+]\n'[39m +
+      [32m'         
+           ]\n'[39m 
++
+      [32m'         
+         },\n'[39m +
+      [32m'         
+         
+"PolicyDocument": 
+{\n'[39m +
+      [32m'         
+           
+"Version": "2012-10-1
+7",\n'[39m +
+      [32m'         
+           
+"Statement": 
+[\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"Effect": 
+"Allow",\n'[39m +
+      [32m'         
+               
+"Action": [\n'[39m +
+      [32m'         
+                 "log
+s:CreateLogStream",\n
+'[39m +
+      [32m'         
+                 "log
+s:CreateLogGroup",\n'
+[39m +
+      [32m'         
+                 "log
+s:TagResource"\n'[39
+m +
+      [32m'         
+               
+],\n'[39m +
+      [32m'         
+               
+"Resource": 
+[\n'[39m +
+      [32m'         
+                 
+{\n'[39m +
+      [32m'         
+                   
+"Fn::Sub": "arn:${AWS
+::Partition}:logs:${A
+WS::Region}:${AWS::Ac
+countId}:log-group:/a
+ws/lambda/waiterix-ba
+ckend-dev*:*"\n'[39m
+ +
+      [32m'         
+                 
+}\n'[39m +
+      [32m'         
+               
+]\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"Effect": 
+"Allow",\n'[39m +
+      [32m'         
+               
+"Action": [\n'[39m +
+      [32m'         
+                 "log
+s:PutLogEvents"\n'[3
+9m +
+      [32m'         
+               
+],\n'[39m +
+      [32m'         
+               
+"Resource": 
+[\n'[39m +
+      [32m'         
+                 
+{\n'[39m +
+      [32m'         
+                   
+"Fn::Sub": "arn:${AWS
+::Partition}:logs:${A
+WS::Region}:${AWS::Ac
+countId}:log-group:/a
+ws/lambda/waiterix-ba
+ckend-dev*:*:*"\n'[3
+9m +
+      [32m'         
+                 
+}\n'[39m +
+      [32m'         
+               
+]\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][0
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][1
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][2
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][3
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][4
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][5
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][6
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"$ref": "$[\\"service
+\\"][\\"provider\\"][
+\\"iam\\"][\\"role\\"
+][\\"statements\\"][7
+]"\n'[39m +
+      [32m'         
+             
+},\n'[39m +
+      [32m'         
+             
+{\n'[39m +
+      [32m'         
+               
+"Effect": 
+"Allow",\n'[39m +
+      [32m'         
+               
+"Action": [\n'[39m +
+      [32m'         
+                 "exe
+cute-api:ManageConnec
+tions"\n'[39m +
+      [32m'         
+               
+],\n'[39m +
+      [32m'         
+               
+"Resource": 
+[\n'[39m +
+      [32m'         
+                 
+{\n'[39m +
+      [32m'         
+                   
+"Fn::Sub": "arn:${AWS
+::Partition}:execute-
+api:*:*:*/@connection
+s/*"\n'[39m +
+      [32m'         
+                 
+}\n'[39m +
+      [32m'         
+               
+]\n'[39m +
+      [32m'         
+             
+}\n'[39m +
+      [32m'         
+           ]\n'[39m 
++
+      [32m'         
+         }\n'[39m +
+      [32m'         
+       }\n'[39m +
+      [32m'         
+     ],\n'[39m +
+      [32m'         
+     "Path": 
+"/",\n'[39m +
+      [32m'         
+     "RoleName": 
+{\n'[39m +
+      [32m'         
+       "Fn::Join": 
+[\n'[39m +
+      [32m'         
+         
+"-",\n'[39m +
+      [32m'         
+         [\n'[39m +
+      [32m'         
+           "waiterix-
+backend",\n'[39m +
+      [32m'         
+           
+"dev",\n'[39m +
+      [32m'         
+           {\n'[39m 
++
+      [32m'         
+             "Ref": "
+AWS::Region"\n'[39m 
++
+      [32m'         
+   '[39m... 44757 
+more characters,
+    ContentType: [32
+m'application/json'[
+39m,
+    Metadata: { 
+filesha256: [32m'yl4
+ddQbmdAfm7B7VPIF8+A1z
+xYu5DqGdNMbI2qstwNw='
+[39m }
+  }
+]
+s:sls:aws:request: 
+request result: #15 
+S3.upload {
+  ETag: [32m'"212f92
+9f25d7af8979c628b8524
+becaf"'[39m,
+  ServerSideEncryptio
+n: 
+[32m'AES256'[39m,
+  VersionId: [32m'Zj
+BtmhCgwl6Z6boKPY15Jsz
+_bOtz8PIa'[39m,
+  Location: [32m'htt
+ps://serverless-frame
+work-deployments-us-e
+ast-1-a0ae9aec-c274.s
+3.amazonaws.com/serve
+rless/waiterix-backen
+d/dev/1764950673856-2
+025-12-05T16%3A04%3A3
+3.856Z/serverless-sta
+te.json'[39m,
+  key: [32m'serverle
+ss/waiterix-backend/d
+ev/1764950673856-2025
+-12-05T16:04:33.856Z/
+serverless-state.json
+'[39m,
+  Key: [32m'serverle
+ss/waiterix-backend/d
+ev/1764950673856-2025
+-12-05T16:04:33.856Z/
+serverless-state.json
+'[39m,
+  Bucket: [32m'serve
+rless-framework-deplo
+yments-us-east-1-a0ae
+9aec-c274'[39m
+}
+Uploading service 
+waiterix-backend.zip 
+file to S3 (17.55 MB)
+s:deploy:upload: 
+upload to serverless-
+framework-deployments
+-us-east-1-a0ae9aec-c
+274/serverless/waiter
+ix-backend/dev/176495
+0673856-2025-12-05T16
+:04:33.856Z/waiterix-
+backend.zip
+s:sls:aws:request: 
+request: #16 
+S3.upload [
+  {
+    Bucket: [32m'ser
+verless-framework-dep
+loyments-us-east-1-a0
+ae9aec-c274'[39m,
+    Key: [32m'server
+less/waiterix-backend
+/dev/1764950673856-20
+25-12-05T16:04:33.856
+Z/waiterix-backend.zi
+p'[39m,
+    Body: ReadStream 
+{
+      fd: 
+[1mnull[22m,
+      path: [32m'C:\
+\Users\\Administrator
+\\Desktop\\github\\wa
+it-github\\waiterix-b
+ackend\\.serverless\\
+build\\waiterix-backe
+nd.zip'[39m,
+      flags: 
+[32m'r'[39m,
+      mode: 
+[33m438[39m,
+      start: 
+[90mundefined[39m,
+      end: 
+[33mInfinity[39m,
+      pos: 
+[90mundefined[39m,
+      bytesRead: 
+[33m0[39m,
+      _events: {
+        close: 
+[90mundefined[39m,
+        error: 
+[36m[Function 
+(anonymous)][39m,
+        data: 
+[90mundefined[39m,
+        end: 
+[90mundefined[39m,
+        readable: 
+[90mundefined[39m,
+        [[32mSymbol(
+kConstruct)[39m]: 
+[Function: bound 
+onceWrapper] {
+          listener: 
+[36m[Function 
+(anonymous)][39m
+        }
+      },
+      
+_readableState: 
+ReadableState {
+        
+highWaterMark: 
+[33m65536[39m,
+        buffer: [],
+        bufferIndex: 
+[33m0[39m,
+        length: 
+[33m0[39m,
+        pipes: [],
+        
+awaitDrainWriters: 
+[1mnull[22m,
+        [[32mSymbol(
+kState)[39m]: 
+[33m1052684[39m
+      },
+      _maxListeners: 
+[90mundefined[39m,
+      _eventsCount: 
+[33m2[39m,
+      [[32mSymbol(kF
+s)[39m]: {
+        appendFile: 
+[36m[Function: 
+appendFile][39m,
+        
+appendFileSync: 
+[36m[Function: 
+appendFileSync][39m,
+        access: 
+[36m[Function: 
+access][39m,
+        accessSync: 
+[36m[Function: 
+accessSync][39m,
+        chown: 
+[36m[Function 
+(anonymous)][39m,
+        chownSync: 
+[36m[Function 
+(anonymous)][39m,
+        chmod: 
+[36m[Function 
+(anonymous)][39m,
+        chmodSync: 
+[36m[Function 
+(anonymous)][39m,
+        close: 
+[36m[Function: 
+close][39m,
+        closeSync: 
+[36m[Function: 
+closeSync][39m,
+        copyFile: 
+[36m[Function: 
+copyFile2][39m,
+        
+copyFileSync: 
+[36m[Function: 
+copyFileSync][39m,
+        cp: 
+[36m[Function: 
+cp][39m,
+        cpSync: 
+[36m[Function: 
+cpSync][39m,
+        
+createReadStream: 
+[36m[Function: creat
+eReadStream][39m,
+        
+createWriteStream: 
+[36m[Function: creat
+eWriteStream3][39m,
+        exists: 
+[36m[Function: 
+exists][39m,
+        existsSync: 
+[36m[Function: 
+existsSync][39m,
+        fchown: 
+[36m[Function 
+(anonymous)][39m,
+        fchownSync: 
+[36m[Function 
+(anonymous)][39m,
+        fchmod: 
+[36m[Function 
+(anonymous)][39m,
+        fchmodSync: 
+[36m[Function 
+(anonymous)][39m,
+        fdatasync: 
+[36m[Function: 
+fdatasync][39m,
+        
+fdatasyncSync: 
+[36m[Function: 
+fdatasyncSync][39m,
+        fstat: 
+[36m[Function 
+(anonymous)][39m,
+        fstatSync: 
+[36m[Function 
+(anonymous)][39m,
+        fsync: 
+[36m[Function: 
+fsync][39m,
+        fsyncSync: 
+[36m[Function: 
+fsyncSync][39m,
+        ftruncate: 
+[36m[Function: 
+ftruncate][39m,
+        
+ftruncateSync: 
+[36m[Function: 
+ftruncateSync][39m,
+        futimes: 
+[36m[Function: 
+futimes][39m,
+        futimesSync: 
+[36m[Function: 
+futimesSync][39m,
+        glob: 
+[36m[Function: 
+glob][39m,
+        globSync: 
+[36m[Function: 
+globSync][39m,
+        lchown: 
+[36m[Function 
+(anonymous)][39m,
+        lchownSync: 
+[36m[Function 
+(anonymous)][39m,
+        lchmod: 
+[36m[Function 
+(anonymous)][39m,
+        lchmodSync: 
+[36m[Function 
+(anonymous)][39m,
+        link: 
+[36m[Function: 
+link][39m,
+        linkSync: 
+[36m[Function: 
+linkSync][39m,
+        lstat: 
+[36m[Function 
+(anonymous)][39m,
+        lstatSync: 
+[36m[Function 
+(anonymous)][39m,
+        lutimes: 
+[36m[Function: 
+lutimes][39m,
+        lutimesSync: 
+[36m[Function: 
+lutimesSync][39m,
+        mkdir: 
+[36m[Function: 
+mkdir][39m,
+        mkdirSync: 
+[36m[Function: 
+mkdirSync][39m,
+        mkdtemp: 
+[36m[Function: 
+mkdtemp][39m,
+        mkdtempSync: 
+[36m[Function: 
+mkdtempSync][39m,
+        open: 
+[36m[Function: 
+open2][39m,
+        openSync: 
+[36m[Function: 
+openSync][39m,
+        openAsBlob: 
+[36m[Function: 
+openAsBlob][39m,
+        readdir: 
+[36m[Function: 
+readdir3][39m,
+        readdirSync: 
+[36m[Function: 
+readdirSync][39m,
+        read: 
+[36m[Function: 
+read][39m,
+        readSync: 
+[36m[Function 
+(anonymous)][39m,
+        readv: 
+[36m[Function: 
+readv][39m,
+        readvSync: 
+[36m[Function: 
+readvSync][39m,
+        readFile: 
+[36m[Function: 
+readFile5][39m,
+        
+readFileSync: 
+[36m[Function: 
+readFileSync][39m,
+        readlink: 
+[36m[Function: 
+readlink][39m,
+        
+readlinkSync: 
+[36m[Function: 
+readlinkSync][39m,
+        realpath: 
+[Function: realpath] 
+{ native: 
+[36m[Function 
+(anonymous)][39m },
+        
+realpathSync: 
+[Function: 
+realpathSync] { 
+native: 
+[36m[Function 
+(anonymous)][39m },
+        rename: 
+[36m[Function: 
+rename][39m,
+        renameSync: 
+[36m[Function: 
+renameSync][39m,
+        rm: 
+[36m[Function: 
+rm][39m,
+        rmSync: 
+[36m[Function: 
+rmSync][39m,
+        rmdir: 
+[36m[Function: 
+rmdir][39m,
+        rmdirSync: 
+[36m[Function: 
+rmdirSync][39m,
+        stat: 
+[36m[Function 
+(anonymous)][39m,
+        statfs: 
+[36m[Function: 
+statfs][39m,
+        statSync: 
+[36m[Function 
+(anonymous)][39m,
+        statfsSync: 
+[36m[Function: 
+statfsSync][39m,
+        symlink: 
+[36m[Function: 
+symlink][39m,
+        symlinkSync: 
+[36m[Function: 
+symlinkSync][39m,
+        truncate: 
+[36m[Function: 
+truncate][39m,
+        
+truncateSync: 
+[36m[Function: 
+truncateSync][39m,
+        unwatchFile: 
+[36m[Function: 
+unwatchFile][39m,
+        unlink: 
+[36m[Function: 
+unlink][39m,
+        unlinkSync: 
+[36m[Function: 
+unlinkSync][39m,
+        utimes: 
+[36m[Function: 
+utimes][39m,
+        utimesSync: 
+[36m[Function: 
+utimesSync][39m,
+        watch: 
+[36m[Function: 
+watch][39m,
+        watchFile: 
+[36m[Function: 
+watchFile][39m,
+        writeFile: 
+[36m[Function: 
+writeFile5][39m,
+        
+writeFileSync: 
+[36m[Function: 
+writeFileSync][39m,
+        write: 
+[36m[Function: 
+write][39m,
+        writeSync: 
+[36m[Function: 
+writeSync][39m,
+        writev: 
+[36m[Function: 
+writev][39m,
+        writevSync: 
+[36m[Function: 
+writevSync][39m,
+        Dirent: 
+[36m[class 
+Dirent][39m,
+        Stats: 
+[36m[Function: 
+deprecated][39m,
+        ReadStream: 
+[36m[Getter/Setter][
+39m,
+        WriteStream: 
+[36m[Getter/Setter]
+[39m,
+        
+FileReadStream: [36m
+[Getter/Setter][39m,
+        
+FileWriteStream: [36
+m[Getter/Setter][39m
+,
+        
+_toUnixTimestamp: 
+[36m[Function: toUni
+xTimestamp][39m,
+        Dir: 
+[36m[class 
+Dir][39m,
+        opendir: 
+[36m[Function: 
+opendir][39m,
+        opendirSync: 
+[36m[Function: 
+opendirSync][39m,
+        F_OK: 
+[33m0[39m,
+        R_OK: 
+[33m4[39m,
+        W_OK: 
+[33m2[39m,
+        X_OK: 
+[33m1[39m,
+        constants: 
+[Object: null 
+prototype] {
+          
+UV_FS_SYMLINK_DIR: 
+[33m1[39m,
+          UV_FS_SYMLI
+NK_JUNCTION: 
+[33m2[39m,
+          O_RDONLY: 
+[33m0[39m,
+          O_WRONLY: 
+[33m1[39m,
+          O_RDWR: 
+[33m2[39m,
+          
+UV_DIRENT_UNKNOWN: 
+[33m0[39m,
+          
+UV_DIRENT_FILE: 
+[33m1[39m,
+          
+UV_DIRENT_DIR: 
+[33m2[39m,
+          
+UV_DIRENT_LINK: 
+[33m3[39m,
+          
+UV_DIRENT_FIFO: 
+[33m4[39m,
+          
+UV_DIRENT_SOCKET: 
+[33m5[39m,
+          
+UV_DIRENT_CHAR: 
+[33m6[39m,
+          
+UV_DIRENT_BLOCK: 
+[33m7[39m,
+          S_IFMT: 
+[33m61440[39m,
+          S_IFREG: 
+[33m32768[39m,
+          S_IFDIR: 
+[33m16384[39m,
+          S_IFCHR: 
+[33m8192[39m,
+          S_IFIFO: 
+[33m4096[39m,
+          S_IFLNK: 
+[33m40960[39m,
+          O_CREAT: 
+[33m256[39m,
+          O_EXCL: 
+[33m1024[39m,
+          
+UV_FS_O_FILEMAP: 
+[33m536870912[39m,
+          O_TRUNC: 
+[33m512[39m,
+          O_APPEND: 
+[33m8[39m,
+          S_IRUSR: 
+[33m256[39m,
+          S_IWUSR: 
+[33m128[39m,
+          F_OK: 
+[33m0[39m,
+          R_OK: 
+[33m4[39m,
+          W_OK: 
+[33m2[39m,
+          X_OK: 
+[33m1[39m,
+          
+UV_FS_COPYFILE_EXCL: 
+[33m1[39m,
+          
+COPYFILE_EXCL: 
+[33m1[39m,
+          UV_FS_COPYF
+ILE_FICLONE: 
+[33m2[39m,
+          
+COPYFILE_FICLONE: 
+[33m2[39m,
+          UV_FS_COPYF
+ILE_FICLONE_FORCE: 
+[33m4[39m,
+          COPYFILE_FI
+CLONE_FORCE: 
+[33m4[39m
+        },
+        promises: 
+[36m[Getter][39m,
+        gracefulify: 
+[36m[Function: 
+patch][39m
+      },
+      [[32mSymbol(kI
+sPerformingIO)[39m]:
+ [33mfalse[39m,
+      [[32mSymbol(sh
+apeMode)[39m]: 
+[33mtrue[39m,
+      [[32mSymbol(kC
+apture)[39m]: 
+[33mfalse[39m
+    },
+    ContentType: [32
+m'application/zip'[3
+9m,
+    Metadata: { 
+filesha256: [32m'kRY
+PnPeRpL7x0Qt6m8MyIjBL
+FcTrA7jMHZ7mkQuro3k='
+[39m }
+  }
+]
+s:sls:aws:request: 
+request result: #16 
+S3.upload {
+  ServerSideEncryptio
+n: 
+[32m'AES256'[39m,
+  VersionId: [32m'0i
+nkwNFFnmuYMRtxpRZr7on
+GqmdFcPjD'[39m,
+  Location: [32m'htt
+ps://serverless-frame
+work-deployments-us-e
+ast-1-a0ae9aec-c274.s
+3.amazonaws.com/serve
+rless/waiterix-backen
+d/dev/1764950673856-2
+025-12-05T16%3A04%3A3
+3.856Z/waiterix-backe
+nd.zip'[39m,
+  Bucket: [32m'serve
+rless-framework-deplo
+yments-us-east-1-a0ae
+9aec-c274'[39m,
+  Key: [32m'serverle
+ss/waiterix-backend/d
+ev/1764950673856-2025
+-12-05T16:04:33.856Z/
+waiterix-backend.zip'
+[39m,
+  ETag: [32m'"41cfbd
+ed8892a2b4f47f7e37829
+a373e-4"'[39m
+}
+s:sls:lifecycle:comma
+nd:invoke:hook: [61] 
+  > aws:deploy:deploy
+:uploadArtifacts
+s:sls:lifecycle:comma
+nd:invoke:hook: [64] 
+  < aws:deploy:deploy
+:validateTemplate
+s:sls:aws:request: 
+request: #17 CloudFor
+mation.validateTempla
+te [
+  {
+    TemplateURL: [32
+m'https://s3.amazonaw
+s.com/serverless-fram
+ework-deployments-us-
+east-1-a0ae9aec-c274/
+serverless/waiterix-b
+ackend/dev/1764950673
+856-2025-12-05T16:04:
+33.856Z/compiled-clou
+dformation-template.j
+son'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #17 C
+loudFormation.validat
+eTemplate {
+  ResponseMetadata: 
+{ RequestId: [32m'38
+93223c-0065-4441-b051
+-48ff5007d312'[39m 
+},
+  Parameters: [],
+  Description: 
+[32m'The AWS 
+CloudFormation 
+template for this 
+Serverless 
+application'[39m,
+  Capabilities: [ [3
+2m'CAPABILITY_NAMED_I
+AM'[39m ],
+  
+CapabilitiesReason: 
+[32m'The following 
+resource(s) require 
+capabilities: [AWS::I
+AM::Role]'[39m,
+  
+DeclaredTransforms: 
+[]
+}
+s:sls:lifecycle:comma
+nd:invoke:hook: [64] 
+  > aws:deploy:deploy
+:validateTemplate
+s:sls:lifecycle:comma
+nd:invoke:hook: [66] 
+  < before:aws:deploy
+:deploy:updateStack
+Updating AWS 
+CloudFormation stack
+s:sls:lifecycle:comma
+nd:invoke:hook: [66] 
+  > before:aws:deploy
+:deploy:updateStack
+s:sls:lifecycle:comma
+nd:invoke:hook: [67] 
+  < aws:deploy:deploy
+:updateStack
+Creating AWS 
+CloudFormation stack
+s:sls:aws:request: 
+request: #18 CloudFor
+mation.createStack [
+  {
+    StackName: [32m'
+waiterix-backend-dev'
+[39m,
+    Capabilities: [ 
+[32m'CAPABILITY_IAM'
+[39m, [32m'CAPABILIT
+Y_NAMED_IAM'[39m ],
+    Parameters: [],
+    Tags: [ { Key: 
+[32m'STAGE'[39m, 
+Value: 
+[32m'dev'[39m } ],
+    TemplateURL: [32
+m'https://s3.amazonaw
+s.com/serverless-fram
+ework-deployments-us-
+east-1-a0ae9aec-c274/
+serverless/waiterix-b
+ackend/dev/1764950673
+856-2025-12-05T16:04:
+33.856Z/compiled-clou
+dformation-template.j
+son'[39m,
+    
+NotificationARNs: [],
+    OnFailure: 
+[32m'DELETE'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #18 C
+loudFormation.createS
+tack {
+  ResponseMetadata: 
+{ RequestId: [32m'8d
+d159ee-abeb-4e4f-a0ba
+-1befd4e8163f'[39m 
+},
+  StackId: [32m'arn:
+aws:cloudformation:us
+-east-1:184525266200:
+stack/waiterix-backen
+d-dev/18fe4db0-d1f4-1
+1f0-b447-0afff946596d
+'[39m
+}
+s:sls:aws:request: 
+request: #19 CloudFor
+mation.describeStackE
+vents [
+  {
+    StackName: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m
+  }
+]
+s:sls:aws:request: 
+request result: #19 C
+loudFormation.describ
+eStackEvents {
+  ResponseMetadata: 
+{ RequestId: [32m'b5
+54f1d9-7420-41fe-bd2d
+-2146ae474477'[39m 
+},
+  StackEvents: [
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebSocketConnectionsT
+able-CREATE_FAILED-20
+25-12-05T16:04:42.146
+Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebSocketConnecti
+onsTable'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::DynamoDB::T
+able'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:42.
+146Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_FAILED'[39m,
+      ResourceStatusR
+eason: 
+[32m`Resource 
+handler returned 
+message: "Resource 
+of type 'AWS::DynamoD
+B::Table' with 
+identifier 'waiterix-
+websocket-connections
+' already exists." 
+(RequestToken: d678d4
+39-aeb8-035c-a981-4c6
+03c5c335c, 
+HandlerErrorCode: 
+AlreadyExists)`[39m,
+      
+ResourceProperties: 
+[32m'{"TableName":"wa
+iterix-websocket-conn
+ections","AttributeDe
+finitions":[{"Attribu
+teType":"S","Attribut
+eName":"connectionId"
+},{"AttributeType":"S
+","AttributeName":"re
+staurantId"}],"Billin
+gMode":"PAY_PER_REQUE
+ST","GlobalSecondaryI
+ndexes":[{"IndexName"
+:"restaurantId-index"
+,"Projection":{"Proje
+ctionType":"ALL"},"Ke
+ySchema":[{"KeyType":
+"HASH","AttributeName
+":"restaurantId"}]}],
+"KeySchema":[{"KeyTyp
+e":"HASH","AttributeN
+ame":"connectionId"}]
+,"TimeToLiveSpecifica
+tion":{"Enabled":"tru
+e","AttributeName":"t
+tl"}}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+ApiGatewayRestApi-CRE
+ATE_IN_PROGRESS-2025-
+12-05T16:04:42.071Z'
+[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'ApiGatewayRestApi
+'[39m,
+      
+PhysicalResourceId: 
+[32m'cic7bi05g7'[39m
+,
+      ResourceType: 
+[32m'AWS::ApiGateway:
+:RestApi'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:42.
+071Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"Policy":"","En
+dpointConfiguration":
+{"Types":["EDGE"]},"N
+ame":"dev-waiterix-ba
+ckend"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketsApi-CREATE_
+IN_PROGRESS-2025-12-0
+5T16:04:41.680Z'[39m
+,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketsApi'[3
+9m,
+      
+PhysicalResourceId: 
+[32m'xowexh8ct3'[39m
+,
+      ResourceType: 
+[32m'AWS::ApiGatewayV
+2::Api'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:41.
+680Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"RouteSelection
+Expression":"$request
+.body.action","Descri
+ption":"Serverless We
+bsockets","ProtocolTy
+pe":"WEBSOCKET","Name
+":"dev-waiterix-backe
+nd-websockets"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+IamRoleLambdaExecutio
+n-CREATE_IN_PROGRESS-
+2025-12-05T16:04:41.5
+79Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'IamRoleLambdaExec
+ution'[39m,
+      
+PhysicalResourceId: 
+[32m'waiterix-backend
+-dev-us-east-1-lambda
+Role'[39m,
+      ResourceType: 
+[32m'AWS::IAM::Role'
+[39m,
+      Timestamp: [35
+m2025-12-05T16:04:41.
+579Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"Path":"/","Man
+agedPolicyArns":["arn
+:aws:iam::aws:policy/
+service-role/AWSLambd
+aVPCAccessExecutionRo
+le"],"RoleName":"wait
+erix-backend-dev-us-e
+ast-1-lambdaRole","Po
+licies":[{"PolicyName
+":"waiterix-backend-d
+ev-lambda","PolicyDoc
+ument":{"Version":"20
+12-10-17","Statement"
+:[{"Action":["logs:Cr
+eateLogStream","logs:
+CreateLogGroup","logs
+:TagResource"],"Resou
+rce":["arn:aws:logs:u
+s-east-1:184525266200
+:log-group:/aws/lambd
+a/waiterix-backend-de
+v*:*"],"Effect":"Allo
+w"},{"Action":["logs:
+PutLogEvents"],"Resou
+rce":["arn:aws:logs:u
+s-east-1:184525266200
+:log-group:/aws/lambd
+a/waiterix-backend-de
+v*:*:*"],"Effect":"Al
+low"},{"Action":["log
+s:CreateLogGroup","lo
+gs:CreateLogStream","
+logs:PutLogEvents"],"
+Resource":"arn:aws:lo
+gs:*:*:*","Effect":"A
+llow"},{"Action":["be
+drock:InvokeModel","b
+edrock:InvokeModelWit
+hResponseStream"],"Re
+source":["arn:aws:bed
+rock:*::foundation-mo
+del/anthropic.claude-
+3-5-sonnet-20241022-v
+2:0","arn:aws:bedrock
+:*::foundation-model/
+anthropic.claude-3-ha
+iku-20240307-v1:0"],"
+Effect":"Allow"},{"Ac
+tion":["polly:Synthes
+izeSpeech"],"Resource
+":"*","Effect":"Allow
+"},{"Action":["transc
+ribe:StartTranscripti
+onJob","transcribe:Ge
+tTranscriptionJob"],"
+Resource":"*","Effect
+":"Allow"},{"Action":
+["s3:GetObject","s3:P
+utObject","s3:DeleteO
+bject"],"Resource":["
+arn:aws:s3:::waiterix
+-storage","arn:aws:s3
+:::waiterix-storage/*
+","arn:aws:s3:::waite
+rix-transcribe-temp",
+"arn:aws:s3:::waiteri
+x-transcribe-temp/*"]
+,"Effect":"Allow"},{"
+Action":["ses:SendEma
+il","ses:SendRawEmail
+"],"Resource":"*","Ef
+fect":"Allow"},{"Acti
+on":["dynamodb:PutIte
+m","dynamodb:GetItem"
+,"dynamodb:DeleteItem
+","dynamodb:UpdateIte
+m"],"Resource":"arn:a
+ws:dynamodb:us-east-1
+:*:table/waiterix-web
+socket-connections","
+Effect":"Allow"},{"Ac
+tion":["execute-api:M
+anageConnections"],"R
+esource":"arn:aws:exe
+cute-api:us-east-1:*:
+*/*/@connections/*","
+Effect":"Allow"},{"Ac
+tion":["execute-api:M
+anageConnections"],"R
+esource":["arn:aws:ex
+ecute-api:*:*:*/@conn
+ections/*"],"Effect":
+"Allow"}]}}],"AssumeR
+olePolicyDocument":{"
+Version":"2012-10-17"
+,"Statement":[{"Actio
+n":["sts:AssumeRole"]
+,"Effect":"Allow","Pr
+incipal":{"Service":[
+"lambda.amazonaws.com
+"]}}]}}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketConnectLogGr
+oup-CREATE_IN_PROGRES
+S-2025-12-05T16:04:41
+.545Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketConnectL
+ogGroup'[39m,
+      
+PhysicalResourceId: 
+[32m'/aws/lambda/wait
+erix-backend-dev-webs
+ocketConnect'[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:41.
+545Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tConnect"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketMessageLogGr
+oup-CREATE_IN_PROGRES
+S-2025-12-05T16:04:41
+.494Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketMessageL
+ogGroup'[39m,
+      
+PhysicalResourceId: 
+[32m'/aws/lambda/wait
+erix-backend-dev-webs
+ocketMessage'[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:41.
+494Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tMessage"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketDisconnectLo
+gGroup-CREATE_IN_PROG
+RESS-2025-12-05T16:04
+:41.429Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketDisconne
+ctLogGroup'[39m,
+      
+PhysicalResourceId: 
+[32m'/aws/lambda/wait
+erix-backend-dev-webs
+ocketDisconnect'[39m
+,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:41.
+429Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tDisconnect"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+ApiLogGroup-CREATE_IN
+_PROGRESS-2025-12-05T
+16:04:41.409Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'ApiLogGroup'[39m
+,
+      
+PhysicalResourceId: 
+[32m'/aws/lambda/wait
+erix-backend-dev-api'
+[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:41.
+409Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: 
+[32m'Resource 
+creation 
+Initiated'[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-api"}'[
+39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketConnectLogGr
+oup-CREATE_IN_PROGRES
+S-2025-12-05T16:04:40
+.704Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketConnectL
+ogGroup'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+704Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tConnect"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+ApiLogGroup-CREATE_IN
+_PROGRESS-2025-12-05T
+16:04:40.682Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'ApiLogGroup'[39m
+,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+682Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-api"}'[
+39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebSocketConnectionsT
+able-CREATE_IN_PROGRE
+SS-2025-12-05T16:04:4
+0.681Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebSocketConnecti
+onsTable'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::DynamoDB::T
+able'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+681Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"TableName":"wa
+iterix-websocket-conn
+ections","AttributeDe
+finitions":[{"Attribu
+teType":"S","Attribut
+eName":"connectionId"
+},{"AttributeType":"S
+","AttributeName":"re
+staurantId"}],"Billin
+gMode":"PAY_PER_REQUE
+ST","GlobalSecondaryI
+ndexes":[{"IndexName"
+:"restaurantId-index"
+,"Projection":{"Proje
+ctionType":"ALL"},"Ke
+ySchema":[{"KeyType":
+"HASH","AttributeName
+":"restaurantId"}]}],
+"KeySchema":[{"KeyTyp
+e":"HASH","AttributeN
+ame":"connectionId"}]
+,"TimeToLiveSpecifica
+tion":{"Enabled":"tru
+e","AttributeName":"t
+tl"}}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketMessageLogGr
+oup-CREATE_IN_PROGRES
+S-2025-12-05T16:04:40
+.678Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketMessageL
+ogGroup'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+678Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tMessage"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketDisconnectLo
+gGroup-CREATE_IN_PROG
+RESS-2025-12-05T16:04
+:40.670Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketDisconne
+ctLogGroup'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::Logs::LogGr
+oup'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+670Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"LogGroupName":
+"/aws/lambda/waiterix
+-backend-dev-websocke
+tDisconnect"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+ApiGatewayRestApi-CRE
+ATE_IN_PROGRESS-2025-
+12-05T16:04:40.669Z'
+[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'ApiGatewayRestApi
+'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::ApiGateway:
+:RestApi'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+669Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"Policy":"","En
+dpointConfiguration":
+{"Types":["EDGE"]},"N
+ame":"dev-waiterix-ba
+ckend"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+IamRoleLambdaExecutio
+n-CREATE_IN_PROGRESS-
+2025-12-05T16:04:40.6
+47Z'[39m,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'IamRoleLambdaExec
+ution'[39m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::IAM::Role'
+[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+647Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"Path":"/","Man
+agedPolicyArns":["arn
+:aws:iam::aws:policy/
+service-role/AWSLambd
+aVPCAccessExecutionRo
+le"],"RoleName":"wait
+erix-backend-dev-us-e
+ast-1-lambdaRole","Po
+licies":[{"PolicyName
+":"waiterix-backend-d
+ev-lambda","PolicyDoc
+ument":{"Version":"20
+12-10-17","Statement"
+:[{"Action":["logs:Cr
+eateLogStream","logs:
+CreateLogGroup","logs
+:TagResource"],"Resou
+rce":["arn:aws:logs:u
+s-east-1:184525266200
+:log-group:/aws/lambd
+a/waiterix-backend-de
+v*:*"],"Effect":"Allo
+w"},{"Action":["logs:
+PutLogEvents"],"Resou
+rce":["arn:aws:logs:u
+s-east-1:184525266200
+:log-group:/aws/lambd
+a/waiterix-backend-de
+v*:*:*"],"Effect":"Al
+low"},{"Action":["log
+s:CreateLogGroup","lo
+gs:CreateLogStream","
+logs:PutLogEvents"],"
+Resource":"arn:aws:lo
+gs:*:*:*","Effect":"A
+llow"},{"Action":["be
+drock:InvokeModel","b
+edrock:InvokeModelWit
+hResponseStream"],"Re
+source":["arn:aws:bed
+rock:*::foundation-mo
+del/anthropic.claude-
+3-5-sonnet-20241022-v
+2:0","arn:aws:bedrock
+:*::foundation-model/
+anthropic.claude-3-ha
+iku-20240307-v1:0"],"
+Effect":"Allow"},{"Ac
+tion":["polly:Synthes
+izeSpeech"],"Resource
+":"*","Effect":"Allow
+"},{"Action":["transc
+ribe:StartTranscripti
+onJob","transcribe:Ge
+tTranscriptionJob"],"
+Resource":"*","Effect
+":"Allow"},{"Action":
+["s3:GetObject","s3:P
+utObject","s3:DeleteO
+bject"],"Resource":["
+arn:aws:s3:::waiterix
+-storage","arn:aws:s3
+:::waiterix-storage/*
+","arn:aws:s3:::waite
+rix-transcribe-temp",
+"arn:aws:s3:::waiteri
+x-transcribe-temp/*"]
+,"Effect":"Allow"},{"
+Action":["ses:SendEma
+il","ses:SendRawEmail
+"],"Resource":"*","Ef
+fect":"Allow"},{"Acti
+on":["dynamodb:PutIte
+m","dynamodb:GetItem"
+,"dynamodb:DeleteItem
+","dynamodb:UpdateIte
+m"],"Resource":"arn:a
+ws:dynamodb:us-east-1
+:*:table/waiterix-web
+socket-connections","
+Effect":"Allow"},{"Ac
+tion":["execute-api:M
+anageConnections"],"R
+esource":"arn:aws:exe
+cute-api:us-east-1:*:
+*/*/@connections/*","
+Effect":"Allow"},{"Ac
+tion":["execute-api:M
+anageConnections"],"R
+esource":["arn:aws:ex
+ecute-api:*:*:*/@conn
+ections/*"],"Effect":
+"Allow"}]}}],"AssumeR
+olePolicyDocument":{"
+Version":"2012-10-17"
+,"Statement":[{"Actio
+n":["sts:AssumeRole"]
+,"Effect":"Allow","Pr
+incipal":{"Service":[
+"lambda.amazonaws.com
+"]}}]}}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+WebsocketsApi-CREATE_
+IN_PROGRESS-2025-12-0
+5T16:04:40.646Z'[39m
+,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'WebsocketsApi'[3
+9m,
+      
+PhysicalResourceId: 
+[32m''[39m,
+      ResourceType: 
+[32m'AWS::ApiGatewayV
+2::Api'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:40.
+646Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      
+ResourceProperties: 
+[32m'{"RouteSelection
+Expression":"$request
+.body.action","Descri
+ption":"Serverless We
+bsockets","ProtocolTy
+pe":"WEBSOCKET","Name
+":"dev-waiterix-backe
+nd-websockets"}'[39m
+    },
+    {
+      StackId: [32m'
+arn:aws:cloudformatio
+n:us-east-1:184525266
+200:stack/waiterix-ba
+ckend-dev/18fe4db0-d1
+f4-11f0-b447-0afff946
+596d'[39m,
+      EventId: [32m'
+19002270-d1f4-11f0-b4
+47-0afff946596d'[39m
+,
+      StackName: [32
+m'waiterix-backend-de
+v'[39m,
+      
+LogicalResourceId: [
+32m'waiterix-backend-
+dev'[39m,
+      
+PhysicalResourceId: 
+[32m'arn:aws:cloudfor
+mation:us-east-1:1845
+25266200:stack/waiter
+ix-backend-dev/18fe4d
+b0-d1f4-11f0-b447-0af
+ff946596d'[39m,
+      ResourceType: 
+[32m'AWS::CloudFormat
+ion::Stack'[39m,
+      Timestamp: [35
+m2025-12-05T16:04:37.
+145Z[39m,
+      
+ResourceStatus: [32m
+'CREATE_IN_PROGRESS'
+[39m,
+      ResourceStatusR
+eason: [32m'User 
+Initiated'[39m
+    }
+  ]
+}
+  CREATE_IN_PROGRESS 
+- AWS::CloudFormation
+::Stack - 
+waiterix-backend-dev
+  CREATE_IN_PROGRESS 
+- AWS::ApiGatewayV2::
+Api - WebsocketsApi
+  CREATE_IN_PROGRESS 
+- AWS::IAM::Role - Ia
+mRoleLambdaExecution
+  CREATE_IN_PROGRESS 
+- AWS::ApiGateway::Re
+stApi - 
+ApiGatewayRestApi
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- WebsocketDisconnect
+LogGroup
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- WebsocketMessageLog
+Group
+  CREATE_IN_PROGRESS 
+- 
+AWS::DynamoDB::Table 
+- WebSocketConnection
+sTable
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- ApiLogGroup
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- WebsocketConnectLog
+Group
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- ApiLogGroup
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- WebsocketDisconnect
+LogGroup
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- WebsocketMessageLog
+Group
+  CREATE_IN_PROGRESS 
+- 
+AWS::Logs::LogGroup 
+- WebsocketConnectLog
+Group
+  CREATE_IN_PROGRESS 
+- AWS::IAM::Role - Ia
+mRoleLambdaExecution
+  CREATE_IN_PROGRESS 
+- AWS::ApiGatewayV2::
+Api - WebsocketsApi
+  CREATE_IN_PROGRESS 
+- AWS::ApiGateway::Re
+stApi - 
+ApiGatewayRestApi
+  CREATE_FAILED - 
+AWS::DynamoDB::Table 
+- WebSocketConnection
+sTable
+s:sls:lifecycle:comma
+nd:invoke:hook: [67] 
+  > aws:deploy:deploy
+:updateStack
+s:sls:lifecycle:comma
+nd:invoke:hook: [53] 
+> deploy:deploy
+Γ£û Stack 
+waiterix-backend-dev 
+failed to deploy 
+(45s)
+Finalizing
+s: Sending batch of 
+events [
+  {
+    "source": "sfcore
+.analysis.generated.v
+1",
+    "event": {
+      
+"actionSucceeded": 
+false,
+      
+"operatingSystem": 
+"win32",
+      
+"architecture": 
+"x64",
+      "cicd": false,
+      "machineId": "1
+671cd2637cc1ab45afdd2
+0788e3fb11",
+      "orgId": "312c3
+ed5-9dbb-4bc0-a8f9-b4
+3fea342150",
+      "userId": 
+"tMhrg9bzGsTgxYQQgq",
+      "isCompose": 
+false,
+      "projectType": 
+"traditional",
+      "cliOptions": [
+        "stage",
+        "region"
+      ],
+      "source": 
+"serverless@4.27.0",
+      "actionName": 
+"deploy",
+      "configurationF
+ileName": 
+"serverless.yml",
+      "resolvers": [
+        "opt",
+        "self",
+        "sls"
+      ],
+      
+"providerRuntime": 
+"nodejs20.x",
+      
+"isEsbuildEnabled": 
+true,
+      "runtimes": [
+        "nodejs20.x"
+      ],
+      "error": {
+        "name": 
+"ServerlessError2",
+        "message": 
+"An error occurred: W
+ebSocketConnectionsTa
+ble - Resource 
+handler returned 
+message: \"Resource 
+of type 'AWS::DynamoD
+B::Table' with 
+identifier 'waiterix-
+websocket-connections
+' already exists.\" 
+(RequestToken: d678d4
+39-aeb8-035c-a981-4c6
+03c5c335c, 
+HandlerErrorCode: 
+AlreadyExists).",
+        
+"stacktrace": 
+"ServerlessError2: 
+An error occurred: We
+bSocketConnectionsTab
+le - Resource 
+handler returned 
+message: \"Resource 
+of type 'AWS::DynamoD
+B::Table' with 
+identifier 'waiterix-
+websocket-connections
+' already exists.\" 
+(RequestToken: d678d4
+39-aeb8-035c-a981-4c6
+03c5c335c, 
+HandlerErrorCode: 
+AlreadyExists).\n    
+at file:///C:/Users/A
+dministrator/.serverl
+ess/releases/4.27.0/p
+ackage/dist/sf-core.j
+s:1096:828\n    at pr
+ocess.processTicksAnd
+Rejections (node:inte
+rnal/process/task_que
+ues:105:5)\n    at 
+async AwsDeploy.creat
+eFallback (file:///C:
+/Users/Administrator/
+.serverless/releases/
+4.27.0/package/dist/s
+f-core.js:1096:23536)
+\n    at async aws:de
+ploy:deploy:updateSta
+ck (file:///C:/Users/
+Administrator/.server
+less/releases/4.27.0/
+package/dist/sf-core.
+js:1107:8004)\n    
+at async PluginManage
+r.runHooks (file:///C
+:/Users/Administrator
+/.serverless/releases
+/4.27.0/package/dist/
+sf-core.js:1372:11105
+)\n    at async 
+PluginManager.invoke 
+(file:///C:/Users/Adm
+inistrator/.serverles
+s/releases/4.27.0/pac
+kage/dist/sf-core.js:
+1372:11874)\n    at 
+async 
+PluginManager.spawn (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:1
+372:12236)\n    at 
+async PluginManager.r
+unHooks (file:///C:/U
+sers/Administrator/.s
+erverless/releases/4.
+27.0/package/dist/sf-
+core.js:1372:11105)\n
+    at async 
+PluginManager.invoke 
+(file:///C:/Users/Adm
+inistrator/.serverles
+s/releases/4.27.0/pac
+kage/dist/sf-core.js:
+1372:11874)\n    at 
+async 
+PluginManager.run (fi
+le:///C:/Users/Admini
+strator/.serverless/r
+eleases/4.27.0/packag
+e/dist/sf-core.js:137
+2:12607)",
+        "code": "AWS_
+CLOUD_FORMATION_CREAT
+E_STACK_INTERNAL_DYNA
+MO_D_B_TABLE_CREATE_F
+AILED"
+      }
+    }
+  }
+]
+s:core:router: 
+Saving meta record 
+to global 
+.serverless 
+directory.
+s:cli-error-handler: 
+ServerlessError2: An 
+error occurred: WebSo
+cketConnectionsTable 
+- Resource handler 
+returned message: 
+"Resource of type 'AW
+S::DynamoDB::Table' 
+with identifier 'wait
+erix-websocket-connec
+tions' already 
+exists." 
+(RequestToken: d678d4
+39-aeb8-035c-a981-4c6
+03c5c335c, 
+HandlerErrorCode: 
+AlreadyExists).
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:1096:828
+    at process.proces
+sTicksAndRejections (
+node:internal/process
+/task_queues:105:5)
+    at async AwsDeplo
+y.createFallback (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:1096
+:23536)
+    at async aws:depl
+oy:deploy:updateStack
+ (file:///C:/Users/Ad
+ministrator/.serverle
+ss/releases/4.27.0/pa
+ckage/dist/sf-core.js
+:1107:8004)
+    at async PluginMa
+nager.runHooks (file:
+///C:/Users/Administr
+ator/.serverless/rele
+ases/4.27.0/package/d
+ist/sf-core.js:1372:1
+1105)
+    at async 
+PluginManager.invoke 
+(file:///C:/Users/Adm
+inistrator/.serverles
+s/releases/4.27.0/pac
+kage/dist/sf-core.js:
+1372:11874)
+    at async 
+PluginManager.spawn (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:1
+372:12236)
+    at async PluginMa
+nager.runHooks (file:
+///C:/Users/Administr
+ator/.serverless/rele
+ases/4.27.0/package/d
+ist/sf-core.js:1372:1
+1105)
+    at async 
+PluginManager.invoke 
+(file:///C:/Users/Adm
+inistrator/.serverles
+s/releases/4.27.0/pac
+kage/dist/sf-core.js:
+1372:11874)
+    at async 
+PluginManager.run (fi
+le:///C:/Users/Admini
+strator/.serverless/r
+eleases/4.27.0/packag
+e/dist/sf-core.js:137
+2:12607)
+
+Γ£û 
+ServerlessError2: An 
+error occurred: WebSo
+cketConnectionsTable 
+- Resource handler 
+returned message: 
+"Resource of type 'AW
+S::DynamoDB::Table' 
+with identifier 'wait
+erix-websocket-connec
+tions' already 
+exists." 
+(RequestToken: d678d4
+39-aeb8-035c-a981-4c6
+03c5c335c, 
+HandlerErrorCode: 
+AlreadyExists).
+    at file:///C:/Use
+rs/Administrator/.ser
+verless/releases/4.27
+.0/package/dist/sf-co
+re.js:1096:828
+    at process.proces
+sTicksAndRejections (
+node:internal/process
+/task_queues:105:5)
+    at async AwsDeplo
+y.createFallback (fil
+e:///C:/Users/Adminis
+trator/.serverless/re
+leases/4.27.0/package
+/dist/sf-core.js:1096
+:23536)
+    at async aws:depl
+oy:deploy:updateStack
+ (file:///C:/Users/Ad
+ministrator/.serverle
+ss/releases/4.27.0/pa
+ckage/dist/sf-core.js
+:1107:8004)
+    at async PluginMa
+nager.runHooks (file:
+///C:/Users/Administr
+ator/.serverless/rele
+ases/4.27.0/package/d
+ist/sf-core.js:1372:1
+1105)
+    at async 
+PluginManager.invoke 
+(file:///C:/Users/Adm
+inistrator/.serverles
+s/releases/4.27.0/pac
+kage/dist/sf-core.js:
+1372:11874)
+    at async 
+PluginManager.spawn (
+file:///C:/Users/Admi
+nistrator/.serverless
+/releases/4.27.0/pack
+age/dist/sf-core.js:1
+372:12236)
+    at async PluginMa
+nager.runHooks (file:
+///C:/Users/Administr
+ator/.serverless/rele
+ases/4.27.0/package/d
+ist/sf-core.js:1372:1
+1105)
+    at async 
+PluginManager.invoke 
+(file:///C:/Users/Adm
+inistrator/.serverles
+s/releases/4.27.0/pac
+kage/dist/sf-core.js:
+1372:11874)
+    at async 
+PluginManager.run (fi
+le:///C:/Users/Admini
+strator/.serverless/r
+eleases/4.27.0/packag
+e/dist/sf-core.js:137
+2:12607)
+
+For help, try the 
+following:
+  ΓÇó Run the 
+command again with 
+the "--debug" option
+  ΓÇó Run 
+"serverless support"
+  ΓÇó Review the 
+docs: https://www.ser
+verless.com/framework
+/docs/
+

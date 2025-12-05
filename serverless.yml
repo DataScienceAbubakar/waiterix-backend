@@ -1,5 +1,17 @@
 service: waiterix-backend
-
+useDotenv: true
+build:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude:
+      - aws-sdk
+    external:
+      - '@google-cloud/firestore'
+      - 'firebase-admin'
+      - 'pg-native'
+    target: "node20"
 frameworkVersion: '4'
 
 provider:
@@ -8,77 +20,79 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   memorySize: 1024
-  timeout: 30
+  timeout: 29
+
+  # 🔒 VPC Configuration – REQUIRED for RDS + Redis access
+  vpc:
+    securityGroupIds:
+      - sg-0c37f6030af724718  # waiterix-lambda-sg
+    subnetIds:
+      - subnet-08269a5290ccbd69b  # us-east-1b (private)
+      - subnet-0fc4b474540afd23f  # us-east-1a (private)
+
   environment:
     NODE_ENV: ${self:provider.stage}
-    # Database Configuration (AWS RDS PostgreSQL)
-    DATABASE_URL: ${env:DATABASE_URL}
-    DB_HOST: ${env:DB_HOST}
-    DB_PORT: ${env:DB_PORT, '5432'}
-    DB_NAME: ${env:DB_NAME}
-    DB_USER: ${env:DB_USER}
-    DB_PASSWORD: ${env:DB_PASSWORD}
-    DB_SSL: ${env:DB_SSL, 'true'}
+
+    # 🗄️ Database
+    DATABASE_URL: postgresql://waiterix_user:Mypassword407%21@waiterix.cejyqycwo39y.us-east-1.rds.amazonaws.com:5432/waiterix
+    DB_HOST: waiterix.cejyqycwo39y.us-east-1.rds.amazonaws.com
+    DB_PORT: '5432'
+    DB_NAME: waiterix
+    DB_USER: waiterix_user
+    DB_PASSWORD: Mypassword407!
+    DB_SSL: 'true'
+
+    # 🧠 Redis
+    REDIS_HOST: master.waiterix-redis.ufx4zx.use1.cache.amazonaws.com
+    REDIS_PORT: '6379'
+    REDIS_PASSWORD: AllahummasallialaMuhammad1!
+    REDIS_DB: '0'
+
+    # ☁️ AWS Services
+    AWS_S3_BUCKET: waiterix-storage
+    AWS_S3_TRANSCRIBE_BUCKET: waiterix-transcribe-temp
+    AWS_S3_REGION: us-east-1
     
-    # Redis Configuration (AWS ElastiCache)
-    REDIS_HOST: ${env:REDIS_HOST}
-    REDIS_PORT: ${env:REDIS_PORT, '6379'}
-    REDIS_PASSWORD: ${env:REDIS_PASSWORD}
-    REDIS_DB: ${env:REDIS_DB, '0'}
-    
-    # AWS Services Configuration
-    AWS_REGION: ${env:AWS_REGION, 'us-east-1'}
-    AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
-    
-    # S3 Storage Configuration
-    AWS_S3_BUCKET: ${env:AWS_S3_BUCKET, 'waiterix-storage'}
-    AWS_S3_TRANSCRIBE_BUCKET: ${env:AWS_S3_TRANSCRIBE_BUCKET, 'waiterix-transcribe-temp'}
-    AWS_S3_REGION: ${env:AWS_S3_REGION, 'us-east-1'}
-    
-    # SES Email Configuration
-    SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@waiterix.com'}
-    SUPPORT_EMAIL: ${env:SUPPORT_EMAIL, 'support@waiterix.com'}
-    
-    # DynamoDB Configuration
-    WEBSOCKET_CONNECTIONS_TABLE: ${env:WEBSOCKET_CONNECTIONS_TABLE, 'waiterix-websocket-connections'}
-    
-    # Stripe Configuration
-    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
-    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
-    STRIPE_BASE_PRICE_ID: ${env:STRIPE_BASE_PRICE_ID}
-    STRIPE_USAGE_PRICE_ID: ${env:STRIPE_USAGE_PRICE_ID}
-    STRIPE_METER_EVENT_NAME: ${env:STRIPE_METER_EVENT_NAME}
-    
-    # Firebase Configuration
-    FIREBASE_PROJECT_ID: ${env:FIREBASE_PROJECT_ID}
-    FIREBASE_PRIVATE_KEY: ${env:FIREBASE_PRIVATE_KEY}
-    FIREBASE_CLIENT_EMAIL: ${env:FIREBASE_CLIENT_EMAIL}
-    
-    # Payment Gateway Configuration
-    PAYSTACK_SECRET_KEY: ${env:PAYSTACK_SECRET_KEY}
-    PAYSTACK_PUBLIC_KEY: ${env:PAYSTACK_PUBLIC_KEY}
-    ADYEN_API_KEY: ${env:ADYEN_API_KEY}
-    ADYEN_MERCHANT_ACCOUNT: ${env:ADYEN_MERCHANT_ACCOUNT}
-    ADYEN_ENVIRONMENT: ${env:ADYEN_ENVIRONMENT, 'test'}
-    TELR_STORE_ID: ${env:TELR_STORE_ID}
-    TELR_AUTH_KEY: ${env:TELR_AUTH_KEY}
-    
-    # Application Configuration
-    FRONTEND_URL: ${env:FRONTEND_URL, 'https://main.d1234567890.amplifyapp.com'}
-    API_BASE_URL: ${env:API_BASE_URL}
+
+    # 📧 SES
+    SES_FROM_EMAIL: noreply@nomagro.com
+    SUPPORT_EMAIL: support@nomagro.com
+
+    # 📡 DynamoDB
+    WEBSOCKET_CONNECTIONS_TABLE: waiterix-websocket-connections
+
+    # 💳 Stripe
+    STRIPE_SECRET_KEY: sk_test_51SXnfY2VZXX1nihiLJ78hL5DVPaOqoXhU2TwGCldGBJzrAgGNJ6lTxYsNW6bE1bMFJ7KIBH9Gdz7NJdOUyCYz2AE00Ux84umtM
+    STRIPE_WEBHOOK_SECRET: sk_test_51SXnfY2VZXX1nihiLJ78hL5DVPaOqoXhU2TwGCldGBJzrAgGNJ6lTxYsNW6bE1bMFJ7KIBH9Gdz7NJdOUyCYz2AE00Ux84umtM
+    STRIPE_BASE_PRICE_ID: price_1SXnmn2VZXX1nihitL4P9y02
+    STRIPE_USAGE_PRICE_ID: price_1SXnkJ2VZXX1nihiNA7puV2l
+    STRIPE_METER_EVENT_NAME: price_1SXnkJ2VZXX1nihiNA7puV2l
+
+    # 💳 Paystack
+    PAYSTACK_SECRET_KEY: sk_test_ec72a27e12b915928c86230be7702153bb5a779b
+    PAYSTACK_PUBLIC_KEY: pk_test_b0b9c6670701f7d9b6ea379bd447292a34d6f1d0
+
+    # 🔐 Firebase
+    FIREBASE_PROJECT_ID: waiterix-65cc6
+    FIREBASE_PRIVATE_KEY: AIzaSyA_AgNCd2jC65G4W8420ZJEDVh8jHPCSA8
+    FIREBASE_CLIENT_EMAIL: umarkabir@harmoniallc.com
+
+    # 🌐 App
+    FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
+    API_BASE_URL: ''
+
   iam:
     role:
       statements:
-        # CloudWatch Logs
+        # 📝 CloudWatch Logs
         - Effect: Allow
           Action:
             - logs:CreateLogGroup
             - logs:CreateLogStream
             - logs:PutLogEvents
           Resource: 'arn:aws:logs:*:*:*'
-        
-        # Bedrock AI Services
+
+        # 🤖 AWS Bedrock (AI)
         - Effect: Allow
           Action:
             - bedrock:InvokeModel
@@ -86,69 +100,55 @@ provider:
           Resource:
             - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-3-5-sonnet-20241022-v2:0'
             - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-3-haiku-20240307-v1:0'
-        
-        # Polly Text-to-Speech
+
+        # 🔊 AWS Polly (TTS)
         - Effect: Allow
           Action:
             - polly:SynthesizeSpeech
           Resource: '*'
-        
-        # Transcribe Speech-to-Text
+
+        # 🎤 AWS Transcribe (STT)
         - Effect: Allow
           Action:
             - transcribe:StartTranscriptionJob
             - transcribe:GetTranscriptionJob
-            - transcribe:ListTranscriptionJobs
           Resource: '*'
-        
-        # S3 Storage (Main bucket and transcribe bucket)
+
+        # 📦 S3 Buckets
         - Effect: Allow
           Action:
             - s3:GetObject
             - s3:PutObject
             - s3:DeleteObject
-            - s3:GetObjectAcl
-            - s3:PutObjectAcl
-            - s3:ListBucket
           Resource:
-            - 'arn:aws:s3:::${env:AWS_S3_BUCKET, "waiterix-storage"}'
-            - 'arn:aws:s3:::${env:AWS_S3_BUCKET, "waiterix-storage"}/*'
-            - 'arn:aws:s3:::${env:AWS_S3_TRANSCRIBE_BUCKET, "waiterix-transcribe-temp"}'
-            - 'arn:aws:s3:::${env:AWS_S3_TRANSCRIBE_BUCKET, "waiterix-transcribe-temp"}/*'
-        
-        # SES Email Service
+            - 'arn:aws:s3:::waiterix-storage'
+            - 'arn:aws:s3:::waiterix-storage/*'
+            - 'arn:aws:s3:::waiterix-transcribe-temp'
+            - 'arn:aws:s3:::waiterix-transcribe-temp/*'
+
+        # 📧 SES Email
         - Effect: Allow
           Action:
             - ses:SendEmail
             - ses:SendRawEmail
-            - ses:SendTemplatedEmail
           Resource: '*'
-        
-        # DynamoDB for WebSocket connections
+
+        # 📡 DynamoDB (WebSocket connections)
         - Effect: Allow
           Action:
             - dynamodb:PutItem
             - dynamodb:GetItem
             - dynamodb:DeleteItem
-            - dynamodb:Query
-            - dynamodb:Scan
             - dynamodb:UpdateItem
           Resource:
-            - 'arn:aws:dynamodb:${self:provider.region}:*:table/${env:WEBSOCKET_CONNECTIONS_TABLE, "waiterix-websocket-connections"}'
-        
-        # API Gateway Management for WebSocket
+            - 'arn:aws:dynamodb:${self:provider.region}:*:table/waiterix-websocket-connections'
+
+        # 🔌 API Gateway (WebSocket management)
         - Effect: Allow
           Action:
             - execute-api:ManageConnections
           Resource:
-            - 'arn:aws:execute-api:${self:provider.region}:*:*'
-        
-        # RDS Connect (if using IAM database authentication)
-        - Effect: Allow
-          Action:
-            - rds-db:connect
-          Resource:
-            - 'arn:aws:rds-db:${self:provider.region}:*:dbuser:${env:DB_NAME, "waiterix"}/${env:DB_USER, "waiterix_user"}'
+            - 'arn:aws:execute-api:${self:provider.region}:*:*/*/@connections/*'
 
 functions:
   api:
@@ -158,7 +158,7 @@ functions:
           path: /{proxy+}
           method: ANY
           cors:
-            origin: ${env:FRONTEND_URL, 'https://main.d1234567890.amplifyapp.com'}
+            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -173,7 +173,7 @@ functions:
           path: /
           method: ANY
           cors:
-            origin: ${env:FRONTEND_URL, 'https://main.d1234567890.amplifyapp.com'}
+            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -185,118 +185,31 @@ functions:
               - stripe-signature
             allowCredentials: true
 
-  # Separate functions for different services
-  auth:
-    handler: src/handlers/auth/index.handler
-    events:
-      - http:
-          path: /api/auth/{proxy+}
-          method: ANY
-          cors: true
-
-  restaurants:
-    handler: src/handlers/restaurants/index.handler
-    events:
-      - http:
-          path: /api/restaurant/{proxy+}
-          method: ANY
-          cors: true
-
-  menu:
-    handler: src/handlers/menu/index.handler
-    events:
-      - http:
-          path: /api/menu-items/{proxy+}
-          method: ANY
-          cors: true
-
-  orders:
-    handler: src/handlers/orders/index.handler
-    events:
-      - http:
-          path: /api/orders/{proxy+}
-          method: ANY
-          cors: true
-
-  payments:
-    handler: src/handlers/payments/index.handler
-    events:
-      - http:
-          path: /api/payments/{proxy+}
-          method: ANY
-          cors: true
-      - http:
-          path: /api/webhooks/{proxy+}
-          method: ANY
-          cors: true
-
-  ai:
-    handler: src/handlers/ai/index.handler
-    timeout: 60
-    events:
-      - http:
-          path: /api/ai/{proxy+}
-          method: ANY
-          cors: true
-
-  # WebSocket API functions
+  # 🌐 WebSocket Handlers
   websocketConnect:
     handler: src/apiGatewayWebSocket.handleConnect
     events:
       - websocket:
           route: $connect
-  
+
   websocketDisconnect:
     handler: src/apiGatewayWebSocket.handleDisconnect
     events:
       - websocket:
           route: $disconnect
-  
+
   websocketMessage:
     handler: src/apiGatewayWebSocket.handleMessage
     events:
       - websocket:
           route: $default
 
-# AWS Resources
-resources:
-  Resources:
-    # DynamoDB table for WebSocket connections
-    WebSocketConnectionsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${env:WEBSOCKET_CONNECTIONS_TABLE, 'waiterix-websocket-connections'}
-        AttributeDefinitions:
-          - AttributeName: connectionId
-            AttributeType: S
-          - AttributeName: restaurantId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: connectionId
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-        TimeToLiveSpecification:
-          AttributeName: ttl
-          Enabled: true
-        GlobalSecondaryIndexes:
-          - IndexName: restaurantId-index
-            KeySchema:
-              - AttributeName: restaurantId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
-
+# ⚙️ Plugins (only offline if needed)
 plugins:
-  - serverless-webpack
   - serverless-offline
 
+# 🛠️ Custom Settings
 custom:
-  webpack:
-    webpackConfig: webpack.config.js
-    includeModules: true
-    packager: npm
   serverless-offline:
     httpPort: 3001
     websocketPort: 3002

@@ -16,7 +16,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { demoDataService } from "./demoDataService";
 import { sendSupportEmail, sendReceiptEmail } from "./emailService";
-import { getCurrencyForCountry } from "../shared/currencyMapping";
+import { getCurrencyForCountry } from "./utils/currencyMapping";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
