@@ -34,7 +34,8 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: true,  // HTTPS only (required for sameSite: 'none')
+      sameSite: 'none',  // CRITICAL: Allow cross-origin cookies
       maxAge: sessionTtl,
     },
   });
@@ -48,7 +49,7 @@ export async function setupAuth(app: Express) {
     console.log("[AUTH] Received verification request");
     try {
       const { idToken } = req.body;
-      
+
       if (!idToken) {
         console.log("[AUTH] No token provided");
         return res.status(400).json({ message: "No token provided" });
@@ -57,7 +58,7 @@ export async function setupAuth(app: Express) {
       console.log("[AUTH] Verifying Firebase token...");
       const decodedToken = await admin.auth().verifyIdToken(idToken);
       console.log("[AUTH] Token verified for user:", decodedToken.uid);
-      
+
       const user = await storage.upsertUser({
         id: decodedToken.uid,
         email: decodedToken.email || '',
@@ -68,7 +69,7 @@ export async function setupAuth(app: Express) {
       console.log("[AUTH] User upserted:", user.id);
 
       (req.session as any).userId = user.id;
-      
+
       req.session.save((err) => {
         if (err) {
           console.error("[AUTH] Session save error:", err);

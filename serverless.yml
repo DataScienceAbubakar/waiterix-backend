@@ -78,7 +78,7 @@ provider:
     FIREBASE_CLIENT_EMAIL: umarkabir@harmoniallc.com
 
     # 🌐 App
-    FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
+    FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
     API_BASE_URL: ''
 
   iam:
@@ -158,7 +158,7 @@ functions:
           path: /{proxy+}
           method: ANY
           cors:
-            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
+            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -173,7 +173,7 @@ functions:
           path: /
           method: ANY
           cors:
-            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
+            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
             headers:
               - Content-Type
               - X-Amz-Date
