@@ -52,6 +52,7 @@ provider:
     AWS_S3_BUCKET: waiterix-storage
     AWS_S3_TRANSCRIBE_BUCKET: waiterix-transcribe-temp
     AWS_S3_REGION: us-east-1
+    
 
     # 📧 SES
     SES_FROM_EMAIL: noreply@nomagro.com
@@ -77,9 +78,9 @@ provider:
     FIREBASE_CLIENT_EMAIL: umarkabir@harmoniallc.com
 
     # 🌐 App
-    FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
+    FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
     API_BASE_URL: ''
-    VITE_API_BASE_URL: 'https://lo8m97qrtl.execute-api.us-east-1.amazonaws.com/dev'
+
   iam:
     role:
       statements:
@@ -157,7 +158,7 @@ functions:
           path: /{proxy+}
           method: ANY
           cors:
-            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
+            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -167,14 +168,12 @@ functions:
               - X-Amz-User-Agent
               - x-paystack-signature
               - stripe-signature
-            exposedHeaders:
-              - Set-Cookie
             allowCredentials: true
       - http:
           path: /
           method: ANY
           cors:
-            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
+            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com/'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -184,8 +183,6 @@ functions:
               - X-Amz-User-Agent
               - x-paystack-signature
               - stripe-signature
-            exposedHeaders:
-              - Set-Cookie
             allowCredentials: true
 
   # 🌐 WebSocket Handlers
