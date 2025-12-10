@@ -1,5 +1,6 @@
 service: waiterix-backend
 useDotenv: true
+
 build:
   esbuild:
     bundle: true
@@ -12,6 +13,7 @@ build:
       - 'firebase-admin'
       - 'pg-native'
     target: "node20"
+
 frameworkVersion: '4'
 
 provider:
@@ -22,13 +24,13 @@ provider:
   memorySize: 1024
   timeout: 29
 
-  # 🔒 VPC Configuration – REQUIRED for RDS + Redis access
+  # 🔒 VPC Configuration
   vpc:
     securityGroupIds:
-      - sg-0c37f6030af724718  # waiterix-lambda-sg
+      - sg-0c37f6030af724718
     subnetIds:
-      - subnet-08269a5290ccbd69b  # us-east-1b (private)
-      - subnet-0fc4b474540afd23f  # us-east-1a (private)
+      - subnet-08269a5290ccbd69b
+      - subnet-0fc4b474540afd23f
 
   environment:
     NODE_ENV: ${self:provider.stage}
@@ -52,7 +54,6 @@ provider:
     AWS_S3_BUCKET: waiterix-storage
     AWS_S3_TRANSCRIBE_BUCKET: waiterix-transcribe-temp
     AWS_S3_REGION: us-east-1
-    
 
     # 📧 SES
     SES_FROM_EMAIL: noreply@nomagro.com
@@ -77,14 +78,13 @@ provider:
     FIREBASE_PRIVATE_KEY: AIzaSyA_AgNCd2jC65G4W8420ZJEDVh8jHPCSA8
     FIREBASE_CLIENT_EMAIL: umarkabir@harmoniallc.com
 
-    # 🌐 App
+    # 🌐 URLs
     FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
     API_BASE_URL: ''
 
   iam:
     role:
       statements:
-        # 📝 CloudWatch Logs
         - Effect: Allow
           Action:
             - logs:CreateLogGroup
@@ -92,7 +92,6 @@ provider:
             - logs:PutLogEvents
           Resource: 'arn:aws:logs:*:*:*'
 
-        # 🤖 AWS Bedrock (AI)
         - Effect: Allow
           Action:
             - bedrock:InvokeModel
@@ -101,20 +100,17 @@ provider:
             - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-3-5-sonnet-20241022-v2:0'
             - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-3-haiku-20240307-v1:0'
 
-        # 🔊 AWS Polly (TTS)
         - Effect: Allow
           Action:
             - polly:SynthesizeSpeech
           Resource: '*'
 
-        # 🎤 AWS Transcribe (STT)
         - Effect: Allow
           Action:
             - transcribe:StartTranscriptionJob
             - transcribe:GetTranscriptionJob
           Resource: '*'
 
-        # 📦 S3 Buckets
         - Effect: Allow
           Action:
             - s3:GetObject
@@ -126,14 +122,12 @@ provider:
             - 'arn:aws:s3:::waiterix-transcribe-temp'
             - 'arn:aws:s3:::waiterix-transcribe-temp/*'
 
-        # 📧 SES Email
         - Effect: Allow
           Action:
             - ses:SendEmail
             - ses:SendRawEmail
           Resource: '*'
 
-        # 📡 DynamoDB (WebSocket connections)
         - Effect: Allow
           Action:
             - dynamodb:PutItem
@@ -143,7 +137,6 @@ provider:
           Resource:
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/waiterix-websocket-connections'
 
-        # 🔌 API Gateway (WebSocket management)
         - Effect: Allow
           Action:
             - execute-api:ManageConnections
@@ -185,7 +178,6 @@ functions:
               - stripe-signature
             allowCredentials: true
 
-  # 🌐 WebSocket Handlers
   websocketConnect:
     handler: src/apiGatewayWebSocket.handleConnect
     events:
@@ -204,13 +196,11 @@ functions:
       - websocket:
           route: $default
 
-# ⚙️ Plugins (only offline if needed)
 plugins:
   - serverless-offline
 
-# 🛠️ Custom Settings
 custom:
   serverless-offline:
-    httpPort: 3001
-    websocketPort: 3002
+    httpPort: 3005
+    websocketPort: 3006
     host: 0.0.0.0

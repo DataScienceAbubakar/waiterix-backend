@@ -1,0 +1,99 @@
+﻿node.exe : C:\Users\A
+dministrator\Desktop\
+github\wait-github\wa
+iterix-frontend\waite
+rix-backend-split\nod
+e_modules\stripe\cjs\
+stripe.core.js:158
+At C:\Program Files\n
+odejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (C:\User   
+ s\Admini...ipe.c    
+ore.js:158:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+                
+throw new 
+Error('Neither 
+apiKey nor 
+config.authenticator 
+provided');
+                     
+ ^
+
+Error: Neither 
+apiKey nor 
+config.authenticator 
+provided
+    at Stripe._setAut
+henticator (C:\Users\
+Administrator\Desktop
+\github\wait-github\w
+aiterix-frontend\wait
+erix-backend-split\no
+de_modules\stripe\cjs
+\stripe.core.js:158:2
+3)
+    at new Stripe (C:
+\Users\Administrator\
+Desktop\github\wait-g
+ithub\waiterix-fronte
+nd\waiterix-backend-s
+plit\node_modules\str
+ipe\cjs\stripe.core.j
+s:96:14)
+    at multer (C:\Use
+rs\Administrator\Desk
+top\github\wait-githu
+b\waiterix-frontend\w
+aiterix-backend-split
+\src\routes.ts:21:16)
+    at 
+Object.<anonymous> (C
+:\Users\Administrator
+\Desktop\github\wait-
+github\waiterix-front
+end\waiterix-backend-
+split\src\routes.ts:2
+3:23)
+    at 
+Module._compile (node
+:internal/modules/cjs
+/loader:1730:14)
+    at 
+Object.transformer (C
+:\Users\Administrator
+\Desktop\github\wait-
+github\waiterix-front
+end\waiterix-backend-
+split\node_modules\ts
+x\dist\register-D46fv
+sV_.cjs:3:1104)
+    at Module.load (n
+ode:internal/modules/
+cjs/loader:1465:32)
+    at 
+Function._load (node:
+internal/modules/cjs/
+loader:1282:12)
+    at TracingChannel
+.traceSync (node:diag
+nostics_channel:322:1
+4)
+    at 
+wrapModuleLoad (node:
+internal/modules/cjs/
+loader:235:24)
+
+Node.js v22.17.0
