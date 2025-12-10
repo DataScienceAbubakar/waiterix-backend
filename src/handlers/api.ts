@@ -48,8 +48,24 @@ app.get('/', (req, res) => {
   });
 });
 
-// Register all API routes
-registerRoutes(app);
+// Async initialization for routes (including session/auth middleware)
+let routesInitialized = false;
+let initializationPromise: Promise<void> | null = null;
+
+async function initializeApp() {
+  if (!routesInitialized) {
+    console.log('[Lambda] Initializing routes and auth middleware...');
+    await registerRoutes(app);
+    routesInitialized = true;
+    console.log('[Lambda] Routes initialized successfully');
+  }
+}
+
+// Start initialization immediately (runs during Lambda cold start)
+initializationPromise = initializeApp().catch((error) => {
+  console.error('[Lambda] Failed to initialize routes:', error);
+  throw error;
+});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -72,7 +88,14 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
   });
 });
 
-// Export the serverless handler
-export const handler = serverless(app, {
+// Create the serverless handler
+const serverlessHandler = serverless(app, {
   binary: ['image/*', 'audio/*', 'video/*', 'application/pdf'],
 });
+
+// Export handler that waits for initialization before processing requests
+export const handler = async (event: any, context: any) => {
+  // Ensure routes are fully initialized before handling any request
+  await initializationPromise;
+  return serverlessHandler(event, context);
+};
