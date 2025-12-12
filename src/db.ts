@@ -4,11 +4,15 @@ import * as schema from "@/shared/schema";
 
 // AWS RDS PostgreSQL connection
 const createPool = () => {
+  // Check if SSL should be enabled (via DB_SSL env var or production mode)
+  const useSSL = process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production';
+  const sslConfig = useSSL ? { rejectUnauthorized: false } : false;
+
   // Support both connection string and individual parameters
   if (process.env.DATABASE_URL) {
     return new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      ssl: sslConfig,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
@@ -18,7 +22,7 @@ const createPool = () => {
   // Individual RDS parameters
   const requiredEnvVars = ['RDS_HOST', 'RDS_DATABASE', 'RDS_USERNAME', 'RDS_PASSWORD'];
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-  
+
   if (missingVars.length > 0) {
     throw new Error(
       `Missing required database environment variables: ${missingVars.join(', ')}. ` +
@@ -32,7 +36,7 @@ const createPool = () => {
     database: process.env.RDS_DATABASE,
     user: process.env.RDS_USERNAME,
     password: process.env.RDS_PASSWORD,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: sslConfig,
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,

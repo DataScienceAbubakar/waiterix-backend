@@ -75,10 +75,11 @@ provider:
 
     # 🔐 Firebase
     FIREBASE_PROJECT_ID: waiterix-bff96
-    VITE_FIREBASE_PROJECT_ID: waiterix-bff96
+    FIREBASE_CLIENT_EMAIL: firebase-adminsdk-fbsvc@waiterix-bff96.iam.gserviceaccount.com
+    FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCKs0Qwfb0e2XzR\nljN4Lx+HrPXZTEWyZHZbWFsFfc3Psqb+WsU4Q8Mv3iZuv6S6oqf8ObJsShkbBb9S\ned6mndr8gw4g0kTd7qvvMXZZIUqJInCPhFl268iB8Z80QJrWwHBxWD0DcLIg3Svi\neQU7UWcfxjQBYJt/kWmWlIoAGKBVfvRnV98pl+c1/1MKEVDnKUWtxMwrgM0F3mTo\nMOPIUBIJ/04T7g6qxX4YU9dOXWNpatW8LD1bMvIlhhE3YU65Q4FfTMeI7MBLIFkd\ndvyGMWIjCoefQuOj2jIyfIsPTkK61+UHakaP3jEO3n9X4yv9YiSwaBy9ECSgLH6u\nxHxxGA7rAgMBAAECggEAKao2Vra+5BCDPVZ4eab2OsSLSc5utWsWXtRI63piI/1P\nyuKrkf5RGQUL2IL7UhFgkxUl8v/DUOnGElmHt9d9nBMmYFep1l1HCuB548ZrZIyS\n8ZnZYi7sGZTitUie+tnuLS5LjcgBynuGHk8qcio+5z2cC7ngnE6rQE+4sNS0/Vln\ngHkdV3bH2L3qGUv1bf8ZVt+NurUmNV+8z/zPUuI/ARc1v+tWTbp6tVRtmPpsnK83\nC3Zr2LTSyFmzxe8zKsLuaeCs6JVXOfydsjofQNiAl0XyHineUg9EI/HtNcka7BvE\nYLjGxDHpIguKWXHIiHFmIQx2bF9tSWiGjNmwgVaXKQKBgQDCPY9Fqc+EVVKIuHfb\nRVyimx/dwDez0ggHXadf7LQqtWQBP8g9jQ20/fMZY8YjHhHKYbkXXmySvpC72HJV\n6hmpHg4sMfYIkt5/MJ6IfojeZk9gvxL/yqkZuh9F6wCgnwxINpd0liiU8kcdzF0T\nhYp1dheXO2mQM34x/T9alOKO3wKBgQC2zPGM0C6M/TvYDDZFtvZSZkIYy0rAQHA/\nFyzLyMJvOcpmoD/mJFOWfvH6nIfO7ajqV3PzWZ/MQ+hXZB9Kp18XgaMCd5YXUTgx\nnB9DmvO/SH+uhuERymzYFkqBBtVNd0rEe6lb03G9gVjDl3WU1/3G/gxxKHmARXBP\n+nrG39KddQKBgFYtIadyk1LO1/M4hFSQDW1HDXhAk3YANPevoVZ5meVo3JmBRsGo\nFvC5ymT1Uy65ZIM5n/iyN9FTIrt0aCWd2wyg/QC2mcVsA7LCS1Obb/XbxlPR8gfy\nTdvQK5fFj12zsqtHLSLYi+CpLMwXoyPKF4fNgOHjxg3oCpD7HmR9sZZZAoGAB8M2\nMrOYdnY+d1M1bspxNViQT/s6BmX2Hke+qDyzPQPoO2lsrTo3rnlfjzPcdIYVGTZz\nfw78QTFVCXj/9yyaViY0JOOtJPpW94xYq4dF+IZ8nY2uuxGsg5SWv1np7us06pkR\nvQuClfiLK2sgHBz78tpQ7vE4D6FjPpI1aoKQsA0CgYAsyQqigYiL4R83P/YuNLtC\nid8pP8auuUAtS9mEcRYJMfZeA1cZ3iXAzqfRqQ55QHJwc+NII6ILlBr58mJjhRJl\nLRKp4BMUdlVeIDWJfF6RtZzsCuNDztDxYZPDaTbdgOX13MbpveHD4a4sdtyk+loL\nP2crB+qaG/aT6Pvz3xQvHQ==\n-----END PRIVATE KEY-----\n'
 
     # 🌐 URLs
-    FRONTEND_URL: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
+    FRONTEND_URL: 'https://main.d182r8qb7g7hdy.amplifyapp.com'
     API_BASE_URL: ''
 
   iam:
@@ -150,7 +151,7 @@ functions:
           path: /{proxy+}
           method: ANY
           cors:
-            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
+            origin: 'https://main.d182r8qb7g7hdy.amplifyapp.com'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -165,7 +166,7 @@ functions:
           path: /
           method: ANY
           cors:
-            origin: 'https://main.dtrmx4cj0i1ha.amplifyapp.com'
+            origin: 'https://main.d182r8qb7g7hdy.amplifyapp.com'
             headers:
               - Content-Type
               - X-Amz-Date

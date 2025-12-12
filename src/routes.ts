@@ -51,23 +51,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       // Cancel Stripe subscription if it exists (must succeed before deletion)
       if (restaurant?.subscriptionId) {
         console.log('[Delete Account] Cancelling Stripe subscription:', restaurant.subscriptionId);
         await stripe.subscriptions.cancel(restaurant.subscriptionId);
         console.log('[Delete Account] Stripe subscription cancelled successfully');
       }
-      
+
       // Delete user and all related data (cascades automatically)
       await storage.deleteUser(userId);
-      
+
       // Destroy session
       req.session.destroy((sessionErr: any) => {
         if (sessionErr) {
           console.error("Error destroying session:", sessionErr);
         }
-        
+
         res.json({ message: "Account permanently deleted" });
       });
     } catch (error) {
@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getRestaurantByUserId(userId),
         storage.getUser(userId)
       ]);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -110,9 +110,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('[Contact Support] Email sent successfully to support@harmoniaenterprisesllc.com');
 
-      res.json({ 
+      res.json({
         message: "Support request received successfully",
-        restaurantName: restaurant.name 
+        restaurantName: restaurant.name
       });
     } catch (error) {
       console.error("Error submitting support request:", error);
@@ -137,7 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('[Create Restaurant] Starting restaurant creation for user:', req.userId);
       const userId = req.userId;
       const existingRestaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (existingRestaurant) {
         console.log('[Create Restaurant] Restaurant already exists for user:', userId);
         return res.status(400).json({ message: "Restaurant already exists" });
@@ -177,11 +177,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('[Create Restaurant] Validating restaurant data with schema...');
       const data = insertRestaurantSchema.parse(hashedData);
-      
+
       console.log('[Create Restaurant] Inserting restaurant into database...');
       const restaurant = await storage.createRestaurant(data);
       console.log('[Create Restaurant] Restaurant created successfully:', restaurant.id);
-      
+
       try {
         console.log('[Create Restaurant] Creating default tables...');
         // Auto-create 3 default tables for the restaurant
@@ -205,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Tables failed to create, but restaurant exists - log error but don't fail the request
         // Restaurant owner can manually add tables via the UI
       }
-      
+
       console.log('[Create Restaurant] Returning restaurant data to client');
       res.json(restaurant);
     } catch (error) {
@@ -223,13 +223,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.id);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
 
       let updateData = req.body;
-      
+
       // If coverImageUrl is provided, set ACL policy and get permanent URL
       if (updateData.coverImageUrl) {
         const objectStorageService = new ObjectStorageService();
@@ -254,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.id);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
@@ -279,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.restaurantId);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
@@ -296,7 +296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.restaurantId);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
@@ -308,7 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const table = await storage.createRestaurantTable(tableData);
-      
+
       res.json(table);
     } catch (error) {
       if (error instanceof Error && error.name === 'ZodError') {
@@ -323,7 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.restaurantId);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
@@ -343,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updated = await storage.updateRestaurantTable(req.params.tableId, {
         tableNumber,
       });
-      
+
       res.json(updated);
     } catch (error) {
       console.error("Error updating table:", error);
@@ -355,7 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.restaurantId);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
@@ -381,12 +381,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!restaurantId) {
         return res.status(400).json({ message: "Restaurant ID required" });
       }
-      
+
       // Handle demo restaurant
       if (demoDataService.isDemoRestaurant(restaurantId)) {
         return res.json(demoDataService.getDemoMenuItems());
       }
-      
+
       const items = await storage.getMenuItems(restaurantId);
       res.json(items);
     } catch (error) {
@@ -399,13 +399,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.body.restaurantId);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
 
       let imageUrl = req.body.imageUrl;
-      
+
       // If imageUrl is provided, set ACL policy and get permanent URL
       if (imageUrl) {
         const objectStorageService = new ObjectStorageService();
@@ -434,7 +434,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const menuItem = await storage.getMenuItem(req.params.id);
-      
+
       if (!menuItem) {
         return res.status(404).json({ message: "Menu item not found" });
       }
@@ -445,7 +445,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       let updateData = req.body;
-      
+
       // If imageUrl is provided, set ACL policy and get permanent URL
       if (updateData.imageUrl) {
         const objectStorageService = new ObjectStorageService();
@@ -470,7 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const menuItem = await storage.getMenuItem(req.params.id);
-      
+
       if (!menuItem) {
         return res.status(404).json({ message: "Menu item not found" });
       }
@@ -493,13 +493,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
       const items = await storage.getMenuItems(restaurant.id);
-      
+
       // Convert items to CSV format
       const Papa = (await import('papaparse')).default;
       const csv = Papa.unparse(items.map(item => ({
@@ -531,7 +531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('[CSV Import Preview] Starting preview...');
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         console.log('[CSV Import Preview] Restaurant not found for user:', userId);
         return res.status(404).json({ message: "Restaurant not found" });
@@ -549,8 +549,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (parsed.errors.length > 0) {
         console.log('[CSV Import Preview] CSV parsing errors:', parsed.errors);
-        return res.status(400).json({ 
-          message: "CSV parsing error", 
+        return res.status(400).json({
+          message: "CSV parsing error",
           errors: parsed.errors.map(e => e.message)
         });
       }
@@ -563,7 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (let i = 0; i < items.length; i++) {
         const row = items[i];
         const rowNum = i + 2; // +2 because header is row 1, and 0-indexed
-        
+
         try {
           // Validate required fields
           if (!row.name?.trim()) {
@@ -634,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('[CSV Import Confirm] Starting import confirmation...');
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         console.log('[CSV Import Confirm] Restaurant not found for user:', userId);
         return res.status(404).json({ message: "Restaurant not found" });
@@ -658,14 +658,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (isNaN(priceNum) || priceNum < 0) {
             throw new Error(`Invalid price: ${item.price}`);
           }
-          
+
           // Validate and transform data
           const data = insertMenuItemSchema.parse({
             ...item,
             price: priceNum.toFixed(2), // Store as string with 2 decimal places
             restaurantId: restaurant.id, // Inject restaurant ID
           });
-          
+
           const created = await storage.createMenuItem(data);
           createdItems.push(created);
         } catch (error) {
@@ -675,8 +675,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log('[CSV Import Confirm] Successfully created', createdItems.length, 'items with', errors.length, 'errors');
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         count: createdItems.length,
         items: createdItems,
         errors: errors.length > 0 ? errors : undefined,
@@ -697,7 +697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -727,7 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/orders', async (req, res) => {
     try {
       const { restaurantId, tableId, items, subtotal, tax, tip, total, paymentMethod, customerNote, stripePaymentIntentId } = req.body;
-      
+
       // Handle demo restaurant - return mock order without saving to database
       if (demoDataService.isDemoRestaurant(restaurantId)) {
         const demoOrder = demoDataService.createDemoOrder({
@@ -742,7 +742,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Demo order created (not saved to database):', demoOrder);
         return res.json(demoOrder);
       }
-      
+
       // Check restaurant subscription status
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant) {
@@ -752,7 +752,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Block orders if subscription is not active or trialing
       const validStatuses = ['trialing', 'active'];
       if (!restaurant.subscriptionStatus || !validStatuses.includes(restaurant.subscriptionStatus)) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'subscription_required',
           message: 'This restaurant is not currently accepting orders. Please contact the restaurant directly.'
         });
@@ -780,12 +780,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Cash orders: pending
         // Stripe orders (with paymentIntentId): completed (payment already confirmed)
         // Paystack orders (no paymentIntentId): pending (payment not yet confirmed)
-        paymentStatus: paymentMethod === 'cash' ? 'pending' : 
-                      (stripePaymentIntentId ? 'completed' : 'pending'),
+        paymentStatus: paymentMethod === 'cash' ? 'pending' :
+          (stripePaymentIntentId ? 'completed' : 'pending'),
         stripePaymentIntentId,
       });
 
-      const orderItemsData = items.map((item: any) => 
+      const orderItemsData = items.map((item: any) =>
         insertOrderItemSchema.parse({
           menuItemId: item.id,
           name: item.name,
@@ -807,7 +807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const order = await storage.getOrder(req.params.id);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -818,7 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updated = await storage.updateOrderStatus(req.params.id, req.body.status);
-      
+
       // Emit WebSocket event for order status change
       if (wsManager) {
         wsManager.notifyOrderStatusChange(order.restaurantId, {
@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           order: updated,
         });
       }
-      
+
       res.json(updated);
     } catch (error) {
       console.error("Error updating order status:", error);
@@ -839,16 +839,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/ratings', async (req, res) => {
     try {
       const { orderId, restaurantId, menuItemId, itemRating, serviceRatings, comment } = req.body;
-      
+
       // Allow multiple ratings per order (one per menu item + one overall service rating)
       // But prevent duplicate ratings for the same specific item or service rating type
       const existingRatings = await storage.getRatingsByOrder(orderId);
-      
+
       // Check for duplicate item rating (same menuItemId)
       if (menuItemId && existingRatings.some(r => r.menuItemId === menuItemId)) {
         return res.status(400).json({ message: "This item has already been rated" });
       }
-      
+
       // Check for duplicate service rating (service ratings without menuItemId)
       if (serviceRatings && !menuItemId && existingRatings.some(r => r.serviceRatings && !r.menuItemId)) {
         return res.status(400).json({ message: "Service has already been rated" });
@@ -884,7 +884,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurant(req.params.id);
-      
+
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
       }
@@ -901,7 +901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/assistance-requests', async (req, res) => {
     try {
       const { restaurantId, tableId, orderId, customerMessage, requestType } = req.body;
-      
+
       // Handle demo restaurant - return mock assistance request
       if (demoDataService.isDemoRestaurant(restaurantId)) {
         return res.json(demoDataService.createDemoAssistanceRequest({
@@ -911,7 +911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           requestType,
         }));
       }
-      
+
       const request = await storage.createAssistanceRequest({
         restaurantId,
         tableId: tableId || null,
@@ -937,7 +937,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -955,7 +955,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const request = await storage.getAssistanceRequest(req.params.id);
-      
+
       if (!request) {
         return res.status(404).json({ message: "Assistance request not found" });
       }
@@ -977,14 +977,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/orders/:id/track', async (req, res) => {
     try {
       const orderId = req.params.id;
-      
+
       // Handle demo orders - return mock tracking data
       if (demoDataService.isDemoOrder(orderId)) {
         return res.json(demoDataService.getDemoOrderTracking(orderId));
       }
-      
+
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1021,16 +1021,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/orders/:id/receipt', async (req, res) => {
     try {
       const orderId = req.params.id;
-      
+
       // Handle demo orders - return mock receipt data
       if (demoDataService.isDemoOrder(orderId)) {
         const demoReceipt = demoDataService.getDemoReceipt(orderId);
         console.log('Returning demo receipt:', demoReceipt);
         return res.json(demoReceipt);
       }
-      
+
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1075,7 +1075,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email } = req.body;
       const orderId = req.params.id;
-      
+
       if (!email) {
         return res.status(400).json({ message: "Email address is required" });
       }
@@ -1093,16 +1093,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Subject: Receipt from Demo Restaurant - Order #${orderId.slice(11, 19).toUpperCase()}`);
         console.log(`Content: Demo receipt for order ${orderId}`);
         console.log('==========================');
-        
-        return res.json({ 
-          success: true, 
+
+        return res.json({
+          success: true,
           message: `Receipt sent to ${email}`,
           dev_note: 'Demo email logged to console'
         });
       }
 
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1154,8 +1154,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[Email Receipt] Receipt sent successfully to ${email}`);
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         message: `Receipt sent to ${email}`
       });
     } catch (error) {
@@ -1187,7 +1187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/create-payment-intent', async (req, res) => {
     try {
       const { amount, restaurantId } = req.body;
-      
+
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
@@ -1196,7 +1196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check restaurant subscription status
       const validStatuses = ['trialing', 'active'];
       if (!restaurant.subscriptionStatus || !validStatuses.includes(restaurant.subscriptionStatus)) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'subscription_required',
           message: 'This restaurant is not currently accepting orders. Please contact the restaurant directly.'
         });
@@ -1204,16 +1204,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if restaurant has Stripe Connect account
       if (!restaurant.stripeAccountId) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'stripe_not_connected',
-          message: "Restaurant has not set up Stripe payments yet" 
+          message: "Restaurant has not set up Stripe payments yet"
         });
       }
-      
+
       if (!restaurant.stripeOnboardingComplete) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'stripe_onboarding_incomplete',
-          message: "Restaurant is still completing Stripe onboarding. Please try again later." 
+          message: "Restaurant is still completing Stripe onboarding. Please try again later."
         });
       }
 
@@ -1224,7 +1224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const account = await stripe.accounts.retrieve(restaurant.stripeAccountId);
         const enabledMethods = ['card']; // Always include card
-        
+
         // Check capabilities and add supported payment methods
         if (account.capabilities?.cashapp_payments === 'active') {
           enabledMethods.push('cashapp');
@@ -1232,7 +1232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (account.capabilities?.afterpay_clearpay_payments === 'active') {
           enabledMethods.push('afterpay_clearpay');
         }
-        
+
         paymentMethodTypes = enabledMethods;
       } catch (accountError) {
         console.warn('Could not fetch account capabilities, defaulting to card only:', accountError);
@@ -1248,9 +1248,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stripeAccount: restaurant.stripeAccountId,
       });
 
-      res.json({ 
+      res.json({
         clientSecret: paymentIntent.client_secret,
-        stripeAccountId: restaurant.stripeAccountId 
+        stripeAccountId: restaurant.stripeAccountId
       });
     } catch (error) {
       console.error('Error creating payment intent:', error);
@@ -1263,7 +1263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -1278,9 +1278,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const baseUrl = req.get('host')?.includes('replit.dev') || req.get('host')?.includes('repl.co')
         ? `https://${req.get('host')}`
         : process.env.NODE_ENV === 'production'
-        ? `https://${req.get('host')}`
-        : `http://${req.get('host')}`;
-      
+          ? `https://${req.get('host')}`
+          : `http://${req.get('host')}`;
+
       const user = await storage.getUser(userId);
       const account = await stripe.accounts.create({
         type: 'express',
@@ -1313,7 +1313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant || !restaurant.stripeAccountId) {
         return res.status(400).json({ message: "Stripe account not found" });
       }
@@ -1337,16 +1337,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant || !restaurant.stripeAccountId) {
         return res.status(400).json({ message: "Stripe account not found" });
       }
 
       // Fetch account from Stripe
       const account = await stripe.accounts.retrieve(restaurant.stripeAccountId);
-      
+
       const isComplete = account.charges_enabled && account.details_submitted;
-      
+
       // Update restaurant if status changed
       if (isComplete !== restaurant.stripeOnboardingComplete) {
         await storage.updateRestaurant(restaurant.id, {
@@ -1354,7 +1354,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as any);
       }
 
-      res.json({ 
+      res.json({
         isComplete,
         chargesEnabled: account.charges_enabled,
         detailsSubmitted: account.details_submitted,
@@ -1382,13 +1382,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const { bankCode, accountNumber } = req.body;
-      
+
       if (!bankCode || !accountNumber) {
         return res.status(400).json({ message: "Bank code and account number are required" });
       }
 
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -1408,7 +1408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If Paystack keys are not configured, reject the request
       if (result.isPlaceholder) {
-        return res.status(503).json({ 
+        return res.status(503).json({
           message: "Paystack integration is not fully configured. Please contact support.",
           isPlaceholder: true
         });
@@ -1423,7 +1423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paystackOnboardingComplete: true,
       } as any);
 
-      res.json({ 
+      res.json({
         subaccountCode: result.subaccountCode,
         accountName: result.accountName,
         isComplete: true
@@ -1438,7 +1438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/paystack/initialize-payment', async (req, res) => {
     try {
       const { orderId, customerEmail } = req.body;
-      
+
       if (!orderId) {
         return res.status(400).json({ message: "Order ID is required" });
       }
@@ -1453,7 +1453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get order details
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1469,14 +1469,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get restaurant details
       const restaurant = await storage.getRestaurant(order.restaurantId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
       // Check if restaurant has Paystack enabled (has subaccount)
       if (!restaurant.paystackSubaccountCode) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "Online payment is not available for this restaurant. Please choose cash payment.",
           paymentUnavailable: true
         });
@@ -1507,7 +1507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (requestOrigin && typeof requestOrigin === 'string') {
           const requestUrl = new URL(requestOrigin);
           const requestOriginNormalized = `${requestUrl.protocol}//${requestUrl.host}`;
-          
+
           // Strict equality check: exact protocol and host must match
           const matchedOrigin = allowedOrigins.find(allowed => {
             try {
@@ -1519,7 +1519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               return false;
             }
           });
-          
+
           if (matchedOrigin) {
             baseUrl = matchedOrigin;
           } else {
@@ -1529,7 +1529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (err) {
         console.warn(`[Paystack Init] Failed to parse origin, using fallback ${baseUrl}:`, err);
       }
-      
+
       const callbackUrl = `${baseUrl}/payment-return?gateway=paystack&orderId=${orderId}`;
 
       // Initialize Paystack transaction
@@ -1560,7 +1560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Handle placeholder response (Paystack not configured)
       if (paymentResult.isPlaceholder) {
-        return res.status(503).json({ 
+        return res.status(503).json({
           message: "Online payment is temporarily unavailable. Please choose cash payment.",
           paymentUnavailable: true
         });
@@ -1575,14 +1575,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Paystack] Payment initialized for order ${orderId}: ${paymentResult.reference} (${amountInKobo} kobo)`);
 
       // Return authorization URL for customer to complete payment
-      res.json({ 
+      res.json({
         authorizationUrl: paymentResult.authorizationUrl,
         reference: paymentResult.reference,
         accessCode: paymentResult.accessCode
       });
     } catch (error) {
       console.error('Error initializing Paystack payment:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: error instanceof Error ? error.message : "Failed to initialize payment",
         paymentUnavailable: true
       });
@@ -1595,7 +1595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/payments/paystack/verify', async (req, res) => {
     try {
       const { reference, orderId } = req.query;
-      
+
       if (!reference || typeof reference !== 'string') {
         return res.status(400).json({ message: "Payment reference is required" });
       }
@@ -1606,7 +1606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get the order to validate the reference belongs to it
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1630,7 +1630,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Error verifying Paystack payment:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: error instanceof Error ? error.message : "Failed to verify payment"
       });
     }
@@ -1642,7 +1642,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/webhooks/paystack', async (req: any, res) => {
     try {
       const signature = req.headers['x-paystack-signature'] as string;
-      
+
       if (!signature) {
         console.error('[Paystack Webhook] Missing signature header');
         return res.status(400).json({ message: 'Missing signature' });
@@ -1650,15 +1650,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get raw body captured by JSON parser's verify function
       const rawBody = req.rawBody;
-      
+
       if (!rawBody) {
         console.error('[Paystack Webhook] Raw body not captured - verify function may not be working');
         return res.status(500).json({ message: 'Internal server error' });
       }
-      
+
       // Verify webhook signature using the raw body
       const isValid = Paystack.verifyWebhookSignature(rawBody, signature);
-      
+
       if (!isValid) {
         console.error('[Paystack Webhook] Invalid signature - rejecting webhook');
         return res.status(401).json({ message: 'Invalid signature' });
@@ -1666,7 +1666,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Parse webhook event using the already-parsed body from express.json()
       const event = Paystack.parseWebhookEvent(req.body);
-      
+
       if (!event) {
         console.error('[Paystack Webhook] Invalid event structure');
         return res.status(400).json({ message: 'Invalid event' });
@@ -1691,7 +1691,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             // Get the order first
             const order = await storage.getOrder(orderId);
-            
+
             if (!order) {
               console.warn(`[Paystack Webhook] Order ${orderId} not found`);
               break;
@@ -1734,7 +1734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Validate payment amount matches order total (convert NGN to kobo)
             // order.total is a decimal string, so parse it first
             const orderTotal = parseFloat(order.total);
-            
+
             if (isNaN(orderTotal)) {
               console.error(`[Paystack Webhook] Invalid order total for order ${orderId}: ${order.total}`);
               break;
@@ -1742,10 +1742,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             const expectedAmountKobo = Math.round(orderTotal * 100);
             const paidAmountKobo = verification.amount;
-            
+
             // Allow 1% tolerance for rounding differences
             const tolerance = Math.max(1, Math.round(expectedAmountKobo * 0.01));
-            
+
             if (Math.abs(paidAmountKobo - expectedAmountKobo) > tolerance) {
               console.error(
                 `[Paystack Webhook] Payment amount mismatch for order ${orderId}:` +
@@ -1770,7 +1770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Fetch updated order for WebSocket notification
             const updatedOrder = await storage.getOrder(orderId);
-            
+
             if (updatedOrder) {
               // Send WebSocket notification to restaurant owner
               wsManager.notifyOrderStatusChange(updatedOrder.restaurantId, {
@@ -1819,11 +1819,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     switch (event.type) {
       case 'account.updated':
         const account = event.data.object as Stripe.Account;
-        
+
         // Find restaurant by Stripe account ID
         const restaurants = await storage.getAllRestaurants();
         const restaurant = restaurants.find(r => r.stripeAccountId === account.id);
-        
+
         if (restaurant) {
           // Update onboarding status
           await storage.updateRestaurant(restaurant.id, {
@@ -1831,19 +1831,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } as any);
         }
         break;
-      
+
       case 'invoice.upcoming':
         // Report AI usage before invoice is finalized (fires ~1 week before renewal)
         const upcomingInvoice = event.data.object as Stripe.Invoice;
         const allRestaurants = await storage.getAllRestaurants();
         const invoiceRestaurant = allRestaurants.find(r => r.stripeCustomerId === upcomingInvoice.customer);
-        
+
         if (invoiceRestaurant) {
           console.log(`[Webhook] Reporting usage for ${invoiceRestaurant.id} before invoice finalization`);
           await reportUsageToStripe(invoiceRestaurant.id);
         }
         break;
-      
+
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
@@ -1857,7 +1857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -1866,12 +1866,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (restaurant.subscriptionId) {
         try {
           const existingSubscription = await stripe.subscriptions.retrieve(restaurant.subscriptionId);
-          
+
           console.log('[Checkout] Found existing subscription:', {
             id: existingSubscription.id,
             status: existingSubscription.status,
           });
-          
+
           // If subscription is already active, redirect to dashboard
           if (existingSubscription.status === 'active' || existingSubscription.status === 'trialing') {
             return res.json({
@@ -1879,7 +1879,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               alreadyActive: true,
             });
           }
-          
+
           // If subscription is incomplete, cancel it and create a fresh checkout session
           if (existingSubscription.status === 'incomplete' || existingSubscription.status === 'incomplete_expired') {
             console.log('[Checkout] Canceling incomplete subscription');
@@ -1897,9 +1897,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate Stripe Price IDs
       const basePriceId = process.env.STRIPE_BASE_PRICE_ID;
       const usagePriceId = process.env.STRIPE_USAGE_PRICE_ID;
-      
+
       if (!basePriceId || !usagePriceId) {
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: "Stripe pricing not configured",
           error: "missing_price_ids"
         });
@@ -1907,7 +1907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create or verify Stripe customer
       let customerId = restaurant.stripeCustomerId;
-      
+
       if (customerId) {
         try {
           await stripe.customers.retrieve(customerId);
@@ -1925,7 +1925,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
-      
+
       if (!customerId) {
         const user = await storage.getUser((req as any).userId);
         const customer = await stripe.customers.create({
@@ -1942,14 +1942,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as any);
       }
 
-      // Create Checkout Session for subscription
-      // Get the base URL from the request
-      const protocol = req.headers['x-forwarded-proto'] || 'http';
-      const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
-      const baseUrl = `${protocol}://${host}`;
-      
-      console.log('[Checkout] Base URL:', baseUrl);
-      
+      // Get the frontend URL for redirects (not the API Gateway URL)
+      const baseUrl = process.env.FRONTEND_URL || 'https://main.d182r8qb7g7hdy.amplifyapp.com';
+
+      console.log('[Checkout] Redirect base URL:', baseUrl);
+
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
         mode: 'subscription',
@@ -1980,9 +1977,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error('Error creating checkout session:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: "Failed to create checkout session",
-        error: error.message 
+        error: error.message
       });
     }
   });
@@ -1991,7 +1988,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -2008,24 +2005,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const subscription = await stripe.subscriptions.retrieve(restaurant.subscriptionId, {
             expand: ['latest_invoice.payment_intent'],
           });
-          
+
           console.log('[Subscription Status] Stripe subscription:', {
             id: subscription.id,
             status: subscription.status,
           });
-          
+
           // Check if subscription is incomplete but payment succeeded
           if (subscription.status === 'incomplete') {
             const invoice = subscription.latest_invoice as Stripe.Invoice;
             const paymentIntent = (invoice as any)?.payment_intent as Stripe.PaymentIntent;
-            
+
             console.log('[Subscription Status] Checking payment:', {
               invoiceId: invoice?.id,
               invoiceStatus: invoice?.status,
               paymentIntentId: paymentIntent?.id,
               paymentIntentStatus: paymentIntent?.status,
             });
-            
+
             // If PaymentIntent succeeded, mark invoice as paid
             if (paymentIntent?.status === 'succeeded' && invoice?.status !== 'paid') {
               console.log('[Subscription Status] PaymentIntent succeeded, marking invoice as paid:', invoice.id);
@@ -2033,23 +2030,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 await stripe.invoices.pay(invoice.id, {
                   paid_out_of_band: true, // Mark as paid manually
                 });
-                
+
                 console.log('[Subscription Status] Invoice marked as paid, refreshing subscription...');
-                
+
                 // Refresh subscription to get updated status
                 const updatedSubscription = await stripe.subscriptions.retrieve(restaurant.subscriptionId);
-                
+
                 console.log('[Subscription Status] Updated subscription status:', updatedSubscription.status);
-                
+
                 // Update database
                 await storage.updateRestaurant(restaurant.id, {
                   subscriptionStatus: updatedSubscription.status,
                 } as any);
-                
+
                 return res.json({
                   subscriptionId: updatedSubscription.id,
                   subscriptionStatus: updatedSubscription.status,
-                  currentPeriodEnd: (updatedSubscription as any).current_period_end 
+                  currentPeriodEnd: (updatedSubscription as any).current_period_end
                     ? new Date((updatedSubscription as any).current_period_end * 1000).toISOString()
                     : null,
                 });
@@ -2058,7 +2055,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             }
           }
-          
+
           // Update local database if status has changed
           if (subscription.status !== restaurant.subscriptionStatus) {
             console.log('[Subscription Status] Updating database status from', restaurant.subscriptionStatus, 'to', subscription.status);
@@ -2066,13 +2063,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               subscriptionStatus: subscription.status,
             } as any);
           }
-          
+
           console.log('[Subscription Status] Returning status:', subscription.status);
-          
+
           return res.json({
             subscriptionId: subscription.id,
             subscriptionStatus: subscription.status,
-            currentPeriodEnd: (subscription as any).current_period_end 
+            currentPeriodEnd: (subscription as any).current_period_end
               ? new Date((subscription as any).current_period_end * 1000).toISOString()
               : null,
           });
@@ -2105,7 +2102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -2120,14 +2117,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Delete the restaurant (this will cascade delete all related data)
       console.log('[Cancel Subscription] Deleting restaurant:', restaurant.id);
       await storage.deleteRestaurant(restaurant.id);
-      
+
       // Delete the user account
       console.log('[Cancel Subscription] Deleting user account:', userId);
       await storage.deleteUser(userId);
 
-      res.json({ 
-        success: true, 
-        message: "Subscription cancelled and account deleted successfully" 
+      res.json({
+        success: true,
+        message: "Subscription cancelled and account deleted successfully"
       });
     } catch (error) {
       console.error('[Cancel Subscription] Error:', error);
@@ -2140,7 +2137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   async function reportAIUsageToMeter(restaurantId: string, customerId: string) {
     try {
       const meterEventName = process.env.STRIPE_METER_EVENT_NAME || 'ai_waiter_request';
-      
+
       // Report single usage event to Stripe Meter
       await stripe.billing.meterEvents.create({
         event_name: meterEventName,
@@ -2180,14 +2177,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/subscription/checkout-success', isAuthenticated, async (req: any, res) => {
     try {
       const sessionId = req.query.session_id as string;
-      
+
       if (!sessionId) {
         return res.status(400).json({ message: "No session ID provided" });
       }
 
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -2211,7 +2208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sessionStatus: session.status,
           paymentStatus: session.payment_status,
         });
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "Payment not completed",
           details: {
             sessionStatus: session.status,
@@ -2225,15 +2222,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const subscription = session.subscription as Stripe.Subscription;
-      const usageItem = subscription.items.data.find((item: any) => 
+      const usageItem = subscription.items.data.find((item: any) =>
         item.price.id === process.env.STRIPE_USAGE_PRICE_ID
       );
 
       // Get current period end timestamp
       const currentPeriodEndTimestamp = (subscription as any).current_period_end;
       console.log('[Checkout Success] Current period end timestamp:', currentPeriodEndTimestamp);
-      
-      const currentPeriodEnd = currentPeriodEndTimestamp 
+
+      const currentPeriodEnd = currentPeriodEndTimestamp
         ? new Date(currentPeriodEndTimestamp * 1000)
         : null;
 
@@ -2285,9 +2282,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('[Confirm Payment] PaymentIntent status:', paymentIntent.status);
 
       if (paymentIntent.status !== 'succeeded' && paymentIntent.status !== 'processing') {
-        return res.status(400).json({ 
-          message: "Payment not completed", 
-          status: paymentIntent.status 
+        return res.status(400).json({
+          message: "Payment not completed",
+          status: paymentIntent.status
         });
       }
 
@@ -2319,11 +2316,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await stripe.invoices.pay(invoice.id, {
               paid_out_of_band: true,
             });
-            
+
             // Retrieve updated subscription
             const updatedSubscription = await stripe.subscriptions.retrieve(subscriptionId);
             console.log('[Confirm Payment] Updated subscription status:', updatedSubscription.status);
-            
+
             // Update database
             await storage.updateRestaurant(restaurant.id, {
               subscriptionStatus: updatedSubscription.status,
@@ -2356,7 +2353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object Storage routes - from blueprint:javascript_object_storage
-  
+
   // Get upload URL for object entity
   app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
     const objectStorageService = new ObjectStorageService();
@@ -2370,7 +2367,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      
+
       // Public objects don't need ACL checks
       const isPublicPath = req.path.startsWith('/objects/public/');
       if (!isPublicPath) {
@@ -2383,7 +2380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.sendStatus(401);
         }
       }
-      
+
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
       console.error("Error checking object access:", error);
@@ -2480,7 +2477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use Amazon Polly for speech synthesis with language-appropriate voices
       const buffer = await synthesizeSpeechWithLanguage(text, language);
-      
+
       // Report AI usage to Stripe Meter (only for non-demo restaurants)
       if (restaurantId && restaurantId !== 'demo') {
         try {
@@ -2498,12 +2495,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Don't fail the request if usage reporting fails
         }
       }
-      
+
       res.set({
         'Content-Type': 'audio/mpeg',
         'Content-Length': buffer.length,
       });
-      
+
       res.send(buffer);
     } catch (error: any) {
       // Handle AWS service errors gracefully
@@ -2514,7 +2511,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           voiceUnavailable: true
         });
       }
-      
+
       console.error('Text-to-speech error:', error);
       res.status(500).json({ error: 'Failed to generate speech' });
     }
@@ -2522,7 +2519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // AWS Transcribe Speech-to-Text endpoint - handles binary audio upload
   const upload = multer({ storage: multer.memoryStorage() });
-  
+
   app.post('/api/ai/speech-to-text', upload.single('audio'), async (req: any, res) => {
     try {
       const audioFile = req.file;
@@ -2569,7 +2566,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           voiceUnavailable: true
         });
       }
-      
+
       console.error('Speech-to-text error:', error);
       res.status(500).json({ error: 'Failed to transcribe speech' });
     }
@@ -2630,7 +2627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       console.error('Save interview error:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: "Failed to save interview data",
         error: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -2757,7 +2754,7 @@ Restaurant: ${restaurant.name}`;
       });
     } catch (error) {
       console.error('AI Interview error:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: "I'm having trouble right now. Please try again.",
         error: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -2768,7 +2765,7 @@ Restaurant: ${restaurant.name}`;
   app.get('/api/chef/questions', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.userId;
-      
+
       // Get restaurant owned by user
       const restaurant = await storage.getRestaurantByUserId(userId);
       if (!restaurant) {
@@ -2781,7 +2778,7 @@ Restaurant: ${restaurant.name}`;
       res.json(questions);
     } catch (error) {
       console.error('Error fetching pending questions:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to fetch pending questions',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -2876,7 +2873,7 @@ Restaurant: ${restaurant.name}`;
       });
     } catch (error) {
       console.error('Chef answer error:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to process chef answer',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -2888,7 +2885,7 @@ Restaurant: ${restaurant.name}`;
     try {
       const userId = req.userId;
       const restaurant = await storage.getRestaurantByUserId(userId);
-      
+
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
@@ -2971,7 +2968,7 @@ Restaurant: ${restaurant.name}`;
         question2,
         answer2
       );
-      
+
       res.json({ success: true });
     } catch (error) {
       console.error("Error setting security questions:", error);
@@ -2982,7 +2979,7 @@ Restaurant: ${restaurant.name}`;
   app.get('/api/admin/security-questions', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.userId;
-      
+
       const restaurant = await storage.getRestaurantByUserId(userId);
       if (!restaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
@@ -2990,8 +2987,8 @@ Restaurant: ${restaurant.name}`;
 
       const questions = await storage.getSecurityQuestions(restaurant.id);
       const hasQuestions = await storage.hasSecurityQuestions(restaurant.id);
-      
-      res.json({ 
+
+      res.json({
         questions,
         hasQuestions
       });
@@ -3035,7 +3032,7 @@ Restaurant: ${restaurant.name}`;
       }
 
       await storage.setAdminPassword(restaurant.id, newPassword);
-      
+
       res.json({ success: true });
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -3182,9 +3179,9 @@ Restaurant: ${restaurant.name}`;
         'need help', 'need assistance', 'help me', 'assist me',
         'talk to someone', 'speak to someone', 'human help', 'real person'
       ];
-      
+
       const isRequestingWaiter = waiterKeywords.some(keyword => userMessageText.includes(keyword));
-      
+
       let assistanceRequestId;
       if (isRequestingWaiter && restaurantId !== 'demo' && tableId) {
         // Create assistance request
@@ -3237,7 +3234,7 @@ Restaurant: ${restaurant.name}`;
         'pt': 'Portuguese',
         'ru': 'Russian',
       };
-      
+
       const languageName = languageNames[language] || 'English';
 
       // Tier 1: Basic menu context (frontend data)
@@ -3254,14 +3251,14 @@ Restaurant: ${restaurant.name}`;
       })) : [];
 
       // Tier 2: Extended menu details (backend data)
-      const extendedDetailsPromises = menuItems.map((item: any) => 
+      const extendedDetailsPromises = menuItems.map((item: any) =>
         storage.getExtendedMenuDetails(item.id)
       );
       const extendedDetailsArray = await Promise.all(extendedDetailsPromises);
       const extendedDetails = extendedDetailsArray.filter(Boolean);
 
       // Get restaurant knowledge
-      const restaurantKnowledge = restaurantId !== 'demo' 
+      const restaurantKnowledge = restaurantId !== 'demo'
         ? await storage.getRestaurantKnowledge(restaurantId)
         : null;
 
@@ -3269,7 +3266,7 @@ Restaurant: ${restaurant.name}`;
       // Extract both keywords and full question for better matching
       const lastUserMessage = messages.filter((m: any) => m.role === 'user').pop();
       const userQuestion = lastUserMessage?.content || '';
-      
+
       // Enhanced keyword extraction: filter out common words and very short words
       const commonWords = new Set(['the', 'is', 'are', 'was', 'were', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'can', 'may', 'what', 'when', 'where', 'who', 'why', 'how', 'this', 'that', 'these', 'those', 'you', 'your', 'for', 'and', 'but', 'not', 'with', 'from']);
       const keywords = userQuestion
@@ -3277,7 +3274,7 @@ Restaurant: ${restaurant.name}`;
         .split(/\s+/)
         .filter((word: string) => word.length > 3 && !commonWords.has(word))
         .slice(0, 10); // Limit to top 10 keywords
-      
+
       const relevantFaqs = restaurantId !== 'demo' && (keywords.length > 0 || userQuestion.length > 0)
         ? await storage.searchFaqByKeywords(restaurantId, keywords, userQuestion)
         : [];
@@ -3310,7 +3307,7 @@ Restaurant: ${restaurant.name}`;
 
       let faqContext = '';
       if (relevantFaqs.length > 0) {
-        faqContext = `\n\nFREQUENTLY ASKED QUESTIONS (Prioritize these answers if the question matches):\n${relevantFaqs.map(faq => 
+        faqContext = `\n\nFREQUENTLY ASKED QUESTIONS (Prioritize these answers if the question matches):\n${relevantFaqs.map(faq =>
           `Q: ${faq.question}\nA: ${faq.answer}`
         ).join('\n\n')}`;
       }
@@ -3474,7 +3471,7 @@ ALWAYS include confirmation text along with the ORDER_CONFIRMED tag so customers
 After adding items to cart, when the customer seems ready, ask: "Would you like to pay online or at the register?" This helps them checkout smoothly.`;
 
       console.log('[AI Chat] Processing request for restaurant:', restaurantId);
-      
+
       // Using Claude 3.5 Sonnet via AWS Bedrock (high-quality, reliable)
       let aiResponse;
       try {
@@ -3493,10 +3490,10 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
             setTimeout(() => reject(new Error('Claude API timeout')), 35000)
           )
         ]);
-        
+
         console.log('[AI Chat] Got AI response');
         console.log('[AI Chat] Raw AI response:', aiResponse);
-        
+
         // Report AI usage to Stripe Meter (only for non-demo restaurants)
         if (restaurantId !== 'demo') {
           try {
@@ -3517,12 +3514,12 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       } catch (error) {
         console.error('[AI Chat] Gemini API error:', error);
         if (error instanceof Error && error.message === 'Gemini API timeout') {
-          return res.status(503).json({ 
+          return res.status(503).json({
             error: 'AI service temporarily unavailable',
             message: 'The AI is taking longer than usual to respond. Please try again.'
           });
         }
-        return res.status(500).json({ 
+        return res.status(500).json({
           error: 'AI processing failed',
           message: error instanceof Error ? error.message : 'Unknown error'
         });
@@ -3536,7 +3533,7 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       if (aiResponse.includes('ESCALATE_TO_CHEF:')) {
         needsEscalation = true;
         const question = aiResponse.replace(/ESCALATE_TO_CHEF:\s*/i, '').trim();
-        
+
         // Create pending question for chef (only for non-demo restaurants)
         if (restaurantId !== 'demo' && customerSessionId) {
           const pendingQuestion = await storage.createPendingQuestion({
@@ -3571,7 +3568,7 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
             'pt': "Ótima pergunta! Deixe-me verificar com o chef e já volto com a resposta.",
             'ru': "Отличный вопрос! Позвольте мне уточнить у шеф-повара, я скоро вернусь с ответом.",
           };
-          
+
           finalResponse = escalationMessages[language] || escalationMessages['en'];
         } else {
           finalResponse = "I don't have that information right now, but I'd be happy to help you with anything else!";
@@ -3582,21 +3579,21 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       const addToCart: any[] = [];
       const orderPattern = /\[ORDER_CONFIRMED:\s*([^\]|]+)(?:\s*\|\s*note:\s*([^\]]+))?\]/gi;
       const matches = finalResponse.matchAll(orderPattern);
-      
+
       console.log('[AI Chat] Checking for ORDER_CONFIRMED tags in response...');
       console.log('[AI Chat] Final response before tag extraction:', finalResponse);
-      
+
       for (const match of matches) {
         const requestedItemName = match[1].trim();
         const customerNote = match[2] ? match[2].trim() : null;
         console.log('[AI Chat] Found ORDER_CONFIRMED tag for item:', requestedItemName, customerNote ? `with note: ${customerNote}` : '');
-        
+
         // Find menu item by EXACT name match only (case-insensitive)
         // No fuzzy matching to prevent accidentally adding wrong items
-        const menuItem = menuItems.find((item: any) => 
+        const menuItem = menuItems.find((item: any) =>
           item.name.toLowerCase() === requestedItemName.toLowerCase()
         );
-        
+
         if (menuItem) {
           console.log('[AI Chat] Matched menu item:', menuItem.name);
           addToCart.push({
@@ -3607,12 +3604,12 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
           console.log('[AI Chat] No menu item found matching:', requestedItemName);
         }
       }
-      
+
       console.log('[AI Chat] Total items to add to cart:', addToCart.length);
-      
+
       // Clean up the response - remove the ORDER_CONFIRMED tags before sending to user
       finalResponse = finalResponse.replace(/\[ORDER_CONFIRMED:\s*([^\]|]+)(?:\s*\|\s*note:\s*([^\]]+))?\]/gi, '').trim();
-      
+
       // Ensure we don't send an empty response if AI only returned tags
       if (!finalResponse && addToCart.length > 0) {
         const itemNames = addToCart.map((item: any) => item.name).join(' and ');
@@ -3627,7 +3624,7 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       });
     } catch (error) {
       console.error('AI Chat error:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: "I apologize, but I'm having trouble responding right now. Please try again.",
         error: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -3664,7 +3661,7 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       }
 
       const { id } = req.params;
-      
+
       // Validate request body with Zod
       const updateFaqSchema = z.object({
         question: z.string().min(1, 'Question is required').max(1000),
@@ -3674,9 +3671,9 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
 
       const validationResult = updateFaqSchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json({ 
-          error: 'Validation failed', 
-          details: validationResult.error.errors 
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: validationResult.error.errors
         });
       }
 
@@ -3723,7 +3720,7 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
 
       // Delete FAQ with restaurant ownership verification
       const deleted = await storage.deleteFaq(id, restaurant.id);
-      
+
       if (!deleted) {
         return res.status(404).json({ error: 'FAQ not found or access denied' });
       }

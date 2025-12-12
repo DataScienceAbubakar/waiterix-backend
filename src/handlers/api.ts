@@ -56,6 +56,28 @@ async function initializeApp() {
   if (!routesInitialized) {
     console.log('[Lambda] Initializing routes and auth middleware...');
     await registerRoutes(app);
+
+    // 404 handler - MUST be registered AFTER routes
+    app.use('*', (req, res) => {
+      res.status(404).json({
+        error: 'Not Found',
+        message: `Route ${req.method} ${req.originalUrl} not found`,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    // Error handling middleware - MUST be registered AFTER routes
+    app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+      console.error('Unhandled error:', error);
+
+      res.status(error.status || 500).json({
+        error: 'Internal Server Error',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong',
+        timestamp: new Date().toISOString(),
+        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+      });
+    });
+
     routesInitialized = true;
     console.log('[Lambda] Routes initialized successfully');
   }
@@ -65,27 +87,6 @@ async function initializeApp() {
 initializationPromise = initializeApp().catch((error) => {
   console.error('[Lambda] Failed to initialize routes:', error);
   throw error;
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Route ${req.method} ${req.originalUrl} not found`,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Error handling middleware
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', error);
-
-  res.status(error.status || 500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong',
-    timestamp: new Date().toISOString(),
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-  });
 });
 
 // Create the serverless handler

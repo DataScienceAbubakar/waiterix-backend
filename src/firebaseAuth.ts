@@ -7,13 +7,26 @@ import { storage } from "./storage";
 let firebaseApp: admin.app.App;
 
 try {
+  // Initialize with full service account credentials for Lambda environment
+  const serviceAccount = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    // Private key needs newlines replaced (stored as escaped in env vars)
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  };
+
+  console.log("[Firebase] Initializing with project:", serviceAccount.projectId);
+  console.log("[Firebase] Client email:", serviceAccount.clientEmail);
+
   firebaseApp = admin.initializeApp({
-    projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
   });
+  console.log("[Firebase] Admin SDK initialized successfully");
 } catch (error: any) {
   if (error.code === 'app/duplicate-app') {
     firebaseApp = admin.app();
   } else {
+    console.error("[Firebase] Initialization error:", error);
     throw error;
   }
 }
@@ -21,12 +34,17 @@ try {
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000;
   const pgStore = connectPg(session);
+
+  // Import the shared pool which already has SSL configured
+  const { pool } = require('./db');
+
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
+    pool: pool, // Use the shared pool from db.ts (already has SSL)
+    createTableIfMissing: true, // Auto-create sessions table if it doesn't exist
     ttl: sessionTtl,
     tableName: "sessions",
   });
+
   return session({
     secret: process.env.SESSION_SECRET || 'firebase-session-secret',
     store: sessionStore,
@@ -34,8 +52,9 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      // Enable secure cookies when on HTTPS (Lambda behind API Gateway is always HTTPS)
+      secure: true,
+      sameSite: 'none' as const,
       maxAge: sessionTtl,
     },
   });
