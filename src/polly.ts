@@ -3,10 +3,6 @@ import { PollyClient, SynthesizeSpeechCommand, VoiceId, Engine, OutputFormat } f
 // Initialize Polly client
 export const pollyClient = new PollyClient({
   region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
 });
 
 export interface PollyOptions {
@@ -43,7 +39,7 @@ export async function synthesizeSpeech(
     });
 
     const response = await pollyClient.send(command);
-    
+
     if (!response.AudioStream) {
       throw new Error("No audio stream in Polly response");
     }
@@ -51,7 +47,7 @@ export async function synthesizeSpeech(
     // Convert the stream to a buffer
     const chunks: Uint8Array[] = [];
     const reader = response.AudioStream.getReader();
-    
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -62,7 +58,7 @@ export async function synthesizeSpeech(
     const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
     const result = new Uint8Array(totalLength);
     let offset = 0;
-    
+
     for (const chunk of chunks) {
       result.set(chunk, offset);
       offset += chunk.length;
@@ -118,7 +114,7 @@ export async function synthesizeSpeechWithLanguage(
   options: Omit<PollyOptions, 'voiceId' | 'languageCode'> = {}
 ): Promise<Buffer> {
   const { voiceId, languageCode: pollyLanguageCode } = getVoiceForLanguage(languageCode);
-  
+
   return synthesizeSpeech(text, {
     ...options,
     voiceId,

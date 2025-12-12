@@ -1,23 +1,20 @@
-import { 
-  ApiGatewayManagementApiClient, 
+import {
+  ApiGatewayManagementApiClient,
   PostToConnectionCommand,
-  DeleteConnectionCommand 
+  DeleteConnectionCommand
 } from "@aws-sdk/client-apigatewaymanagementapi";
-import { 
-  DynamoDBClient, 
-  PutItemCommand, 
-  DeleteItemCommand, 
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  DeleteItemCommand,
   QueryCommand,
-  ScanCommand 
+  ScanCommand
 } from "@aws-sdk/client-dynamodb";
 
 // DynamoDB client for connection management
+// DynamoDB client for connection management
 const dynamoClient = new DynamoDBClient({
   region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
 });
 
 // API Gateway Management API client (will be initialized per connection)
@@ -25,10 +22,6 @@ const createApiGatewayClient = (endpoint: string) => {
   return new ApiGatewayManagementApiClient({
     region: process.env.AWS_REGION || 'us-east-1',
     endpoint,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
   });
 };
 
@@ -70,7 +63,7 @@ export class ApiGatewayWebSocketManager {
 
     const command = new PutItemCommand(params);
     await dynamoClient.send(command);
-    
+
     console.log(`WebSocket connection stored: ${connection.connectionId} for restaurant ${connection.restaurantId}`);
   }
 
@@ -85,7 +78,7 @@ export class ApiGatewayWebSocketManager {
 
     const command = new DeleteItemCommand(params);
     await dynamoClient.send(command);
-    
+
     console.log(`WebSocket connection removed: ${connectionId}`);
   }
 
@@ -149,7 +142,7 @@ export class ApiGatewayWebSocketManager {
   async sendToConnection(connectionId: string, endpoint: string, data: any): Promise<boolean> {
     try {
       const apiGatewayClient = createApiGatewayClient(endpoint);
-      
+
       const command = new PostToConnectionCommand({
         ConnectionId: connectionId,
         Data: JSON.stringify(data),
@@ -159,13 +152,13 @@ export class ApiGatewayWebSocketManager {
       return true;
     } catch (error: any) {
       console.error(`Failed to send message to connection ${connectionId}:`, error);
-      
+
       // If connection is stale (410 Gone), remove it from DynamoDB
       if (error.$metadata?.httpStatusCode === 410) {
         console.log(`Removing stale connection: ${connectionId}`);
         await this.removeConnection(connectionId);
       }
-      
+
       return false;
     }
   }
@@ -182,13 +175,13 @@ export class ApiGatewayWebSocketManager {
   // Notify chef dashboard about new question
   async notifyChefNewQuestion(restaurantId: string, questionData: any): Promise<void> {
     const chefConnections = await this.getConnections(restaurantId, 'chef');
-    
+
     if (chefConnections.length > 0) {
       await this.sendToConnections(chefConnections, {
         type: 'new-question',
         data: questionData,
       });
-      
+
       console.log(`Notified ${chefConnections.length} chef(s) about new question for restaurant ${restaurantId}`);
     }
   }
@@ -196,13 +189,13 @@ export class ApiGatewayWebSocketManager {
   // Send chef answer to customer
   async sendChefAnswerToCustomer(restaurantId: string, customerSessionId: string, answerData: any): Promise<void> {
     const customerConnections = await this.getConnections(restaurantId, 'customer', customerSessionId);
-    
+
     if (customerConnections.length > 0) {
       await this.sendToConnections(customerConnections, {
         type: 'chef-answer',
         data: answerData,
       });
-      
+
       console.log(`Sent chef answer to customer ${customerSessionId} in restaurant ${restaurantId}`);
     }
   }
@@ -210,7 +203,7 @@ export class ApiGatewayWebSocketManager {
   // Broadcast to all clients in a restaurant
   async broadcast(restaurantId: string, data: any): Promise<void> {
     const allConnections = await this.getConnections(restaurantId);
-    
+
     if (allConnections.length > 0) {
       await this.sendToConnections(allConnections, data);
       console.log(`Broadcasted message to ${allConnections.length} connections in restaurant ${restaurantId}`);
@@ -221,7 +214,7 @@ export class ApiGatewayWebSocketManager {
   async notifyOrderStatusChange(restaurantId: string, orderData: any): Promise<void> {
     // Notify chef dashboard
     const chefConnections = await this.getConnections(restaurantId, 'chef');
-    
+
     if (chefConnections.length > 0) {
       await this.sendToConnections(chefConnections, {
         type: 'order-status-changed',
@@ -231,7 +224,7 @@ export class ApiGatewayWebSocketManager {
 
     // Also broadcast to all customer sessions in this restaurant (for tracking pages)
     const customerConnections = await this.getConnections(restaurantId, 'customer');
-    
+
     if (customerConnections.length > 0) {
       await this.sendToConnections(customerConnections, {
         type: 'order-status-changed',
@@ -245,13 +238,13 @@ export class ApiGatewayWebSocketManager {
   // Notify chef dashboard about new assistance request
   async notifyNewAssistanceRequest(restaurantId: string, requestData: any): Promise<void> {
     const chefConnections = await this.getConnections(restaurantId, 'chef');
-    
+
     if (chefConnections.length > 0) {
       await this.sendToConnections(chefConnections, {
         type: 'new-assistance-request',
         data: requestData,
       });
-      
+
       console.log(`Notified ${chefConnections.length} chef(s) about new assistance request for restaurant ${restaurantId}`);
     }
   }
@@ -284,7 +277,7 @@ export class ApiGatewayWebSocketManager {
     );
 
     await Promise.allSettled(deletePromises);
-    
+
     if (staleConnections.length > 0) {
       console.log(`Cleaned up ${staleConnections.length} stale WebSocket connections`);
     }
@@ -298,7 +291,7 @@ export const apiGatewayWebSocketManager = new ApiGatewayWebSocketManager();
 export const handleConnect = async (event: any) => {
   const { connectionId } = event.requestContext;
   const { restaurantId, customerSessionId, role = 'customer' } = event.queryStringParameters || {};
-  
+
   if (!restaurantId) {
     return {
       statusCode: 400,
@@ -317,7 +310,7 @@ export const handleConnect = async (event: any) => {
 
   try {
     await apiGatewayWebSocketManager.storeConnection(connection);
-    
+
     return {
       statusCode: 200,
       body: 'Connected',
@@ -333,10 +326,10 @@ export const handleConnect = async (event: any) => {
 
 export const handleDisconnect = async (event: any) => {
   const { connectionId } = event.requestContext;
-  
+
   try {
     await apiGatewayWebSocketManager.removeConnection(connectionId);
-    
+
     return {
       statusCode: 200,
       body: 'Disconnected',
@@ -352,10 +345,10 @@ export const handleDisconnect = async (event: any) => {
 
 export const handleMessage = async (event: any) => {
   const { connectionId } = event.requestContext;
-  
+
   try {
     const message = JSON.parse(event.body);
-    
+
     // Handle different message types
     switch (message.type) {
       case 'ping':
@@ -365,7 +358,7 @@ export const handleMessage = async (event: any) => {
       default:
         console.log('Unknown message type:', message.type);
     }
-    
+
     return {
       statusCode: 200,
       body: 'Message processed',

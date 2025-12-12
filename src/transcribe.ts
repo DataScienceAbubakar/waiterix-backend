@@ -1,21 +1,13 @@
-import { TranscribeClient, StartTranscriptionJobCommand, GetTranscriptionJobCommand } from "@aws-sdk/client-transcribe";
+import { TranscribeClient, StartTranscriptionJobCommand, GetTranscriptionJobCommand, LanguageCode, MediaFormat } from "@aws-sdk/client-transcribe";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 // Initialize clients
 export const transcribeClient = new TranscribeClient({
   region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
 });
 
 export const s3Client = new S3Client({
   region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
 });
 
 export interface TranscriptionOptions {
@@ -71,14 +63,14 @@ export async function transcribeAudio(
     let jobStatus = 'IN_PROGRESS';
     let attempts = 0;
     const maxAttempts = 60; // 5 minutes max wait time
-    
+
     while (jobStatus === 'IN_PROGRESS' && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-      
+
       const jobResult = await transcribeClient.send(new GetTranscriptionJobCommand({
         TranscriptionJobName: jobName,
       }));
-      
+
       jobStatus = jobResult.TranscriptionJob?.TranscriptionJobStatus || 'FAILED';
       attempts++;
     }
@@ -127,7 +119,7 @@ export async function transcribeAudio(
     return transcript;
   } catch (error) {
     console.error("Transcription error:", error);
-    
+
     // Attempt cleanup on error
     try {
       await s3Client.send(new DeleteObjectCommand({
@@ -137,7 +129,7 @@ export async function transcribeAudio(
     } catch (cleanupError) {
       console.warn('Failed to clean up audio file on error:', cleanupError);
     }
-    
+
     throw new Error(`Failed to transcribe audio: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -154,7 +146,7 @@ export async function transcribeAudioBuffer(
 ): Promise<string> {
   // Extract format from mime type
   const mediaFormat = mimeType.split('/')[1] || 'webm';
-  
+
   return transcribeAudio(audioBuffer, {
     languageCode,
     mediaFormat,

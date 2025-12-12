@@ -1942,8 +1942,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as any);
       }
 
-      // Get the frontend URL for redirects (not the API Gateway URL)
-      const baseUrl = process.env.FRONTEND_URL || 'https://main.d182r8qb7g7hdy.amplifyapp.com';
+      // Get the frontend URL and ensure no trailing slash
+      const rawBaseUrl = process.env.FRONTEND_URL || 'https://main.d182r8qb7g7hdy.amplifyapp.com';
+      const baseUrl = rawBaseUrl.replace(/\/$/, '');
 
       console.log('[Checkout] Redirect base URL:', baseUrl);
 

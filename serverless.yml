@@ -204,3 +204,17 @@ custom:
     httpPort: 3005
     websocketPort: 3006
     host: 0.0.0.0
+
+resources:
+  Resources:
+    WebsocketConnectionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: 
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
