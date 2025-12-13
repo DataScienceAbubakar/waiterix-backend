@@ -24,6 +24,12 @@ provider:
   memorySize: 1024
   timeout: 29
 
+
+  # ⚙️ API Gateway Configuration
+  apiGateway:
+    binaryMediaTypes:
+      - 'multipart/form-data'
+
   # 🔒 VPC Configuration
   vpc:
     securityGroupIds:
@@ -54,7 +60,7 @@ provider:
     AWS_S3_BUCKET: waiterix-storage
     AWS_S3_TRANSCRIBE_BUCKET: waiterix-transcribe-temp
     AWS_S3_REGION: us-east-1
-
+     
     # 📧 SES
     SES_FROM_EMAIL: noreply@nomagro.com
     SUPPORT_EMAIL: support@nomagro.com
@@ -67,7 +73,7 @@ provider:
     STRIPE_WEBHOOK_SECRET: sk_test_51SXnfY2VZXX1nihiLJ78hL5DVPaOqoXhU2TwGCldGBJzrAgGNJ6lTxYsNW6bE1bMFJ7KIBH9Gdz7NJdOUyCYz2AE00Ux84umtM
     STRIPE_BASE_PRICE_ID: price_1SXnmn2VZXX1nihitL4P9y02
     STRIPE_USAGE_PRICE_ID: price_1SXnkJ2VZXX1nihiNA7puV2l
-    STRIPE_METER_EVENT_NAME: price_1SXnkJ2VZXX1nihiNA7puV2l
+    STRIPE_METER_EVENT_NAME: ai_waiter_request
 
     # 💳 Paystack
     PAYSTACK_SECRET_KEY: sk_test_ec72a27e12b915928c86230be7702153bb5a779b
@@ -97,8 +103,17 @@ provider:
             - bedrock:InvokeModel
             - bedrock:InvokeModelWithResponseStream
           Resource:
-            - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-3-5-sonnet-20241022-v2:0'
-            - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-3-haiku-20240307-v1:0'
+            # Amazon Nova models (no marketplace subscription needed)
+            - 'arn:aws:bedrock:*::foundation-model/amazon.nova-pro-v1:0'
+            - 'arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0'
+            - 'arn:aws:bedrock:*::foundation-model/amazon.nova-micro-v1:0'
+
+        # AWS Marketplace permissions (kept for future use)
+        - Effect: Allow
+          Action:
+            - aws-marketplace:ViewSubscriptions
+            - aws-marketplace:Subscribe
+          Resource: '*'
 
         - Effect: Allow
           Action:
@@ -110,6 +125,7 @@ provider:
             - transcribe:StartTranscriptionJob
             - transcribe:GetTranscriptionJob
           Resource: '*'
+
 
         - Effect: Allow
           Action:
@@ -134,8 +150,10 @@ provider:
             - dynamodb:GetItem
             - dynamodb:DeleteItem
             - dynamodb:UpdateItem
+            - dynamodb:Scan
           Resource:
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/waiterix-websocket-connections'
+
 
         - Effect: Allow
           Action:
@@ -210,7 +228,7 @@ resources:
     WebsocketConnectionsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: 
+        TableName: ${self:provider.environment.WEBSOCKET_CONNECTIONS_TABLE} 
         AttributeDefinitions:
           - AttributeName: connectionId
             AttributeType: S

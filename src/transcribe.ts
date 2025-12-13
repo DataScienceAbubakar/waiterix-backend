@@ -1,5 +1,5 @@
 import { TranscribeClient, StartTranscriptionJobCommand, GetTranscriptionJobCommand, LanguageCode, MediaFormat } from "@aws-sdk/client-transcribe";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 
 // Initialize clients
 export const transcribeClient = new TranscribeClient({
@@ -49,12 +49,12 @@ export async function transcribeAudio(
     // Start transcription job
     await transcribeClient.send(new StartTranscriptionJobCommand({
       TranscriptionJobName: jobName,
-      LanguageCode: languageCode,
+      LanguageCode: languageCode as LanguageCode,
       Media: {
         MediaFileUri: mediaUri,
       },
-      MediaFormat: mediaFormat,
-      MediaSampleRateHertz: sampleRate,
+      MediaFormat: mediaFormat as MediaFormat,
+      // MediaSampleRateHertz: sampleRate, // Removed to let AWS Transcribe auto-detect sample rate
       OutputBucketName: bucketName,
       OutputKey: `transcripts/${jobName}.json`,
     }));
@@ -63,6 +63,7 @@ export async function transcribeAudio(
     let jobStatus = 'IN_PROGRESS';
     let attempts = 0;
     const maxAttempts = 60; // 5 minutes max wait time
+    let failureReason = '';
 
     while (jobStatus === 'IN_PROGRESS' && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
@@ -72,30 +73,34 @@ export async function transcribeAudio(
       }));
 
       jobStatus = jobResult.TranscriptionJob?.TranscriptionJobStatus || 'FAILED';
+      if (jobStatus === 'FAILED') {
+        failureReason = jobResult.TranscriptionJob?.FailureReason || 'Unknown failure reason';
+      }
       attempts++;
     }
 
     if (jobStatus !== 'COMPLETED') {
-      throw new Error(`Transcription job failed with status: ${jobStatus}`);
+      throw new Error(`Transcription job failed with status: ${jobStatus}. Reason: ${failureReason}`);
     }
 
     // Get the transcription result
-    const jobResult = await transcribeClient.send(new GetTranscriptionJobCommand({
-      TranscriptionJobName: jobName,
-    }));
+    // Note: When OutputBucketName is specified, we must read the object using S3 client
+    // because the TranscriptFileUri is a standard S3 URI, not a pre-signed URL.
+    const outputKey = `transcripts/${jobName}.json`;
 
-    const transcriptUri = jobResult.TranscriptionJob?.Transcript?.TranscriptFileUri;
-    if (!transcriptUri) {
-      throw new Error('No transcript URI found in job result');
+    const getObjectCommand = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: outputKey,
+    });
+
+    const response = await s3Client.send(getObjectCommand);
+    const bodyContents = await response.Body?.transformToString();
+
+    if (!bodyContents) {
+      throw new Error('Empty transcript body');
     }
 
-    // Fetch the transcript from S3
-    const transcriptResponse = await fetch(transcriptUri);
-    if (!transcriptResponse.ok) {
-      throw new Error(`Failed to fetch transcript: ${transcriptResponse.statusText}`);
-    }
-
-    const transcriptData = await transcriptResponse.json();
+    const transcriptData = JSON.parse(bodyContents);
     const transcript = transcriptData.results?.transcripts?.[0]?.transcript;
 
     if (!transcript) {
@@ -144,11 +149,20 @@ export async function transcribeAudioBuffer(
   mimeType: string = 'audio/webm',
   languageCode: string = 'en-US'
 ): Promise<string> {
-  // Extract format from mime type
-  const mediaFormat = mimeType.split('/')[1] || 'webm';
+  // Extract format from mime type (e.g. 'audio/webm;codecs=opus' -> 'webm')
+  const baseMime = mimeType.split(';')[0]; // Remove parameters like codecs
+  const mediaFormat = baseMime.split('/')[1] || 'webm';
+
+  // Validate supported formats (basic check)
+  const supportedFormats = ['mp3', 'mp4', 'wav', 'flac', 'ogg', 'amr', 'webm'];
+  if (!supportedFormats.includes(mediaFormat)) {
+    console.warn(`[Transcribe] Unsupported format ${mediaFormat}, defaulting to webm`);
+  }
+
+  const validLanguageCode = getTranscribeLanguageCode(languageCode);
 
   return transcribeAudio(audioBuffer, {
-    languageCode,
+    languageCode: validLanguageCode,
     mediaFormat,
   });
 }

@@ -22,8 +22,8 @@ export async function synthesizeSpeech(
 ): Promise<Buffer> {
   const {
     voiceId = VoiceId.Joanna, // Natural, warm female voice similar to OpenAI's Nova
-    engine = Engine.neural,
-    outputFormat = OutputFormat.mp3,
+    engine = Engine.NEURAL,
+    outputFormat = OutputFormat.MP3,
     sampleRate = "22050",
     languageCode = "en-US"
   } = options;
@@ -35,7 +35,7 @@ export async function synthesizeSpeech(
       Engine: engine,
       OutputFormat: outputFormat,
       SampleRate: sampleRate,
-      LanguageCode: languageCode,
+      LanguageCode: languageCode as any, // Cast to any or import LanguageCode enum, string is widely compatible at runtime
     });
 
     const response = await pollyClient.send(command);
@@ -45,31 +45,16 @@ export async function synthesizeSpeech(
     }
 
     // Convert the stream to a buffer
-    const chunks: Uint8Array[] = [];
-    const reader = response.AudioStream.getReader();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-    }
-
-    // Combine all chunks into a single buffer
-    const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-    const result = new Uint8Array(totalLength);
-    let offset = 0;
-
-    for (const chunk of chunks) {
-      result.set(chunk, offset);
-      offset += chunk.length;
-    }
-
-    return Buffer.from(result);
+    // Convert the stream to a buffer (compatible with both Node.js and Browser)
+    // The AWS SDK v3 mixin adds transformToByteArray which works in both environments
+    const audioData = await response.AudioStream.transformToByteArray();
+    return Buffer.from(audioData);
   } catch (error) {
     console.error("Polly synthesis error:", error);
     throw new Error(`Failed to synthesize speech: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
 
 /**
  * Get available voices for a specific language

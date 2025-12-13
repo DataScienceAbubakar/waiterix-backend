@@ -1,12 +1,10 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
 // Initialize Bedrock Runtime client
+// When running in Lambda, credentials are automatically provided via the execution role
+// For local development, use AWS CLI profile or environment variables
 export const bedrockClient = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
 });
 
 export interface ClaudeMessage {
@@ -32,7 +30,7 @@ export interface ClaudeResponse {
 }
 
 /**
- * Generate content using Claude 3.5 Sonnet via AWS Bedrock
+ * Generate content using Amazon Nova via AWS Bedrock
  */
 export async function generateWithClaude(
   messages: ClaudeMessage[],
@@ -50,42 +48,45 @@ export async function generateWithClaude(
     systemPrompt
   } = options;
 
+  // Amazon Nova format
   const requestBody = {
-    anthropic_version: "bedrock-2023-05-31",
-    max_tokens: maxTokens,
-    temperature,
-    top_p: topP,
     messages: messages.map(msg => ({
       role: msg.role,
-      content: msg.content
+      content: [{ text: msg.content }]
     })),
-    ...(systemPrompt && { system: systemPrompt })
+    system: systemPrompt ? [{ text: systemPrompt }] : undefined,
+    inferenceConfig: {
+      max_new_tokens: maxTokens,
+      temperature,
+      top_p: topP,
+    }
   };
 
   try {
     const command = new InvokeModelCommand({
-      modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      modelId: "amazon.nova-pro-v1:0",
       contentType: "application/json",
       accept: "application/json",
       body: JSON.stringify(requestBody),
     });
 
     const response = await bedrockClient.send(command);
-    
+
     if (!response.body) {
       throw new Error("No response body from Bedrock");
     }
 
-    const responseBody = JSON.parse(new TextDecoder().decode(response.body)) as ClaudeResponse;
-    
-    if (!responseBody.content || responseBody.content.length === 0) {
-      throw new Error("No content in Claude response");
+    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+
+    // Nova response format: { output: { message: { content: [{ text: "..." }] } } }
+    if (!responseBody.output?.message?.content || responseBody.output.message.content.length === 0) {
+      throw new Error("No content in Nova response");
     }
 
-    return responseBody.content[0].text;
+    return responseBody.output.message.content[0].text;
   } catch (error) {
-    console.error("Claude generation error:", error);
-    throw new Error(`Failed to generate content with Claude: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Nova generation error:", error);
+    throw new Error(`Failed to generate content with Nova: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

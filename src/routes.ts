@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateTextWithClaude, generateConversationWithClaude } from "./bedrock";
+import { generateTextWithClaude, generateConversationWithClaude, generateWithClaude } from "./bedrock";
 import { synthesizeSpeechWithLanguage } from "./polly";
 import { transcribeAudioBuffer } from "./transcribe";
 import { setupAuth, isAuthenticated } from "./firebaseAuth";
@@ -12,6 +12,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import multer from "multer";
 import { wsManager } from "./websocket";
+import { apiGatewayWebSocketManager } from "./apiGatewayWebSocket";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { demoDataService } from "./demoDataService";
@@ -828,6 +829,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      if (apiGatewayWebSocketManager) {
+        await apiGatewayWebSocketManager.notifyOrderStatusChange(order.restaurantId, {
+          orderId: updated.id,
+          status: updated.status,
+          order: updated,
+        });
+      }
+
       res.json(updated);
     } catch (error) {
       console.error("Error updating order status:", error);
@@ -924,6 +933,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Emit WebSocket event for new assistance request
       if (wsManager) {
         wsManager.notifyNewAssistanceRequest(restaurantId, request);
+      }
+
+      if (apiGatewayWebSocketManager) {
+        await apiGatewayWebSocketManager.notifyNewAssistanceRequest(restaurantId, request);
       }
 
       res.json(request);
@@ -2476,30 +2489,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Text is required' });
       }
 
+      console.log(`[TTS] Generating speech for text length: ${text.length}, language: ${language}`);
+
       // Use Amazon Polly for speech synthesis with language-appropriate voices
       const buffer = await synthesizeSpeechWithLanguage(text, language);
 
-      // Report AI usage to Stripe Meter (only for non-demo restaurants)
-      if (restaurantId && restaurantId !== 'demo') {
-        try {
-          const restaurant = await storage.getRestaurant(restaurantId);
-          if (restaurant && restaurant.stripeCustomerId) {
-            await reportAIUsageToMeter(restaurantId, restaurant.stripeCustomerId);
-          }
-          // Track API call for analytics
-          await storage.recordAiApiCall({
-            restaurantId,
-            callType: 'text_to_speech',
-          });
-        } catch (usageError) {
-          console.error('[TTS] Error reporting usage to meter:', usageError);
-          // Don't fail the request if usage reporting fails
-        }
+      console.log(`[TTS] Generated audio buffer size: ${buffer.length} bytes`);
+
+      if (buffer.length === 0) {
+        console.error('[TTS] Generated empty audio buffer!');
+        throw new Error('Generated audio is empty');
       }
+
+      // TODO: Report AI usage to Stripe Meter (commented out - meter not configured)
+      // ... (existing commented code)
 
       res.set({
         'Content-Type': 'audio/mpeg',
-        'Content-Length': buffer.length,
+        'Content-Length': buffer.length.toString(),
       });
 
       res.send(buffer);
@@ -2539,23 +2546,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         language
       );
 
-      // Report AI usage to Stripe Meter (only for non-demo restaurants)
-      if (restaurantId && restaurantId !== 'demo') {
-        try {
-          const restaurant = await storage.getRestaurant(restaurantId);
-          if (restaurant && restaurant.stripeCustomerId) {
-            await reportAIUsageToMeter(restaurantId, restaurant.stripeCustomerId);
-          }
-          // Track API call for analytics
-          await storage.recordAiApiCall({
-            restaurantId,
-            callType: 'speech_to_text',
-          });
-        } catch (usageError) {
-          console.error('[STT] Error reporting usage to meter:', usageError);
-          // Don't fail the request if usage reporting fails
-        }
-      }
+      // TODO: Report AI usage to Stripe Meter (commented out - meter not configured)
+      // if (restaurantId && restaurantId !== 'demo') {
+      //   try {
+      //     const restaurant = await storage.getRestaurant(restaurantId);
+      //     if (restaurant && restaurant.stripeCustomerId) {
+      //       await reportAIUsageToMeter(restaurantId, restaurant.stripeCustomerId);
+      //     }
+      //     // Track API call for analytics
+      //     await storage.recordAiApiCall({
+      //       restaurantId,
+      //       callType: 'speech_to_text',
+      //     });
+      //   } catch (usageError) {
+      //     console.error('[STT] Error reporting usage to meter:', usageError);
+      //     // Don't fail the request if usage reporting fails
+      //   }
+      // }
 
       res.json({ text: transcriptionText });
     } catch (error: any) {
@@ -3495,23 +3502,23 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
         console.log('[AI Chat] Got AI response');
         console.log('[AI Chat] Raw AI response:', aiResponse);
 
-        // Report AI usage to Stripe Meter (only for non-demo restaurants)
-        if (restaurantId !== 'demo') {
-          try {
-            const restaurant = await storage.getRestaurant(restaurantId);
-            if (restaurant && restaurant.stripeCustomerId) {
-              await reportAIUsageToMeter(restaurantId, restaurant.stripeCustomerId);
-            }
-            // Track API call for analytics
-            await storage.recordAiApiCall({
-              restaurantId,
-              callType: 'chat',
-            });
-          } catch (usageError) {
-            console.error('[AI Chat] Error reporting usage to meter:', usageError);
-            // Don't fail the request if usage reporting fails
-          }
-        }
+        // TODO: Report AI usage to Stripe Meter (commented out - meter not configured)
+        // if (restaurantId !== 'demo') {
+        //   try {
+        //     const restaurant = await storage.getRestaurant(restaurantId);
+        //     if (restaurant && restaurant.stripeCustomerId) {
+        //       await reportAIUsageToMeter(restaurantId, restaurant.stripeCustomerId);
+        //     }
+        //     // Track API call for analytics
+        //     await storage.recordAiApiCall({
+        //       restaurantId,
+        //       callType: 'chat',
+        //     });
+        //   } catch (usageError) {
+        //     console.error('[AI Chat] Error reporting usage to meter:', usageError);
+        //     // Don't fail the request if usage reporting fails
+        //   }
+        // }
       } catch (error) {
         console.error('[AI Chat] Gemini API error:', error);
         if (error instanceof Error && error.message === 'Gemini API timeout') {
@@ -3730,6 +3737,29 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
     } catch (error) {
       console.error('Delete FAQ error:', error);
       res.status(500).json({ error: 'Failed to delete FAQ' });
+    }
+  });
+
+  // Public endpoint to get tables for a restaurant (for guest menu)
+  app.get('/api/public/restaurant/:restaurantId/tables', async (req, res) => {
+    try {
+      const restaurantId = req.params.restaurantId;
+      // Verify restaurant exists and is public accessible (basic check)
+      const restaurant = await storage.getRestaurant(restaurantId);
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      const tables = await storage.getRestaurantTables(restaurantId);
+      // Return simplified table data primarily for ID resolution
+      res.json(tables.map(t => ({
+        id: t.id,
+        tableNumber: t.tableNumber,
+        restaurantId: t.restaurantId
+      })));
+    } catch (error) {
+      console.error("Error fetching public tables:", error);
+      res.status(500).json({ message: "Failed to fetch tables" });
     }
   });
 
