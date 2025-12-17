@@ -15,6 +15,8 @@ services:
         sync: false  # Must be set manually in Render dashboard
       - key: FRONTEND_URL
         value: https://main.d182r8qb7g7hdy.amplifyapp.com
+      - key: API_BASE_URL
+        value: https://kf3yhq6qn6.execute-api.us-east-1.amazonaws.com/dev
       - key: PORT
         value: 10000
       - key: NODE_ENV

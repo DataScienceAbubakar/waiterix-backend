@@ -41,12 +41,23 @@ app.get('/', (req, res) => {
 // WebSocket server
 const wss = new WebSocketServer({ server, path: '/ws/realtime' });
 
+// Cart item interface for tracking customer orders
+interface CartItem {
+    id: string;
+    name: string;
+    price: string;
+    quantity: number;
+    customerNote?: string;
+}
+
 // Store OpenAI connections per client
 interface ClientConnection {
     openaiWs: WebSocket | null;
     restaurantId: string;
     language: string;
     menuItems: any[];
+    cart: CartItem[];  // Track items added to cart
+    tableId?: string;  // Table number/ID if provided
 }
 
 const clients = new Map<WebSocket, ClientConnection>();
@@ -54,6 +65,9 @@ const clients = new Map<WebSocket, ClientConnection>();
 // OpenAI Realtime configuration
 const OPENAI_REALTIME_URL = 'wss://api.openai.com/v1/realtime';
 const OPENAI_MODEL = 'gpt-4o-realtime-preview-2024-12-17';
+
+// Backend API URL for placing orders
+const API_BASE_URL = process.env.API_BASE_URL || 'https://kf3yhq6qn6.execute-api.us-east-1.amazonaws.com/dev';
 
 function log(message: string, ...args: any[]) {
     console.log(`[${new Date().toISOString()}] ${message}`, ...args);
@@ -84,6 +98,7 @@ YOUR CAPABILITIES:
 - Make personalized recommendations based on preferences
 - Add items to their cart when they're ready to order
 - Handle dietary restrictions (vegan, vegetarian, gluten-free, halal, kosher, allergies)
+- Confirm and place orders when customers are ready to finalize
 
 MENU ITEMS AVAILABLE:
 ${menuList || 'Menu items will be provided by the restaurant.'}
@@ -94,6 +109,15 @@ OPERATIONAL GUIDELINES:
 - If an item is unavailable, apologize and suggest similar alternatives
 - For ambiguous orders, ask clarifying questions naturally
 - Speak in ${language === 'en' ? 'English' : language}
+
+ORDER CONFIRMATION FLOW:
+- When the customer says they're done ordering (e.g., "that's all", "I'm done", "place my order", "confirm order"):
+  1. First, briefly summarize what's in their cart and the total
+  2. Ask "Would you like me to place this order?"
+  3. If they confirm, use the confirm_order function
+  4. After order is placed, tell them the order ID and estimated wait time
+- If the customer wants to pay by card or cash, note it when confirming
+- For any order changes after confirmation, let them know to speak with staff
 
 === STRICT GUARDRAILS (NEVER VIOLATE) ===
 
@@ -204,6 +228,31 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                             required: ['item_name'],
                         },
                     },
+                    {
+                        type: 'function',
+                        name: 'confirm_order',
+                        description: 'Place and confirm the customer\'s order. Use this when the customer says they are done ordering and want to finalize/confirm/place their order. Before calling this, summarize the order and ask for confirmation.',
+                        parameters: {
+                            type: 'object',
+                            properties: {
+                                payment_method: {
+                                    type: 'string',
+                                    enum: ['cash', 'card'],
+                                    description: 'How the customer wants to pay. Default to cash if not specified.',
+                                    default: 'cash',
+                                },
+                                table_number: {
+                                    type: 'string',
+                                    description: 'The table number if the customer mentions it',
+                                },
+                                customer_note: {
+                                    type: 'string',
+                                    description: 'Any general notes or special requests for the entire order',
+                                },
+                            },
+                            required: [],
+                        },
+                    },
                 ],
                 tool_choice: 'auto',
             },
@@ -303,64 +352,245 @@ function handleOpenAIEvent(clientWs: WebSocket, event: any, config: any) {
  * Handle function calls from OpenAI
  */
 function handleFunctionCall(clientWs: WebSocket, event: any, config: any) {
-    if (event.name !== 'add_to_cart') return;
+    const clientData = clients.get(clientWs);
+    if (!clientData) return;
 
     try {
         const args = JSON.parse(event.arguments || '{}');
 
-        // Find the menu item
-        const menuItems = config.menuItems || [];
-        const menuItem = menuItems.find(
-            (item: any) => item.name.toLowerCase() === args.item_name?.toLowerCase()
-        );
-
-        if (menuItem) {
-            // Notify client to add item to cart
-            sendToClient(clientWs, {
-                type: 'add_to_cart',
-                item: {
-                    ...menuItem,
-                    quantity: args.quantity || 1,
-                    customerNote: args.special_instructions,
-                },
-            });
-
-            // Respond to OpenAI with success
-            const clientData = clients.get(clientWs);
-            if (clientData?.openaiWs?.readyState === WebSocket.OPEN) {
-                clientData.openaiWs.send(JSON.stringify({
-                    type: 'conversation.item.create',
-                    item: {
-                        type: 'function_call_output',
-                        call_id: event.call_id,
-                        output: JSON.stringify({
-                            success: true,
-                            message: `Added ${args.quantity || 1} ${menuItem.name} to cart`,
-                        }),
-                    },
-                }));
-                clientData.openaiWs.send(JSON.stringify({ type: 'response.create' }));
-            }
-        } else {
-            // Item not found
-            const clientData = clients.get(clientWs);
-            if (clientData?.openaiWs?.readyState === WebSocket.OPEN) {
-                clientData.openaiWs.send(JSON.stringify({
-                    type: 'conversation.item.create',
-                    item: {
-                        type: 'function_call_output',
-                        call_id: event.call_id,
-                        output: JSON.stringify({
-                            success: false,
-                            message: `Could not find "${args.item_name}" on the menu`,
-                        }),
-                    },
-                }));
-                clientData.openaiWs.send(JSON.stringify({ type: 'response.create' }));
-            }
+        if (event.name === 'add_to_cart') {
+            handleAddToCart(clientWs, clientData, event, args, config);
+        } else if (event.name === 'confirm_order') {
+            handleConfirmOrder(clientWs, clientData, event, args, config);
         }
     } catch (error) {
         log('Error handling function call:', error);
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: 'Error processing request',
+        });
+    }
+}
+
+/**
+ * Handle add_to_cart function call
+ */
+function handleAddToCart(
+    clientWs: WebSocket,
+    clientData: ClientConnection,
+    event: any,
+    args: any,
+    config: any
+) {
+    // Find the menu item
+    const menuItems = config.menuItems || [];
+    const menuItem = menuItems.find(
+        (item: any) => item.name.toLowerCase() === args.item_name?.toLowerCase()
+    );
+
+    if (menuItem) {
+        const quantity = args.quantity || 1;
+
+        // Add to internal cart tracking
+        const existingItem = clientData.cart.find(item => item.id === menuItem.id);
+        if (existingItem) {
+            existingItem.quantity += quantity;
+            if (args.special_instructions) {
+                existingItem.customerNote = args.special_instructions;
+            }
+        } else {
+            clientData.cart.push({
+                id: menuItem.id,
+                name: menuItem.name,
+                price: menuItem.price,
+                quantity: quantity,
+                customerNote: args.special_instructions,
+            });
+        }
+
+        log(`Cart updated for restaurant ${clientData.restaurantId}:`, clientData.cart);
+
+        // Notify client to add item to cart (for UI update)
+        sendToClient(clientWs, {
+            type: 'add_to_cart',
+            item: {
+                ...menuItem,
+                quantity: quantity,
+                customerNote: args.special_instructions,
+            },
+        });
+
+        // Calculate current cart total for the AI
+        const cartSummary = clientData.cart.map(item =>
+            `${item.quantity}x ${item.name} ($${(parseFloat(item.price) * item.quantity).toFixed(2)})`
+        ).join(', ');
+        const cartTotal = clientData.cart.reduce(
+            (sum, item) => sum + (parseFloat(item.price) * item.quantity), 0
+        ).toFixed(2);
+
+        // Respond to OpenAI with success and cart summary
+        sendFunctionResponse(clientData, event.call_id, {
+            success: true,
+            message: `Added ${quantity} ${menuItem.name} to cart`,
+            cart_summary: cartSummary,
+            cart_total: `$${cartTotal}`,
+            cart_item_count: clientData.cart.reduce((sum, item) => sum + item.quantity, 0),
+        });
+    } else {
+        // Item not found - fuzzy search for suggestions
+        const suggestions = menuItems
+            .filter((item: any) =>
+                item.name.toLowerCase().includes(args.item_name?.toLowerCase() || '') ||
+                (args.item_name?.toLowerCase() || '').includes(item.name.toLowerCase().split(' ')[0])
+            )
+            .slice(0, 3)
+            .map((item: any) => item.name);
+
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: `Could not find "${args.item_name}" on the menu`,
+            suggestions: suggestions.length > 0 ? suggestions : undefined,
+        });
+    }
+}
+
+/**
+ * Handle confirm_order function call - places the order via backend API
+ */
+async function handleConfirmOrder(
+    clientWs: WebSocket,
+    clientData: ClientConnection,
+    event: any,
+    args: any,
+    _config: any
+) {
+    // Check if cart has items
+    if (clientData.cart.length === 0) {
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: 'The cart is empty. Please add items before placing an order.',
+        });
+        return;
+    }
+
+    // Calculate order totals
+    const subtotal = clientData.cart.reduce(
+        (sum, item) => sum + (parseFloat(item.price) * item.quantity), 0
+    );
+    const taxRate = 0.08; // 8% tax - this could be made configurable
+    const tax = subtotal * taxRate;
+    const total = subtotal + tax;
+
+    // Build order payload for backend API
+    const orderPayload = {
+        restaurantId: clientData.restaurantId,
+        tableId: args.table_number || clientData.tableId || null,
+        items: clientData.cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: parseFloat(item.price),
+            quantity: item.quantity,
+            customerNote: item.customerNote,
+        })),
+        subtotal: subtotal.toFixed(2),
+        tax: tax.toFixed(2),
+        tip: '0.00',
+        total: total.toFixed(2),
+        paymentMethod: args.payment_method || 'cash',
+        customerNote: args.customer_note || 'Order placed via AI Waiter',
+    };
+
+    log('Placing order:', JSON.stringify(orderPayload, null, 2));
+
+    try {
+        // Call the backend API to create the order
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderPayload),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            log('Order placement failed:', response.status, errorData);
+
+            // Handle specific error cases
+            if (errorData.error === 'subscription_required') {
+                sendFunctionResponse(clientData, event.call_id, {
+                    success: false,
+                    message: 'Sorry, this restaurant is not currently accepting orders. Please speak with the staff directly.',
+                });
+            } else {
+                sendFunctionResponse(clientData, event.call_id, {
+                    success: false,
+                    message: 'Sorry, there was an issue placing your order. Please try again or speak with the staff.',
+                });
+            }
+            return;
+        }
+
+        const order = await response.json();
+        log('Order placed successfully:', order.id);
+
+        // Clear the cart after successful order
+        const orderedItems = [...clientData.cart];
+        clientData.cart = [];
+
+        // Notify client about the order
+        sendToClient(clientWs, {
+            type: 'order_confirmed',
+            order: {
+                id: order.id,
+                items: orderedItems,
+                subtotal: subtotal.toFixed(2),
+                tax: tax.toFixed(2),
+                total: total.toFixed(2),
+                paymentMethod: args.payment_method || 'cash',
+                status: order.status || 'new',
+            },
+        });
+
+        // Build order summary for AI response
+        const itemsSummary = orderedItems
+            .map(item => `${item.quantity}x ${item.name}`)
+            .join(', ');
+
+        sendFunctionResponse(clientData, event.call_id, {
+            success: true,
+            message: 'Order placed successfully!',
+            order_id: order.id.slice(0, 8).toUpperCase(),
+            items_ordered: itemsSummary,
+            subtotal: `$${subtotal.toFixed(2)}`,
+            tax: `$${tax.toFixed(2)}`,
+            total: `$${total.toFixed(2)}`,
+            payment_method: args.payment_method || 'cash',
+            estimated_wait: '15-20 minutes',
+        });
+    } catch (error) {
+        log('Error placing order:', error);
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: 'Sorry, there was a connection issue. Please try again or speak with the staff.',
+        });
+    }
+}
+
+/**
+ * Helper function to send function response to OpenAI
+ */
+function sendFunctionResponse(clientData: ClientConnection, callId: string, output: any) {
+    if (clientData?.openaiWs?.readyState === WebSocket.OPEN) {
+        clientData.openaiWs.send(JSON.stringify({
+            type: 'conversation.item.create',
+            item: {
+                type: 'function_call_output',
+                call_id: callId,
+                output: JSON.stringify(output),
+            },
+        }));
+        clientData.openaiWs.send(JSON.stringify({ type: 'response.create' }));
     }
 }
 
@@ -391,6 +621,8 @@ wss.on('connection', (ws: WebSocket, req) => {
         restaurantId,
         language: 'en',
         menuItems: [],
+        cart: [],           // Initialize empty cart
+        tableId: query.tableId as string || undefined,  // Get table ID from query params
     });
 
     // Handle messages from client
