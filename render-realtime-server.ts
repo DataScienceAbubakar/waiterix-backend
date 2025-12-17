@@ -167,7 +167,7 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
             session: {
                 modalities: ['text', 'audio'],
                 instructions: systemPrompt,
-                voice: 'nova', // Most natural, friendly human-like voice for waiter role
+                voice: 'alloy', // Most natural, friendly human-like voice for waiter role
                 input_audio_format: 'pcm16',
                 output_audio_format: 'pcm16',
                 input_audio_transcription: {
