@@ -2492,13 +2492,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[TTS] Generating speech for text length: ${text.length}, language: ${language}`);
 
       // Use Amazon Polly for speech synthesis with language-appropriate voices
-      const buffer = await synthesizeSpeechWithLanguage(text, language);
+      const audioStream = await synthesizeSpeechWithLanguage(text, language);
 
-      console.log(`[TTS] Generated audio buffer size: ${buffer.length} bytes`);
+      console.log(`[TTS] Generated audio stream`);
 
-      if (buffer.length === 0) {
-        console.error('[TTS] Generated empty audio buffer!');
-        throw new Error('Generated audio is empty');
+      if (!audioStream) {
+        console.error('[TTS] Generated empty audio stream!');
+        throw new Error('Generated audio stream is empty');
       }
 
       // TODO: Report AI usage to Stripe Meter (commented out - meter not configured)
@@ -2506,10 +2506,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.set({
         'Content-Type': 'audio/mpeg',
-        'Content-Length': buffer.length.toString(),
+        // 'Transfer-Encoding': 'chunked' // automatically set by express when piping
       });
 
-      res.send(buffer);
+      audioStream.pipe(res);
     } catch (error: any) {
       // Handle AWS service errors gracefully
       if (error?.name === 'ThrottlingException' || error?.name === 'ServiceQuotaExceededException') {

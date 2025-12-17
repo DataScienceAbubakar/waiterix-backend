@@ -13,6 +13,7 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [
     'Content-Type',
+    'Accept',
     'Authorization',
     'X-Amz-Date',
     'X-Api-Key',

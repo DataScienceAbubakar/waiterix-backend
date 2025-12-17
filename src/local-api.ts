@@ -16,7 +16,7 @@ const corsOptions = {
     origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
@@ -107,6 +107,10 @@ app.get('/test-db', async (req, res) => {
 (async () => {
     const server = await registerRoutes(app);
 
+    // Import and initialize the OpenAI Realtime WebSocket server
+    const { realtimeWebSocketServer } = await import('./realtimeWebSocket');
+    realtimeWebSocketServer.initialize(server);
+
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
         const status = err.status || err.statusCode || 500;
         const message = err.message || "Internal Server Error";
@@ -120,6 +124,7 @@ app.get('/test-db', async (req, res) => {
         host: "127.0.0.1",
     }, () => {
         log(`serving on port ${port}`);
+        log(`OpenAI Realtime WebSocket available at ws://127.0.0.1:${port}/ws/realtime`);
 
         const gatewayStatus = getGatewayStatus();
         log('Payment Gateway Status:');

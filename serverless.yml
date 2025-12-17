@@ -29,6 +29,8 @@ provider:
   apiGateway:
     binaryMediaTypes:
       - 'multipart/form-data'
+      - 'audio/*'
+      - 'audio/mpeg'
 
   # 🔒 VPC Configuration
   vpc:
@@ -55,7 +57,6 @@ provider:
     REDIS_PORT: '6379'
     REDIS_PASSWORD: AllahummasallialaMuhammad1!
     REDIS_DB: '0'
-
     # ☁️ AWS Services
     AWS_S3_BUCKET: waiterix-storage
     AWS_S3_TRANSCRIBE_BUCKET: waiterix-transcribe-temp
@@ -87,6 +88,9 @@ provider:
     # 🌐 URLs
     FRONTEND_URL: 'https://main.d182r8qb7g7hdy.amplifyapp.com'
     API_BASE_URL: ''
+
+    # 🤖 OpenAI (for Realtime API)
+    OPENAI_API_KEY: ${env:OPENAI_API_KEY, ''}
 
   iam:
     role:
@@ -172,6 +176,7 @@ functions:
             origin: 'https://main.d182r8qb7g7hdy.amplifyapp.com'
             headers:
               - Content-Type
+              - Accept
               - X-Amz-Date
               - Authorization
               - X-Api-Key
@@ -187,6 +192,7 @@ functions:
             origin: 'https://main.d182r8qb7g7hdy.amplifyapp.com'
             headers:
               - Content-Type
+              - Accept
               - X-Amz-Date
               - Authorization
               - X-Api-Key

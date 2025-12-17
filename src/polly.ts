@@ -1,4 +1,5 @@
 import { PollyClient, SynthesizeSpeechCommand, VoiceId, Engine, OutputFormat } from "@aws-sdk/client-polly";
+import { Readable } from "stream";
 
 // Initialize Polly client
 export const pollyClient = new PollyClient({
@@ -19,7 +20,7 @@ export interface PollyOptions {
 export async function synthesizeSpeech(
   text: string,
   options: PollyOptions = {}
-): Promise<Buffer> {
+): Promise<Readable> {
   const {
     voiceId = VoiceId.Joanna, // Natural, warm female voice similar to OpenAI's Nova
     engine = Engine.NEURAL,
@@ -35,7 +36,7 @@ export async function synthesizeSpeech(
       Engine: engine,
       OutputFormat: outputFormat,
       SampleRate: sampleRate,
-      LanguageCode: languageCode as any, // Cast to any or import LanguageCode enum, string is widely compatible at runtime
+      LanguageCode: languageCode as any,
     });
 
     const response = await pollyClient.send(command);
@@ -44,11 +45,8 @@ export async function synthesizeSpeech(
       throw new Error("No audio stream in Polly response");
     }
 
-    // Convert the stream to a buffer
-    // Convert the stream to a buffer (compatible with both Node.js and Browser)
-    // The AWS SDK v3 mixin adds transformToByteArray which works in both environments
-    const audioData = await response.AudioStream.transformToByteArray();
-    return Buffer.from(audioData);
+    // Return the stream directly for streaming playback
+    return response.AudioStream as Readable;
   } catch (error) {
     console.error("Polly synthesis error:", error);
     throw new Error(`Failed to synthesize speech: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -97,7 +95,7 @@ export async function synthesizeSpeechWithLanguage(
   text: string,
   languageCode: string = 'en-US',
   options: Omit<PollyOptions, 'voiceId' | 'languageCode'> = {}
-): Promise<Buffer> {
+): Promise<Readable> {
   const { voiceId, languageCode: pollyLanguageCode } = getVoiceForLanguage(languageCode);
 
   return synthesizeSpeech(text, {

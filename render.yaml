@@ -1,0 +1,21 @@
+# Render Infrastructure as Code
+# See: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: waiterix-realtime
+    env: node
+    plan: starter  # $7/month, always-on. Use 'free' for testing
+    region: ohio   # Choose: oregon, ohio, frankfurt, singapore
+    buildCommand: npm install
+    startCommand: npx tsx render-realtime-server.ts
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false  # Must be set manually in Render dashboard
+      - key: FRONTEND_URL
+        value: https://main.d182r8qb7g7hdy.amplifyapp.com
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
