@@ -9,6 +9,7 @@ import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insert
 import Stripe from "stripe";
 import { Paystack } from "./payments/paystack";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { s3StorageService } from "./s3Storage";
 import { ObjectPermission } from "./objectAcl";
 import multer from "multer";
 import { wsManager } from "./websocket";
@@ -1331,10 +1332,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Stripe account not found" });
       }
 
+      // Use frontend URL for redirects (not the API Gateway URL)
+      const frontendUrl = process.env.FRONTEND_URL || 'https://main.d182r8qb7g7hdy.amplifyapp.com';
+
       const accountLink = await stripe.accountLinks.create({
         account: restaurant.stripeAccountId,
-        refresh_url: `${req.protocol}://${req.get('host')}/dashboard/settings?refresh=true`,
-        return_url: `${req.protocol}://${req.get('host')}/dashboard/settings?stripe_refresh=true`,
+        refresh_url: `${frontendUrl}/dashboard/settings?refresh=true`,
+        return_url: `${frontendUrl}/dashboard/settings?stripe_refresh=true`,
         type: 'account_onboarding',
       });
 
@@ -2368,11 +2372,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Object Storage routes - from blueprint:javascript_object_storage
 
-  // Get upload URL for object entity
+  // Get upload URL for object entity (using S3)
   app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
-    const objectStorageService = new ObjectStorageService();
-    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-    res.json({ uploadURL });
+    try {
+      const uploadURL = await s3StorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error('Error generating upload URL:', error);
+      res.status(500).json({ message: "Failed to generate upload URL" });
+    }
   });
 
   // Serve objects with ACL check (public or private)
