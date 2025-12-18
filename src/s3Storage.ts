@@ -1,7 +1,7 @@
-import { 
-  S3Client, 
-  PutObjectCommand, 
-  GetObjectCommand, 
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
   DeleteObjectCommand,
   HeadObjectCommand,
   PutObjectAclCommand,
@@ -45,8 +45,9 @@ export class S3StorageService {
   private privateBucket: string;
 
   constructor() {
-    this.publicBucket = process.env.S3_PUBLIC_BUCKET || 'waiterix-public';
-    this.privateBucket = process.env.S3_PRIVATE_BUCKET || 'waiterix-private';
+    // Use AWS_S3_BUCKET from serverless.yml, or fall back to specific bucket env vars
+    this.publicBucket = process.env.S3_PUBLIC_BUCKET || process.env.AWS_S3_BUCKET || 'waiterix-storage';
+    this.privateBucket = process.env.S3_PRIVATE_BUCKET || process.env.AWS_S3_BUCKET || 'waiterix-storage';
   }
 
   // Get public object search paths (S3 buckets)
@@ -66,7 +67,7 @@ export class S3StorageService {
         Bucket: this.publicBucket,
         Key: filePath,
       });
-      
+
       await s3Client.send(command);
       return { bucket: this.publicBucket, key: filePath };
     } catch (error: any) {
@@ -79,8 +80,8 @@ export class S3StorageService {
 
   // Download an object to the response
   async downloadObject(
-    objectInfo: { bucket: string; key: string }, 
-    res: Response, 
+    objectInfo: { bucket: string; key: string },
+    res: Response,
     cacheTtlSec: number = 3600
   ) {
     try {
@@ -90,7 +91,7 @@ export class S3StorageService {
       });
 
       const response = await s3Client.send(command);
-      
+
       if (!response.Body) {
         throw new Error("No response body from S3");
       }
@@ -107,7 +108,7 @@ export class S3StorageService {
       // Stream the file to the response
       if (response.Body instanceof ReadableStream) {
         const reader = response.Body.getReader();
-        
+
         try {
           while (true) {
             const { done, value } = await reader.read();
@@ -122,7 +123,7 @@ export class S3StorageService {
         // Handle other body types
         const chunks: Uint8Array[] = [];
         const stream = response.Body as any;
-        
+
         stream.on('data', (chunk: Uint8Array) => chunks.push(chunk));
         stream.on('end', () => {
           const buffer = Buffer.concat(chunks);
@@ -145,13 +146,14 @@ export class S3StorageService {
   }
 
   // Get upload URL for an object entity (presigned URL)
-  async getObjectEntityUploadURL(): Promise<string> {
+  async getObjectEntityUploadURL(contentType?: string): Promise<string> {
     const objectId = randomUUID();
     const key = `uploads/${objectId}`;
 
     const command = new PutObjectCommand({
       Bucket: this.privateBucket,
       Key: key,
+      ContentType: contentType, // Include Content-Type in the signature
     });
 
     // Generate presigned URL for PUT operation (15 minutes expiry)
@@ -171,7 +173,7 @@ export class S3StorageService {
     }
 
     const entityId = parts.slice(1).join("/");
-    
+
     // Check if this is a public object
     if (entityId.startsWith("public/")) {
       const key = entityId.substring(7); // Remove "public/" prefix
@@ -181,16 +183,16 @@ export class S3StorageService {
       }
       return objectInfo;
     }
-    
+
     // For private objects
     const key = entityId;
-    
+
     try {
       const command = new HeadObjectCommand({
         Bucket: this.privateBucket,
         Key: key,
       });
-      
+
       await s3Client.send(command);
       return { bucket: this.privateBucket, key };
     } catch (error: any) {
@@ -208,7 +210,7 @@ export class S3StorageService {
       try {
         const url = new URL(rawPath);
         const pathParts = url.pathname.split('/').filter(Boolean);
-        
+
         if (pathParts.length > 0) {
           const key = pathParts.join('/');
           return `/objects/${key}`;
@@ -227,30 +229,30 @@ export class S3StorageService {
     aclPolicy: ObjectAclPolicy
   ): Promise<string> {
     const normalizedPath = this.normalizeObjectEntityPath(rawPath);
-    
+
     if (!normalizedPath.startsWith("/objects/")) {
       return normalizedPath;
     }
 
     try {
       const objectInfo = await this.getObjectEntityFile(normalizedPath);
-      
+
       // Set S3 object ACL based on visibility
       const aclCommand = new PutObjectAclCommand({
         Bucket: objectInfo.bucket,
         Key: objectInfo.key,
         ACL: aclPolicy.visibility === "public" ? "public-read" : "private",
       });
-      
+
       await s3Client.send(aclCommand);
-      
+
       // Add metadata for owner tracking
       if (aclPolicy.owner) {
         // Note: S3 doesn't support custom metadata updates without copying the object
         // For now, we'll track ownership in the database or use S3 tags
         console.log(`Object ${objectInfo.key} ownership set to ${aclPolicy.owner}`);
       }
-      
+
       return normalizedPath;
     } catch (error) {
       console.error("Error setting S3 object ACL:", error);
@@ -277,7 +279,7 @@ export class S3StorageService {
       // For private objects, check ownership or permissions
       // This is a simplified implementation - in production, you'd want to
       // store ownership metadata in DynamoDB or use S3 object tags
-      
+
       if (!userId) {
         return false; // No user, no access to private objects
       }
@@ -318,7 +320,7 @@ export class S3StorageService {
     });
 
     await s3Client.send(command);
-    
+
     // Return the S3 URL
     if (acl === "public-read") {
       return `https://${bucket}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
