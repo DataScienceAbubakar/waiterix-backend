@@ -982,6 +982,13 @@ function handleClientMessage(ws: WebSocket, message: any) {
             }
             break;
 
+        case 'input_audio_buffer.clear':
+            // Clear any pending audio on the OpenAI side
+            if (clientData.openaiWs?.readyState === WebSocket.OPEN) {
+                clientData.openaiWs.send(JSON.stringify({ type: 'input_audio_buffer.clear' }));
+            }
+            break;
+
         case 'end_session':
             if (clientData.openaiWs) {
                 clientData.openaiWs.close();
