@@ -2804,6 +2804,27 @@ Restaurant: ${restaurant.name}`;
     }
   });
 
+  // Create Pending Question - Voice/Text for Chef
+  app.post('/api/pending-questions', async (req: any, res) => {
+    try {
+      const questionData = insertPendingQuestionSchema.parse(req.body);
+
+      // Create pending question in database
+      const question = await storage.createPendingQuestion(questionData);
+
+      // Notify chef dashboard about new question via WebSocket (Serverless/AWS)
+      await apiGatewayWebSocketManager.notifyChefNewQuestion(question.restaurantId, question);
+
+      res.status(201).json(question);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error('Error creating pending question:', error);
+      res.status(500).json({ error: 'Failed to create pending question' });
+    }
+  });
+
   // Chef Answer Endpoint - Voice response to customer questions
   app.post('/api/chef/answer', isAuthenticated, upload.single('audio'), async (req: any, res) => {
     try {
@@ -2848,26 +2869,7 @@ Restaurant: ${restaurant.name}`;
       }
 
 
-      // Create Pending Question
-      app.post('/api/pending-questions', async (req: any, res) => {
-        try {
-          const questionData = insertPendingQuestionSchema.parse(req.body);
 
-          // Create pending question in database
-          const question = await storage.createPendingQuestion(questionData);
-
-          // Notify chef dashboard about new question via WebSocket
-          wsManager.notifyChefNewQuestion(question.restaurantId, question);
-
-          res.status(201).json(question);
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            return res.status(400).json({ error: error.errors });
-          }
-          console.error('Error creating pending question:', error);
-          res.status(500).json({ error: 'Failed to create pending question' });
-        }
-      });
 
       // Save chef answer and notify customer
       const chefAnswer = await storage.createChefAnswer({
@@ -2895,7 +2897,8 @@ Restaurant: ${restaurant.name}`;
       await storage.updatePendingQuestionStatus(questionId, 'answered');
 
       // Notify customer via WebSocket
-      wsManager.sendChefAnswerToCustomer(
+      // Notify customer via WebSocket
+      await apiGatewayWebSocketManager.sendChefAnswerToCustomer(
         question.restaurantId,
         question.customerSessionId,
         {
@@ -2931,7 +2934,7 @@ Restaurant: ${restaurant.name}`;
       const request = await storage.createAssistanceRequest(requestData);
 
       // Notify chef dashboard via WebSocket
-      wsManager.notifyNewAssistanceRequest(request.restaurantId, request);
+      await apiGatewayWebSocketManager.notifyNewAssistanceRequest(request.restaurantId, request);
 
       res.status(201).json(request);
     } catch (error) {
