@@ -1195,6 +1195,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint for AI Waiter greeting (pre-rendered for speed)
+  app.get('/api/public/ai/greeting/:id', async (req, res) => {
+    try {
+      const restaurantId = req.params.id;
+      const language = (req.query.lang as string) || 'en';
+
+      let restaurantName = 'this restaurant';
+
+      // Handle demo restaurant
+      if (demoDataService.isDemoRestaurant(restaurantId)) {
+        restaurantName = demoDataService.getDemoRestaurant().name;
+      } else {
+        const restaurant = await storage.getRestaurant(restaurantId);
+        if (!restaurant) {
+          return res.status(404).json({ error: 'Restaurant not found' });
+        }
+        restaurantName = restaurant.name;
+      }
+
+      const greetingText = `Hello there! Welcome to ${restaurantName}. We’re happy to have you today. I’m Lela, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you’re ready. You can tap the “Talk to Lelah” button right of your screen to talk with me anytime.`;
+
+      console.log(`[Greeting] Generating speech for ${restaurantName} in ${language}`);
+      const audioStream = await synthesizeSpeechWithLanguage(greetingText, language);
+
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
+      });
+
+      audioStream.pipe(res);
+    } catch (error) {
+      console.error('Greeting synthesis error:', error);
+      res.status(500).json({ error: 'Failed to generate greeting' });
+    }
+  });
+
   // Stripe payment intent creation
   app.post('/api/create-payment-intent', async (req, res) => {
     try {
