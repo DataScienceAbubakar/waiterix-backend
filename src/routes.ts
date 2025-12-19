@@ -2376,7 +2376,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
     try {
       const { contentType } = req.body;
+      console.log('[Upload] Generating URL for contentType:', contentType);
       const uploadURL = await s3StorageService.getObjectEntityUploadURL(contentType);
+      console.log('[Upload] Generated URL:', uploadURL);
       res.json({ uploadURL });
     } catch (error) {
       console.error('Error generating upload URL:', error);

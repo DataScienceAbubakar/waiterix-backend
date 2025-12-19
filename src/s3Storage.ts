@@ -14,10 +14,9 @@ import { randomUUID } from "crypto";
 // AWS S3 client configuration
 export const s3Client = new S3Client({
   region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
+  // Let AWS SDK auto-resolve credentials (handles AWS_SESSION_TOKEN automatically)
+  requestChecksumCalculation: "WHEN_REQUIRED",
+  responseChecksumValidation: "WHEN_REQUIRED",
 });
 
 export class ObjectNotFoundError extends Error {
