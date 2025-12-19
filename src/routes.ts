@@ -5,7 +5,7 @@ import { generateTextWithClaude, generateConversationWithClaude, generateWithCla
 import { synthesizeSpeechWithLanguage } from "./polly";
 import { transcribeAudioBuffer } from "./transcribe";
 import { setupAuth, isAuthenticated } from "./firebaseAuth";
-import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertRestaurantTableSchema, insertAssistanceRequestSchema, type InsertRestaurant } from "@/shared/schema";
+import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertRestaurantTableSchema, insertAssistanceRequestSchema, insertPendingQuestionSchema, type InsertRestaurant } from "@/shared/schema";
 import Stripe from "stripe";
 import { Paystack } from "./payments/paystack";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -2847,7 +2847,29 @@ Restaurant: ${restaurant.name}`;
         answer = textAnswer.trim();
       }
 
-      // Save chef answer
+
+      // Create Pending Question
+      app.post('/api/pending-questions', async (req: any, res) => {
+        try {
+          const questionData = insertPendingQuestionSchema.parse(req.body);
+
+          // Create pending question in database
+          const question = await storage.createPendingQuestion(questionData);
+
+          // Notify chef dashboard about new question via WebSocket
+          wsManager.notifyChefNewQuestion(question.restaurantId, question);
+
+          res.status(201).json(question);
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.errors });
+          }
+          console.error('Error creating pending question:', error);
+          res.status(500).json({ error: 'Failed to create pending question' });
+        }
+      });
+
+      // Save chef answer and notify customer
       const chefAnswer = await storage.createChefAnswer({
         pendingQuestionId: questionId,
         restaurantId: question.restaurantId,

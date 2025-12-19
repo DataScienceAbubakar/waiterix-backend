@@ -617,33 +617,35 @@ async function handleCallChef(
         question: question,
     });
 
-    // Notify chef dashboard via Backend API
+    // Notify chef dashboard via Backend API (Create a Pending Question)
     try {
-        // Use the backend API to create an assistance request
-        // This triggers the WebSocket broadcast to the chef dashboard
-        await fetch(`${API_BASE_URL}/api/assistance-requests`, {
+        // Create a pending question - this will trigger the 'new-question' event
+        // and show up in the PendingQuestionsPanel for the chef to answer verbally
+        await fetch(`${API_BASE_URL}/api/pending-questions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 restaurantId: clientData.restaurantId,
-                tableId: clientData.tableId || undefined,
-                requestType: 'call_waiter',
-                customerMessage: `AI Question: ${question}`,
+                customerSessionId: (clientData as any).connectionId || 'unknown-session',
+                question: question,
                 status: 'pending'
             })
         });
-        log('Chef dashboard notified successfully');
+        log('Chef dashboard notified via pending questions');
+
+        // Also notify via WebSocket for immediate visual feedback (optional if PendingQuestionsPanel is already doing this)
+        // wsManager.notifyChefNewQuestion(clientData.restaurantId, { question });
+
     } catch (err) {
-        log('Error notifying chef dashboard:', err);
-        // Continue to respond to AI even if dashboard notification fails
+        log('Error creating pending question:', err);
     }
 
     sendFunctionResponse(clientData, event.call_id, {
         success: true,
-        message: "Request sent to kitchen.",
-        system_instruction: "Inform the customer that you have sent their specific question to the chef and they will provide an answer shortly."
+        message: "Question sent to chef.",
+        system_instruction: "Tell the customer: 'I've asked the chef directly. They will speak the answer to you shortly.'"
     });
 }
 
