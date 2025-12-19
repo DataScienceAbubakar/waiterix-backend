@@ -302,26 +302,31 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
             },
         }));
 
-        // Trigger proactive greeting after session configuration
+        // Trigger proactive greeting after a short delay to ensure session is fully updated
         // This makes the AI speak first as soon as the connection is established
         if (config.sessionType !== 'interviewer') {
-            const greetingMsg = `Trigger Greeting: Hello, welcome to ${config.restaurantName || 'our'} restaurant. I am your AI waiter, what would you like me to help you with?`;
+            setTimeout(() => {
+                if (openaiWs.readyState === WebSocket.OPEN) {
+                    const greetingMsg = `Trigger Greeting: Hello, welcome to ${config.restaurantName || 'our'} restaurant. I am your AI waiter, what would you like me to help you with?`;
 
-            openaiWs.send(JSON.stringify({
-                type: 'conversation.item.create',
-                item: {
-                    type: 'message',
-                    role: 'user',
-                    content: [
-                        {
-                            type: 'input_text',
-                            text: greetingMsg
+                    log('Triggering proactive greeting...');
+                    openaiWs.send(JSON.stringify({
+                        type: 'conversation.item.create',
+                        item: {
+                            type: 'message',
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: greetingMsg
+                                }
+                            ]
                         }
-                    ]
-                }
-            }));
+                    }));
 
-            openaiWs.send(JSON.stringify({ type: 'response.create' }));
+                    openaiWs.send(JSON.stringify({ type: 'response.create' }));
+                }
+            }, 1500); // 1.5s delay to allow client to be ready and AudioContext to be active
         }
     });
 
