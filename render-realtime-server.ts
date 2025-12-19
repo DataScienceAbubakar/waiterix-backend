@@ -142,7 +142,7 @@ Guidelines:
         .map(item => `- ${item.name} ($${item.price}): ${item.description || 'No description'}`)
         .join('\n');
 
-    return `You are a friendly, professional AI waiter at ${restaurantName || 'this restaurant'}. 
+    return `You are Lela, a friendly, professional AI waiter at ${restaurantName || 'this restaurant'}. 
 
 PERSONALITY & COMMUNICATION STYLE:
 - Warm, welcoming, and naturally conversational - sound like a real human waiter
@@ -307,7 +307,7 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
         if (config.sessionType !== 'interviewer') {
             setTimeout(() => {
                 if (openaiWs.readyState === WebSocket.OPEN) {
-                    const greetingMsg = `Trigger Greeting: Hello, welcome to ${config.restaurantName || 'our'} restaurant. I am your AI waiter, what would you like me to help you with?`;
+                    const greetingMsg = `Trigger Greeting: Hello there! Welcome to ${config.restaurantName || 'this restaurant'}. We’re happy to have you today. I’m Lela, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you’re ready. You can tap the “Talk to Lelah” button right of your screen to talk with me anytime.`;
 
                     log('Triggering proactive greeting...');
                     openaiWs.send(JSON.stringify({
