@@ -13,6 +13,7 @@ import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import cors from 'cors';
 import { parse } from 'url';
+import { synthesizeSpeechWithLanguage } from './src/polly';
 
 const app = express();
 const server = createServer(app);
@@ -25,6 +26,13 @@ app.use(cors({
 
 app.use(express.json());
 
+// Backend API URL for placing orders (used by greeting endpoint and order placement)
+const API_BASE_URL = process.env.API_BASE_URL || 'https://kf3yhq6qn6.execute-api.us-east-1.amazonaws.com/dev';
+
+function log(message: string, ...args: any[]) {
+    console.log(`[${new Date().toISOString()}] ${message}`, ...args);
+}
+
 // Health check endpoint (required by Render)
 app.get('/health', (req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
@@ -36,6 +44,52 @@ app.get('/', (req, res) => {
         status: 'running',
         version: '1.0.0'
     });
+});
+
+// AI Waiter greeting endpoint (pre-rendered audio for instant playback)
+app.get('/api/public/ai/greeting/:id', async (req, res) => {
+    try {
+        const restaurantId = req.params.id;
+        const language = (req.query.lang as string) || 'en';
+
+        // Fetch restaurant name from the main API
+        let restaurantName = 'this restaurant';
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/public/restaurant/${restaurantId}`);
+            if (response.ok) {
+                const data = await response.json();
+                restaurantName = data.name || restaurantName;
+            }
+        } catch (fetchError) {
+            log('Could not fetch restaurant name, using default:', fetchError);
+        }
+
+        const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Lela, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Lelah" button right of your screen to talk with me anytime.`;
+
+        log(`[Greeting] Generating speech for ${restaurantName} in ${language}`);
+        const audioStream = await synthesizeSpeechWithLanguage(greetingText, language);
+
+        // Convert stream to Buffer for complete response
+        const chunks: Buffer[] = [];
+        for await (const chunk of audioStream as any) {
+            chunks.push(Buffer.from(chunk));
+        }
+        const audioBuffer = Buffer.concat(chunks);
+
+        log(`[Greeting] Generated audio buffer of size: ${audioBuffer.length} bytes`);
+
+        res.set({
+            'Content-Type': 'audio/mpeg',
+            'Content-Length': audioBuffer.length.toString(),
+            'Cache-Control': 'public, max-age=3600',
+            'Access-Control-Allow-Origin': '*'
+        });
+
+        res.send(audioBuffer);
+    } catch (error) {
+        console.error('Greeting synthesis error:', error);
+        res.status(500).json({ error: 'Failed to generate greeting' });
+    }
 });
 
 // WebSocket server
@@ -65,13 +119,6 @@ const clients = new Map<WebSocket, ClientConnection>();
 // OpenAI Realtime configuration
 const OPENAI_REALTIME_URL = 'wss://api.openai.com/v1/realtime';
 const OPENAI_MODEL = 'gpt-4o-realtime-preview-2024-12-17';
-
-// Backend API URL for placing orders
-const API_BASE_URL = process.env.API_BASE_URL || 'https://kf3yhq6qn6.execute-api.us-east-1.amazonaws.com/dev';
-
-function log(message: string, ...args: any[]) {
-    console.log(`[${new Date().toISOString()}] ${message}`, ...args);
-}
 
 /**
  * Create system prompt for AI
