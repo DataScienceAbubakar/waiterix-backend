@@ -235,8 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If coverImageUrl is provided, set ACL policy and get permanent URL
       if (updateData.coverImageUrl) {
-        const objectStorageService = new ObjectStorageService();
-        updateData.coverImageUrl = await objectStorageService.trySetObjectEntityAclPolicy(
+        updateData.coverImageUrl = await s3StorageService.trySetObjectEntityAclPolicy(
           updateData.coverImageUrl,
           {
             owner: userId,
@@ -411,8 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If imageUrl is provided, set ACL policy and get permanent URL
       if (imageUrl) {
-        const objectStorageService = new ObjectStorageService();
-        imageUrl = await objectStorageService.trySetObjectEntityAclPolicy(
+        imageUrl = await s3StorageService.trySetObjectEntityAclPolicy(
           imageUrl,
           {
             owner: userId,
@@ -451,8 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If imageUrl is provided, set ACL policy and get permanent URL
       if (updateData.imageUrl) {
-        const objectStorageService = new ObjectStorageService();
-        updateData.imageUrl = await objectStorageService.trySetObjectEntityAclPolicy(
+        updateData.imageUrl = await s3StorageService.trySetObjectEntityAclPolicy(
           updateData.imageUrl,
           {
             owner: userId,
@@ -2388,17 +2385,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve objects with ACL check (public or private)
-  app.get("/objects/:objectPath(*)", async (req: any, res) => {
-    const userId = req.user?.claims?.sub; // May be undefined for unauthenticated users
-    const objectStorageService = new ObjectStorageService();
+  app.get("/api/objects/:objectPath(*)", async (req: any, res) => {
+    // Note: session-based auth used via isAuthenticated middleware or req.userId
+    const userId = req.userId;
     try {
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      const objectInfo = await s3StorageService.getObjectEntityFile(req.path);
 
       // Public objects don't need ACL checks
-      const isPublicPath = req.path.startsWith('/objects/public/');
+      const isPublicPath =
+        req.path.startsWith('/api/objects/public/') ||
+        req.path.startsWith('/api/objects/uploads/') ||
+        req.path.startsWith('/objects/public/') ||
+        req.path.startsWith('/objects/uploads/');
       if (!isPublicPath) {
-        const canAccess = await objectStorageService.canAccessObjectEntity({
-          objectFile,
+        const canAccess = await s3StorageService.canAccessObjectEntity({
+          objectInfo,
           userId: userId,
           requestedPermission: ObjectPermission.READ,
         });
@@ -2407,7 +2408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      objectStorageService.downloadObject(objectFile, res);
+      await s3StorageService.downloadObject(objectInfo, res);
     } catch (error) {
       console.error("Error checking object access:", error);
       if (error instanceof ObjectNotFoundError) {
@@ -2423,7 +2424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ error: "imageUrl is required" });
     }
 
-    const userId = req.user?.claims?.sub;
+    const userId = req.userId;
 
     try {
       const menuItem = await storage.getMenuItem(req.params.id);
@@ -2436,8 +2437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Forbidden" });
       }
 
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+      const objectPath = await s3StorageService.trySetObjectEntityAclPolicy(
         req.body.imageUrl,
         {
           owner: userId,
@@ -2463,7 +2463,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ error: "coverImageUrl is required" });
     }
 
-    const userId = req.user?.claims?.sub;
+    const userId = req.userId;
 
     try {
       const restaurant = await storage.getRestaurant(req.params.id);
@@ -2471,8 +2471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Forbidden" });
       }
 
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+      const updatedPath = await s3StorageService.trySetObjectEntityAclPolicy(
         req.body.coverImageUrl,
         {
           owner: userId,
@@ -2480,9 +2479,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       );
 
-      // Update restaurant with cover image URL
       const updated = await storage.updateRestaurant(req.params.id, {
-        coverImageUrl: objectPath,
+        coverImageUrl: updatedPath,
       });
 
       res.status(200).json(updated);

@@ -27,16 +27,7 @@ export class ObjectNotFoundError extends Error {
   }
 }
 
-export interface ObjectAclPolicy {
-  owner?: string;
-  visibility: "public" | "private";
-}
-
-export enum ObjectPermission {
-  READ = "READ",
-  WRITE = "WRITE",
-  FULL_CONTROL = "FULL_CONTROL"
-}
+import { ObjectAclPolicy, ObjectPermission } from "./objectAcl";
 
 // AWS S3-based object storage service
 export class S3StorageService {
@@ -147,7 +138,7 @@ export class S3StorageService {
   // Get upload URL for an object entity (presigned URL)
   async getObjectEntityUploadURL(contentType?: string): Promise<string> {
     const objectId = randomUUID();
-    const key = `uploads/${objectId}`;
+    const key = `public/uploads/${objectId}`;
 
     const command = new PutObjectCommand({
       Bucket: this.privateBucket,
@@ -162,44 +153,46 @@ export class S3StorageService {
 
   // Get object entity file from object path
   async getObjectEntityFile(objectPath: string): Promise<{ bucket: string; key: string }> {
-    if (!objectPath.startsWith("/objects/")) {
+    // Support both legacy /objects/ and new /api/objects/ paths
+    const normalizedPrefix = objectPath.startsWith("/api/objects/") ? "/api/objects/" : "/objects/";
+
+    if (!objectPath.startsWith(normalizedPrefix)) {
       throw new ObjectNotFoundError();
     }
 
-    const parts = objectPath.slice(1).split("/");
-    if (parts.length < 2) {
+    const entityId = objectPath.substring(normalizedPrefix.length);
+    if (!entityId) {
       throw new ObjectNotFoundError();
     }
 
-    const entityId = parts.slice(1).join("/");
-
-    // Check if this is a public object
-    if (entityId.startsWith("public/")) {
-      const key = entityId.substring(7); // Remove "public/" prefix
-      const objectInfo = await this.searchPublicObject(key);
-      if (!objectInfo) {
-        throw new ObjectNotFoundError();
-      }
-      return objectInfo;
-    }
-
-    // For private objects
     const key = entityId;
 
     try {
+      // Check if the object exists in the bucket
       const command = new HeadObjectCommand({
-        Bucket: this.privateBucket,
+        Bucket: this.privateBucket, // Both are usually the same
         Key: key,
       });
 
       await s3Client.send(command);
       return { bucket: this.privateBucket, key };
     } catch (error: any) {
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        throw new ObjectNotFoundError();
+      // If not found in private bucket, try public bucket (if different)
+      if (this.publicBucket !== this.privateBucket) {
+        try {
+          const command = new HeadObjectCommand({
+            Bucket: this.publicBucket,
+            Key: key,
+          });
+          await s3Client.send(command);
+          return { bucket: this.publicBucket, key };
+        } catch (innerError) {
+          throw new ObjectNotFoundError();
+        }
       }
-      throw error;
+      throw new ObjectNotFoundError();
     }
+
   }
 
   // Normalize object entity path
@@ -212,7 +205,7 @@ export class S3StorageService {
 
         if (pathParts.length > 0) {
           const key = pathParts.join('/');
-          return `/objects/${key}`;
+          return `/api/objects/${key}`;
         }
       } catch (error) {
         console.warn("Failed to parse S3 URL:", rawPath);
@@ -229,7 +222,7 @@ export class S3StorageService {
   ): Promise<string> {
     const normalizedPath = this.normalizeObjectEntityPath(rawPath);
 
-    if (!normalizedPath.startsWith("/objects/")) {
+    if (!normalizedPath.startsWith("/objects/") && !normalizedPath.startsWith("/api/objects/")) {
       return normalizedPath;
     }
 
@@ -324,7 +317,7 @@ export class S3StorageService {
     if (acl === "public-read") {
       return `https://${bucket}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
     } else {
-      return `/objects/${key}`;
+      return `/api/objects/${key}`;
     }
   }
 }

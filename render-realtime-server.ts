@@ -301,6 +301,28 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                 tool_choice: 'auto',
             },
         }));
+
+        // Trigger proactive greeting after session configuration
+        // This makes the AI speak first as soon as the connection is established
+        if (config.sessionType !== 'interviewer') {
+            const greetingMsg = `Trigger Greeting: Hello, welcome to ${config.restaurantName || 'our'} restaurant. I am your AI waiter, what would you like me to help you with?`;
+
+            openaiWs.send(JSON.stringify({
+                type: 'conversation.item.create',
+                item: {
+                    type: 'message',
+                    role: 'user',
+                    content: [
+                        {
+                            type: 'input_text',
+                            text: greetingMsg
+                        }
+                    ]
+                }
+            }));
+
+            openaiWs.send(JSON.stringify({ type: 'response.create' }));
+        }
     });
 
     openaiWs.on('message', (data: Buffer) => {
