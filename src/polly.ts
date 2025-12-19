@@ -22,7 +22,7 @@ export async function synthesizeSpeech(
   options: PollyOptions = {}
 ): Promise<Readable> {
   const {
-    voiceId = VoiceId.Joanna, // Natural, warm female voice similar to OpenAI's Nova
+    voiceId = VoiceId.Ruth, // Ruth: Most natural-sounding female voice, conversational tone
     engine = Engine.NEURAL,
     outputFormat = OutputFormat.MP3,
     sampleRate = "22050",
@@ -63,8 +63,8 @@ export async function synthesizeSpeech(
 export function getVoiceForLanguage(languageCode: string): { voiceId: VoiceId; languageCode: string } {
   // Map language codes to appropriate Polly voices
   const voiceMapping: Record<string, { voiceId: VoiceId; languageCode: string }> = {
-    'en': { voiceId: VoiceId.Joanna, languageCode: 'en-US' },
-    'en-US': { voiceId: VoiceId.Joanna, languageCode: 'en-US' },
+    'en': { voiceId: VoiceId.Ruth, languageCode: 'en-US' },
+    'en-US': { voiceId: VoiceId.Ruth, languageCode: 'en-US' },
     'en-GB': { voiceId: VoiceId.Emma, languageCode: 'en-GB' },
     'es': { voiceId: VoiceId.Lupe, languageCode: 'es-US' },
     'es-ES': { voiceId: VoiceId.Conchita, languageCode: 'es-ES' },
@@ -88,7 +88,7 @@ export function getVoiceForLanguage(languageCode: string): { voiceId: VoiceId; l
     'ru-RU': { voiceId: VoiceId.Tatyana, languageCode: 'ru-RU' },
   };
 
-  return voiceMapping[languageCode] || { voiceId: VoiceId.Joanna, languageCode: 'en-US' };
+  return voiceMapping[languageCode] || { voiceId: VoiceId.Ruth, languageCode: 'en-US' };
 }
 
 /**

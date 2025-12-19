@@ -13,6 +13,12 @@ services:
     envVars:
       - key: OPENAI_API_KEY
         sync: false  # Must be set manually in Render dashboard
+      - key: AWS_ACCESS_KEY_ID
+        sync: false  # Must be set manually in Render dashboard (for Polly TTS)
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false  # Must be set manually in Render dashboard (for Polly TTS)
+      - key: AWS_REGION
+        value: us-east-1
       - key: FRONTEND_URL
         value: https://main.d182r8qb7g7hdy.amplifyapp.com
       - key: API_BASE_URL

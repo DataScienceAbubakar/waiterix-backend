@@ -87,8 +87,15 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
 
         res.send(audioBuffer);
     } catch (error) {
-        console.error('Greeting synthesis error:', error);
-        res.status(500).json({ error: 'Failed to generate greeting' });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorStack = error instanceof Error ? error.stack : '';
+        console.error('Greeting synthesis error:', errorMessage);
+        console.error('Stack trace:', errorStack);
+        res.status(500).json({
+            error: 'Failed to generate greeting',
+            details: errorMessage,
+            hint: 'Check AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY environment variables'
+        });
     }
 });
 
