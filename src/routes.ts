@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateTextWithClaude, generateConversationWithClaude, generateWithClaude } from "./bedrock";
+import { generateWithOpenAI } from "./openai";
 import { synthesizeSpeechWithLanguage } from "./polly";
 import { transcribeAudioBuffer } from "./transcribe";
 import { setupAuth, isAuthenticated } from "./firebaseAuth";
@@ -2594,13 +2595,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Save interview data to database
   app.post('/api/ai/interview/save', isAuthenticated, async (req: any, res) => {
     try {
-      const { menuItemId, restaurantId, interviewType, data } = req.body;
+      const { menuItemId, restaurantId, interviewType, data, messages } = req.body;
       const userId = req.userId;
 
       // Verify restaurant ownership
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant || restaurant.userId !== userId) {
         return res.status(403).json({ message: "Forbidden" });
+      }
+
+      let finalData = data;
+
+      // If messages are provided, use AI to extract much better structured data
+      if (messages && Array.isArray(messages) && messages.length > 0) {
+        console.log(`[Interview Save] Extracting structured data from ${messages.length} messages using AI...`);
+        try {
+          const extractionPrompt = interviewType === 'menu_item'
+            ? `You are an AI Data Extractor. Your task is to extract structured information from the provided interview between an AI and a restaurant owner about a menu item.
+               Return ONLY a valid JSON object matching this schema exactly:
+               {
+                 "preparationMethod": "string (detailed)",
+                 "ingredientSources": "string (detailed)",
+                 "pairingSuggestions": "string (detailed)",
+                 "chefNotes": "string (detailed)",
+                 "cookingTime": "string (e.g. 15-20 mins)",
+                 "specialTechniques": "string (detailed)"
+               }
+               If information for a field is missing, use an empty string. Keep the descriptions rich and professional.`
+            : `You are an AI Data Extractor. Your task is to extract structured information from the provided interview between an AI and a restaurant owner about their restaurant.
+               Return ONLY a valid JSON object matching this schema exactly:
+               {
+                 "story": "string (detailed)",
+                 "philosophy": "string (detailed)",
+                 "sourcingPractices": "string (detailed)",
+                 "specialTechniques": "string (detailed)",
+                 "awards": "string (detailed)",
+                 "sustainabilityPractices": "string (detailed)"
+               }
+               If information for a field is missing, use an empty string.`;
+
+          const conversationText = messages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+
+          const aiJson = await generateWithOpenAI([
+            { role: 'user', content: `Interview Transcript:\n${conversationText}` }
+          ], {
+            systemPrompt: extractionPrompt,
+            temperature: 0,
+            model: "gpt-4o"
+          });
+
+          // Attempt to parse the JSON
+          try {
+            // Find JSON block if AI included triple backticks
+            const jsonMatch = aiJson.match(/\{[\s\S]*\}/);
+            const cleanJson = jsonMatch ? jsonMatch[0] : aiJson;
+            const extracted = JSON.parse(cleanJson);
+            finalData = { ...finalData, ...extracted };
+            console.log('[Interview Save] Successfully extracted structural data via AI');
+          } catch (parseError) {
+            console.error('[Interview Save] Failed to parse AI extraction JSON:', parseError);
+            // Fall back to the original data from frontend
+          }
+        } catch (aiError) {
+          console.error('[Interview Save] AI extraction failed:', aiError);
+          // Fall back to original data
+        }
       }
 
       if (interviewType === 'menu_item' && menuItemId) {
@@ -2616,12 +2675,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let savedDetails;
         if (existingDetails) {
           // Update existing details
-          savedDetails = await storage.updateExtendedMenuDetails(menuItemId, data);
+          savedDetails = await storage.updateExtendedMenuDetails(menuItemId, finalData);
         } else {
           // Create new details
           savedDetails = await storage.createExtendedMenuDetails({
             menuItemId,
-            ...data,
+            ...finalData,
           });
         }
 
@@ -2633,12 +2692,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let savedKnowledge;
         if (existingKnowledge) {
           // Update existing knowledge
-          savedKnowledge = await storage.updateRestaurantKnowledge(restaurantId, data);
+          savedKnowledge = await storage.updateRestaurantKnowledge(restaurantId, finalData);
         } else {
           // Create new knowledge
           savedKnowledge = await storage.createRestaurantKnowledge({
             restaurantId,
-            ...data,
+            ...finalData,
           });
         }
 
@@ -2688,36 +2747,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           extendedDetails,
         };
 
-        systemPrompt = `You are an AI interviewer helping a restaurant owner add rich details about their menu item: "${menuItem.name}".
+        systemPrompt = `You are an Expert Culinary Interviewer. Your task is to interview a Chef or Restaurant Owner to extract deep, rich details about a specific menu item: "${menuItem.name}".
 
-Your goal: Have a natural conversation to learn about:
-1. Preparation Method - How it's made, cooking techniques
-2. Ingredient Sources - Where ingredients come from, quality/freshness
-3. Pairing Suggestions - What dishes/drinks go well with it
-4. Chef Notes - Special tips, what makes it unique, chef's perspective
-5. Cooking Time - How long it takes to prepare
-6. Special Techniques - Any unique culinary methods used
+Your goal is to populate a high-end AI knowledge base. You need to ask CRUCIAL and INSIGHTFUL questions.
 
-${extendedDetails ? `Existing details:\n${JSON.stringify(extendedDetails, null, 2)}\n` : ''}
+Current item: ${menuItem.name} (${menuItem.category || 'No category'})
+Current description: ${menuItem.description || 'No description'}
+
+${extendedDetails ? `Current extended knowledge:\n${JSON.stringify(extendedDetails, null, 2)}` : ''}
+
+Focus areas (ask about these if missing):
+1. Preparation Method - The "Magic" in the kitchen: techniques, secret steps (without revealing total secrets unless they want to), cooking times.
+2. Ingredient Sources - The "Legacy": Farm-to-table details, specific suppliers, freshness, organic status.
+3. Pairing Suggestions - The "Experience": Best wines, sides, or other menu items that complement this.
+4. Chef's Notes - The "Soul": Why did you create this? What's the story?
+5. Special Techniques - The "Crafts": Sous-vide? Char-grill? Slow-aging?
 
 Guidelines:
-- Be conversational and friendly - like a colleague asking questions
-- Ask ONE question at a time - keep it focused
-- If they give a short answer, ask a follow-up to get more detail
-- Use phrases like:
-  * "Tell me about..."
-  * "What makes this dish special?"
-  * "How do you prepare..."
-  * "Where do you source..."
-  * "Anything else I should know?"
-- Keep questions SHORT and natural - 1-2 sentences max
-- When they've shared good detail, acknowledge it warmly: "Perfect! That's great to know."
-- If they seem done with a topic, move to the next one naturally
-- Extract details in a structured format when enough info is gathered
-
-Current menu item: ${menuItem.name}
-Category: ${menuItem.category || 'N/A'}
-Description: ${menuItem.description || 'N/A'}`;
+- Ask ONE targeted question at a time.
+- Start by acknowledging what we already know.
+- Be professional, curious, and appreciative.
+- Keep responses concise (under 3 sentences) to keep the flow fast.
+- If they give a vague answer, dig deeper like a food critic.
+- Use a tone that makes them feel like their dish is a masterpiece.`;
       } else {
         // Restaurant-wide knowledge interview
         const restaurantKnowledge = await storage.getRestaurantKnowledge(restaurantId);
@@ -2727,44 +2779,37 @@ Description: ${menuItem.description || 'N/A'}`;
           restaurantKnowledge,
         };
 
-        systemPrompt = `You are an AI interviewer helping a restaurant owner share their restaurant's story and knowledge.
+        systemPrompt = `You are a Senior Restaurant Brand Consultant. You are interviewing the owner of "${restaurant.name}" to capture the "Soul of the House" for their AI Waiter.
 
-Your goal: Have a natural conversation to learn about:
-1. Story - How the restaurant started, the inspiration behind it
-2. Philosophy - Cooking philosophy, what they believe in
-3. Sourcing Practices - Where ingredients come from, quality standards
-4. Special Techniques - Signature cooking methods or traditions
-5. Awards - Any recognition or achievements
-6. Sustainability Practices - Environmental commitments, local sourcing
+Your goal is to build a deep knowledge base that helps the AI Waiter answer customer questions with local flair and brand authenticity.
 
-${restaurantKnowledge ? `Existing knowledge:\n${JSON.stringify(restaurantKnowledge, null, 2)}\n` : ''}
+${restaurantKnowledge ? `Current restaurant knowledge:\n${JSON.stringify(restaurantKnowledge, null, 2)}` : ''}
+
+Crucial Pillars to investigate:
+1. The Story - The "Roots": Founders' journey, inspiration, the "Why".
+2. Philosophy - The "Manifesto": Culinary values, service style, atmosphere.
+3. Sourcing Practices - The "Standard": Quality commitment, local partnerships.
+4. Awards \u0026 Recognition - The "Pride": Accolades, local fame.
+5. Sustainability \u0026 Values - The "Future": Community impact, eco-friendly efforts.
 
 Guidelines:
-- Be conversational and interested - like a journalist interviewing them
-- Ask ONE question at a time
-- If they give a short answer, ask a follow-up
-- Use phrases like:
-  * "Tell me about your restaurant's story..."
-  * "What's your cooking philosophy?"
-  * "How do you source your ingredients?"
-  * "What makes your restaurant special?"
-- Keep questions SHORT and natural - 1-2 sentences max
-- Acknowledge their answers warmly
-- Extract details in structured format when enough info is gathered
-
-Restaurant: ${restaurant.name}`;
+- Ask deep, open-ended questions.
+- ONE question at a time.
+- Act as a biographer capturing a legacy.
+- Keep questions sharp and focused.`;
       }
 
-      // Use Claude 3.5 Sonnet via AWS Bedrock
+      // Use OpenAI gpt-4o
       const conversationMessages = messages.map((msg: any) => ({
         role: msg.role,
         content: msg.content,
       }));
 
-      const aiResponse = await generateWithClaude(conversationMessages, {
+      const aiResponse = await generateWithOpenAI(conversationMessages, {
         maxTokens: 2048,
         temperature: 0.7,
         systemPrompt: systemPrompt,
+        model: "gpt-4o"
       });
 
       res.json({
