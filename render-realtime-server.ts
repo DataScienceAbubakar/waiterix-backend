@@ -147,8 +147,8 @@ HANDLING DIFFICULT SITUATIONS:
 
 - If you don't know something about a dish (ingredients, allergens, prep method) that isn't in your context:
   - DO NOT GUESS or hallucinate information
-  - Say "I'm not entirely sure about that specific detail, let me ask the chef for you."
-  - Use the call_chef tool with the customer's question
+  - FIRST, ask the user: "I'm not entirely sure about that specific detail, would you like me to call the chef and ask?"
+  - IF the user agrees (answers "yes", "sure", "please"), use the call_chef tool with the customer's question.
   - Wait for the tool output before responding further
 
 LANGUAGE & TONE:
@@ -602,7 +602,7 @@ async function handleConfirmOrder(
 /**
  * Handle call_chef function call
  */
-function handleCallChef(
+async function handleCallChef(
     clientWs: WebSocket,
     clientData: ClientConnection,
     event: any,
@@ -616,6 +616,29 @@ function handleCallChef(
         type: 'chef_called',
         question: question,
     });
+
+    // Notify chef dashboard via Backend API
+    try {
+        // Use the backend API to create an assistance request
+        // This triggers the WebSocket broadcast to the chef dashboard
+        await fetch(`${API_BASE_URL}/api/assistance-requests`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                restaurantId: clientData.restaurantId,
+                tableId: clientData.tableId || undefined,
+                requestType: 'call_waiter',
+                customerMessage: `AI Question: ${question}`,
+                status: 'pending'
+            })
+        });
+        log('Chef dashboard notified successfully');
+    } catch (err) {
+        log('Error notifying chef dashboard:', err);
+        // Continue to respond to AI even if dashboard notification fails
+    }
 
     sendFunctionResponse(clientData, event.call_id, {
         success: true,

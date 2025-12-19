@@ -5,7 +5,7 @@ import { generateTextWithClaude, generateConversationWithClaude, generateWithCla
 import { synthesizeSpeechWithLanguage } from "./polly";
 import { transcribeAudioBuffer } from "./transcribe";
 import { setupAuth, isAuthenticated } from "./firebaseAuth";
-import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertRestaurantTableSchema, type InsertRestaurant } from "@/shared/schema";
+import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertRestaurantTableSchema, insertAssistanceRequestSchema, type InsertRestaurant } from "@/shared/schema";
 import Stripe from "stripe";
 import { Paystack } from "./payments/paystack";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -2899,7 +2899,77 @@ Restaurant: ${restaurant.name}`;
     }
   });
 
-  // Admin Password Routes
+  // Assistance Requests Routes
+  // Public endpoint for customers to request assistance
+  app.post('/api/assistance-requests', async (req: any, res) => {
+    try {
+      const requestData = insertAssistanceRequestSchema.parse(req.body);
+
+      // Create request in database
+      const request = await storage.createAssistanceRequest(requestData);
+
+      // Notify chef dashboard via WebSocket
+      wsManager.notifyNewAssistanceRequest(request.restaurantId, request);
+
+      res.status(201).json(request);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error('Error creating assistance request:', error);
+      res.status(500).json({ error: 'Failed to create assistance request' });
+    }
+  });
+
+  // Protected endpoint for chefs to view requests
+  app.get('/api/assistance-requests', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const restaurant = await storage.getRestaurantByUserId(userId);
+
+      if (!restaurant) {
+        return res.status(404).json({ error: 'Restaurant not found' });
+      }
+
+      const status = req.query.status as string | undefined;
+      // Filter by status if provided (and not 'all')
+      const filterStatus = status === 'all' ? undefined : status;
+
+      const requests = await storage.getAssistanceRequests(restaurant.id, filterStatus);
+      res.json(requests);
+    } catch (error) {
+      console.error('Error fetching assistance requests:', error);
+      res.status(500).json({ error: 'Failed to fetch assistance requests' });
+    }
+  });
+
+  // Protected endpoint to update request status
+  app.patch('/api/assistance-requests/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const userId = req.userId;
+
+      const restaurant = await storage.getRestaurantByUserId(userId);
+      if (!restaurant) {
+        return res.status(404).json({ error: 'Restaurant not found' });
+      }
+
+      // Verify request belongs to restaurant
+      const request = await storage.getAssistanceRequest(id);
+      if (!request || request.restaurantId !== restaurant.id) {
+        return res.status(404).json({ error: 'Request not found' });
+      }
+
+      const updatedRequest = await storage.updateAssistanceRequestStatus(id, status);
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error('Error updating assistance request:', error);
+      res.status(500).json({ error: 'Failed to update request status' });
+    }
+  });
+
+
   app.post('/api/admin/password/check', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.userId;
