@@ -221,6 +221,7 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                     threshold: 0.5,
                     prefix_padding_ms: 300,
                     silence_duration_ms: 500,
+                    create_response: true,
                 },
                 tools: [
                     {
@@ -339,7 +340,15 @@ function handleOpenAIEvent(clientWs: WebSocket, event: any, config: any) {
             break;
 
         case 'input_audio_buffer.speech_started':
-            log('User started speaking');
+            log('User started speaking - interrupting');
+            // Notify client to clear audio buffer (stop playing current AI speech)
+            sendToClient(clientWs, { type: 'interruption' });
+
+            // Cancel current AI response generation
+            const clientData = clients.get(clientWs);
+            if (clientData && clientData.openaiWs?.readyState === WebSocket.OPEN) {
+                clientData.openaiWs.send(JSON.stringify({ type: 'response.cancel' }));
+            }
             break;
 
         case 'input_audio_buffer.speech_stopped':
