@@ -13,7 +13,8 @@ import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import cors from 'cors';
 import { parse } from 'url';
-import { synthesizeSpeechWithLanguage } from './src/polly';
+// OpenAI API Key
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const app = express();
 const server = createServer(app);
@@ -66,15 +67,32 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
 
         const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Lela, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Lelah" button right of your screen to talk with me anytime.`;
 
-        log(`[Greeting] Generating speech for ${restaurantName} in ${language}`);
-        const audioStream = await synthesizeSpeechWithLanguage(greetingText, language);
+        log(`[Greeting] Generating OpenAI speech for ${restaurantName} in ${language}`);
 
-        // Convert stream to Buffer for complete response
-        const chunks: Buffer[] = [];
-        for await (const chunk of audioStream as any) {
-            chunks.push(Buffer.from(chunk));
+        if (!OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY is not configured');
         }
-        const audioBuffer = Buffer.concat(chunks);
+
+        const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'tts-1',
+                voice: 'alloy', // Matches the real-time session voice
+                input: greetingText,
+                response_format: 'mp3'
+            })
+        });
+
+        if (!ttsResponse.ok) {
+            const errorText = await ttsResponse.text();
+            throw new Error(`OpenAI TTS Error: ${ttsResponse.status} ${errorText}`);
+        }
+
+        const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
 
         log(`[Greeting] Generated audio buffer of size: ${audioBuffer.length} bytes`);
 
@@ -94,7 +112,7 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
         res.status(500).json({
             error: 'Failed to generate greeting',
             details: errorMessage,
-            hint: 'Check AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY environment variables'
+            hint: 'Check OPENAI_API_KEY environment variable'
         });
     }
 });
