@@ -103,21 +103,35 @@ YOUR CAPABILITIES:
 MENU ITEMS AVAILABLE:
 ${menuList || 'Menu items will be provided by the restaurant.'}
 
-OPERATIONAL GUIDELINES:
 - When a customer wants to order, use the add_to_cart function
 - Always confirm what you're adding: "Great choice! I'll add the [item] to your cart"
 - If an item is unavailable, apologize and suggest similar alternatives
 - For ambiguous orders, ask clarifying questions naturally
 - Speak in ${language === 'en' ? 'English' : language}
 
-ORDER CONFIRMATION FLOW:
-- When the customer says they're done ordering (e.g., "that's all", "I'm done", "place my order", "confirm order"):
-  1. First, briefly summarize what's in their cart and the total
-  2. Ask "Would you like me to place this order?"
-  3. If they confirm, use the confirm_order function
-  4. After order is placed, tell them the order ID and estimated wait time
-- If the customer wants to pay by card or cash, note it when confirming
-- For any order changes after confirmation, let them know to speak with staff
+CONVERSATION FLOW:
+1. GREETING:
+   - Start with: "Greetings, welcome to ${restaurantName}. What would you like?"
+   - Be warm and welcoming.
+
+2. ORDERING & UPSELLING:
+   - When a customer adds an item, confirm it.
+   - THEN, offer logical recommendations (upsell). E.g., if they ordered a burger, ask: "Would you like some fries or a drink with that?"
+   - If they ordered a main, suggest a dessert or starter.
+
+3. DIETARY REQUIREMENTS:
+   - Before finalizing the order, ask: "Do you have any dietary requirements or special notes for the kitchen?"
+
+4. CONFIRMING & TIPPING:
+   - When they say they are done ordering:
+     1. State the total amount: "Okay, that's [Total Amount]."
+     2. Ask for a tip: "Would you like to leave a tip for the staff?"
+     3. If they add a tip, confirm the new total.
+
+5. PAYMENT & CHECKOUT:
+   - After tipping (or if they decline), ask: "Would you like to pay on the counter or are you paying here?"
+   - IF they say "pay on counter", finalize the order with confirm_order.
+   - IF they say "pay here", use the open_checkout tool. Say: "I'm opening the secure payment page for you now."
 
 === STRICT GUARDRAILS (NEVER VIOLATE) ===
 
@@ -273,6 +287,16 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                             required: ['question'],
                         },
                     },
+                    {
+                        type: 'function',
+                        name: 'open_checkout',
+                        description: 'Open the checkout page for the customer to pay "here" (online/card). Use this ONLY when the customer explicitly says they want to "pay here" or "pay by card now".',
+                        parameters: {
+                            type: 'object',
+                            properties: {},
+                            required: [],
+                        },
+                    },
                 ],
                 tool_choice: 'auto',
             },
@@ -384,6 +408,8 @@ function handleFunctionCall(clientWs: WebSocket, event: any, config: any) {
             handleConfirmOrder(clientWs, clientData, event, args, config);
         } else if (event.name === 'call_chef') {
             handleCallChef(clientWs, clientData, event, args);
+        } else if (event.name === 'open_checkout') {
+            handleOpenCheckout(clientWs, clientData, event);
         }
     } catch (error) {
         log('Error handling function call:', error);
@@ -646,6 +672,28 @@ async function handleCallChef(
         success: true,
         message: "Question sent to chef.",
         system_instruction: "Tell the customer: 'I've asked the chef directly. They will speak the answer to you shortly.'"
+    });
+}
+
+/**
+ * Handle open_checkout function call
+ */
+function handleOpenCheckout(
+    clientWs: WebSocket,
+    clientData: ClientConnection,
+    event: any
+) {
+    log('Opening checkout page for client');
+
+    // Notify client to open checkout UI
+    sendToClient(clientWs, {
+        type: 'open_checkout_page',
+    });
+
+    sendFunctionResponse(clientData, event.call_id, {
+        success: true,
+        message: "Checkout page opened.",
+        system_instruction: "Tell the customer you have opened the payment page."
     });
 }
 
