@@ -1219,12 +1219,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Greeting] Generating speech for ${restaurantName} in ${language}`);
       const audioStream = await synthesizeSpeechWithLanguage(greetingText, language);
 
+      // Convert stream to Buffer to ensure we send a complete response with correct size
+      // This is more robust for <audio> elements than direct piping
+      const chunks: Buffer[] = [];
+      for await (const chunk of audioStream as any) {
+        chunks.push(Buffer.from(chunk));
+      }
+      const audioBuffer = Buffer.concat(chunks);
+
+      console.log(`[Greeting] Generated audio buffer of size: ${audioBuffer.length} bytes`);
+
       res.set({
         'Content-Type': 'audio/mpeg',
+        'Content-Length': audioBuffer.length.toString(),
         'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
       });
 
-      audioStream.pipe(res);
+      res.send(audioBuffer);
     } catch (error) {
       console.error('Greeting synthesis error:', error);
       res.status(500).json({ error: 'Failed to generate greeting' });

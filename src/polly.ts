@@ -29,6 +29,8 @@ export async function synthesizeSpeech(
     languageCode = "en-US"
   } = options;
 
+  console.log(`[Polly] Synthesizing speech: "${text.substring(0, 50)}..." with voice ${voiceId}`);
+
   try {
     const command = new SynthesizeSpeechCommand({
       Text: text,
@@ -45,7 +47,8 @@ export async function synthesizeSpeech(
       throw new Error("No audio stream in Polly response");
     }
 
-    // Return the stream directly for streaming playback
+    // Return the stream directly. In Node.js environment with SDK v3,
+    // this is compatible with Readable.
     return response.AudioStream as Readable;
   } catch (error) {
     console.error("Polly synthesis error:", error);
