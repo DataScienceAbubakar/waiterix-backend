@@ -263,7 +263,9 @@ YOUR CAPABILITIES:
 
 MANDATORY WORKFLOW RULES:
 1. ALWAYS ASK FOR CONFIRMATION: Before calling the 'add_to_cart' or 'confirm_order' tools, you MUST ask the customer for explicit confirmation (e.g., "Shall I add that to your cart for you?" or "Are you ready for me to place this order?").
-2. ALWAYS ASK FOR PAYMENT METHOD: Before placing an order, always ask if they want to pay by Cash or Card.
+2. PAYMENT METHOD CHOICE: When a customer is ready to finalize their order, ask them: "Would you like to pay at the register later, or pay now online?" 
+   - If they choose "at the register later" or "cash", use payment_method='cash' in confirm_order.
+   - If they choose "pay now online" or "pay here" or "card", you MUST say: "For security reasons, I will bring up the checkout page for you to input your payment details and submit the order yourself." Then call the 'open_checkout' function.
 3. ALWAYS ASK ABOUT TIP: Before placing an order, always ask if they would like to add a tip for the staff.
 4. ALWAYS ASK FOR ORDER NOTE: Before placing an order, always ask if they have any special notes or instructions for the kitchen.
 5. CALLING STAFF: Before calling 'call_chef' or 'call_waiter', ask if there is a specific message or reason they want to convey.
@@ -420,7 +422,7 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                     {
                         type: 'function',
                         name: 'open_checkout',
-                        description: 'Open the checkout page for the customer to pay "here" (online/card). Use this ONLY when the customer explicitly says they want to "pay here" or "pay by card now".',
+                        description: 'Open the checkout page for the customer to pay online now. Use this when the customer chooses to "pay now online" or "pay here" instead of "pay at the register later". IMPORTANT: Before calling this, you MUST say: "For security reasons, I will bring up the checkout page for you to input your payment details and submit the order yourself."',
                         parameters: {
                             type: 'object',
                             properties: {},
@@ -927,13 +929,13 @@ function handleOpenCheckout(
 
     // Notify client to open checkout UI
     sendToClient(clientWs, {
-        type: 'open_checkout_page',
+        type: 'checkout',
     });
 
     sendFunctionResponse(clientData, event.call_id, {
         success: true,
-        message: "Checkout page opened.",
-        system_instruction: "Tell the customer you have opened the payment page."
+        message: "Checkout page opened for secure payment.",
+        system_instruction: "The checkout page is now open. The customer can complete their payment securely."
     });
 }
 
