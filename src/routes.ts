@@ -2774,6 +2774,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get extended menu details for a menu item
+  app.get('/api/menu-items/:menuItemId/extended-details', isAuthenticated, async (req: any, res) => {
+    try {
+      const { menuItemId } = req.params;
+      const userId = req.userId;
+
+      // Get menu item and verify ownership
+      const menuItem = await storage.getMenuItem(menuItemId);
+      if (!menuItem) {
+        return res.status(404).json({ error: 'Menu item not found' });
+      }
+
+      const restaurant = await storage.getRestaurant(menuItem.restaurantId);
+      if (!restaurant || restaurant.userId !== userId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Get extended details
+      const extendedDetails = await storage.getExtendedMenuDetails(menuItemId);
+
+      res.json({
+        success: true,
+        data: extendedDetails || null,
+        menuItem: {
+          id: menuItem.id,
+          name: menuItem.name,
+          description: menuItem.description,
+        }
+      });
+    } catch (error) {
+      console.error('Get extended details error:', error);
+      res.status(500).json({
+        message: "Failed to get extended menu details",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Update extended menu details for a menu item
+  app.put('/api/menu-items/:menuItemId/extended-details', isAuthenticated, async (req: any, res) => {
+    try {
+      const { menuItemId } = req.params;
+      const userId = req.userId;
+      const updateData = req.body;
+
+      // Get menu item and verify ownership
+      const menuItem = await storage.getMenuItem(menuItemId);
+      if (!menuItem) {
+        return res.status(404).json({ error: 'Menu item not found' });
+      }
+
+      const restaurant = await storage.getRestaurant(menuItem.restaurantId);
+      if (!restaurant || restaurant.userId !== userId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Check if extended details already exist
+      const existingDetails = await storage.getExtendedMenuDetails(menuItemId);
+
+      let savedDetails;
+      if (existingDetails) {
+        // Update existing details
+        savedDetails = await storage.updateExtendedMenuDetails(menuItemId, updateData);
+      } else {
+        // Create new details
+        savedDetails = await storage.createExtendedMenuDetails({
+          menuItemId,
+          ...updateData,
+        });
+      }
+
+      res.json({ success: true, data: savedDetails });
+    } catch (error) {
+      console.error('Update extended details error:', error);
+      res.status(500).json({
+        message: "Failed to update extended menu details",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // AI Menu Interview Endpoint - Voice-guided setup for restaurant owners
   app.post('/api/ai/interview', isAuthenticated, async (req: any, res) => {
     try {
