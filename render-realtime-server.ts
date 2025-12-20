@@ -341,21 +341,31 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                         parameters: {
                             type: 'object',
                             properties: {
-                                item_name: {
-                                    type: 'string',
-                                    description: 'The exact name of the menu item to add',
-                                },
-                                quantity: {
-                                    type: 'integer',
-                                    description: 'Number of items to add (default 1)',
-                                    default: 1,
-                                },
-                                special_instructions: {
-                                    type: 'string',
-                                    description: 'Any special instructions or modifications for the item',
+                                items: {
+                                    type: 'array',
+                                    description: 'List of items to add to the cart',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            item_name: {
+                                                type: 'string',
+                                                description: 'The exact name of the menu item to add',
+                                            },
+                                            quantity: {
+                                                type: 'integer',
+                                                description: 'Number of items to add (default 1)',
+                                                default: 1,
+                                            },
+                                            special_instructions: {
+                                                type: 'string',
+                                                description: 'Any special instructions or modifications for the item',
+                                            },
+                                        },
+                                        required: ['item_name'],
+                                    },
                                 },
                             },
-                            required: ['item_name'],
+                            required: ['items'],
                         },
                     },
                     {
@@ -571,74 +581,84 @@ function handleAddToCart(
     args: any,
     config: any
 ) {
-    // Find the menu item
     const menuItems = config.menuItems || [];
-    const menuItem = menuItems.find(
-        (item: any) => item.name.toLowerCase() === args.item_name?.toLowerCase()
-    );
+    let itemsToAdd: any[] = [];
 
-    if (menuItem) {
-        const quantity = args.quantity || 1;
-
-        // Add to internal cart tracking
-        const existingItem = clientData.cart.find(item => item.id === menuItem.id);
-        if (existingItem) {
-            existingItem.quantity += quantity;
-            if (args.special_instructions) {
-                existingItem.customerNote = args.special_instructions;
-            }
-        } else {
-            clientData.cart.push({
-                id: menuItem.id,
-                name: menuItem.name,
-                price: menuItem.price,
-                quantity: quantity,
-                customerNote: args.special_instructions,
-            });
-        }
-
-        log(`Cart updated for restaurant ${clientData.restaurantId}:`, clientData.cart);
-
-        // Notify client to add item to cart (for UI update)
-        sendToClient(clientWs, {
-            type: 'add_to_cart',
-            item: {
-                ...menuItem,
-                quantity: quantity,
-                customerNote: args.special_instructions,
-            },
-        });
-
-        // Calculate current cart total for the AI
-        const cartSummary = clientData.cart.map(item =>
-            `${item.quantity}x ${item.name} ($${(parseFloat(item.price) * item.quantity).toFixed(2)})`
-        ).join(', ');
-        const cartTotal = clientData.cart.reduce(
-            (sum, item) => sum + (parseFloat(item.price) * item.quantity), 0
-        ).toFixed(2);
-
-        // Respond to OpenAI with success and cart summary
-        sendFunctionResponse(clientData, event.call_id, {
-            success: true,
-            message: `Added ${quantity} ${menuItem.name} to cart`,
-            cart_summary: cartSummary,
-            cart_total: `$${cartTotal}`,
-            cart_item_count: clientData.cart.reduce((sum, item) => sum + item.quantity, 0),
-        });
+    // Normalize input to array
+    if (args.items && Array.isArray(args.items)) {
+        itemsToAdd = args.items;
+    } else if (args.item_name) {
+        itemsToAdd = [args];
     } else {
-        // Item not found - fuzzy search for suggestions
-        const suggestions = menuItems
-            .filter((item: any) =>
-                item.name.toLowerCase().includes(args.item_name?.toLowerCase() || '') ||
-                (args.item_name?.toLowerCase() || '').includes(item.name.toLowerCase().split(' ')[0])
-            )
-            .slice(0, 3)
-            .map((item: any) => item.name);
-
+        // No valid items found
         sendFunctionResponse(clientData, event.call_id, {
             success: false,
-            message: `Could not find "${args.item_name}" on the menu`,
-            suggestions: suggestions.length > 0 ? suggestions : undefined,
+            message: 'No items specified',
+        });
+        return;
+    }
+
+    let addedItems: string[] = [];
+    let notFoundItems: string[] = [];
+
+    for (const itemRequest of itemsToAdd) {
+        const menuItem = menuItems.find(
+            (item: any) => item.name.toLowerCase() === itemRequest.item_name?.toLowerCase()
+        );
+
+        if (menuItem) {
+            const quantity = itemRequest.quantity || 1;
+
+            // Add to internal cart tracking
+            const existingItem = clientData.cart.find(item => item.id === menuItem.id);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+                if (itemRequest.special_instructions) {
+                    existingItem.customerNote = itemRequest.special_instructions;
+                }
+            } else {
+                clientData.cart.push({
+                    id: menuItem.id,
+                    name: menuItem.name,
+                    price: menuItem.price,
+                    quantity: quantity,
+                    customerNote: itemRequest.special_instructions,
+                });
+            }
+
+            addedItems.push(`${quantity}x ${menuItem.name}`);
+
+            // Notify client for each item added
+            sendToClient(clientWs, {
+                type: 'add_to_cart',
+                item: {
+                    ...menuItem,
+                    quantity: quantity,
+                    customerNote: itemRequest.special_instructions,
+                },
+            });
+        } else {
+            notFoundItems.push(itemRequest.item_name || 'Unknown Item');
+        }
+    }
+
+    log(`Cart updated for restaurant ${clientData.restaurantId}:`, clientData.cart);
+
+    // Response to AI
+    if (addedItems.length > 0) {
+        let message = `Added: ${addedItems.join(', ')}.`;
+        if (notFoundItems.length > 0) {
+            message += ` Could not find: ${notFoundItems.join(', ')}.`;
+        }
+        sendFunctionResponse(clientData, event.call_id, {
+            success: true,
+            message: message,
+            cart_total: clientData.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0).toFixed(2),
+        });
+    } else {
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: `Could not find items: ${notFoundItems.join(', ')}`,
         });
     }
 }
