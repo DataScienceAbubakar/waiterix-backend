@@ -1,38 +1,48 @@
 import { Resend } from 'resend';
+import { sendEmail as sendSesEmail } from './sesEmailService';
 
 let connectionSettings: any;
 
 async function getCredentials() {
-  console.log('[Email Service] Fetching Resend credentials...');
+  // 1. Try local environment variables first
+  if (process.env.RESEND_API_KEY) {
+    console.log('[Email Service] Using local RESEND_API_KEY');
+    return {
+      apiKey: process.env.RESEND_API_KEY,
+      fromEmail: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
+    };
+  }
+
+  console.log('[Email Service] Fetching Resend credentials from Replit...');
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME
-  const xReplitToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
-    : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
-    : null;
+  const xReplitToken = process.env.REPL_IDENTITY
+    ? 'repl ' + process.env.REPL_IDENTITY
+    : process.env.WEB_REPL_RENEWAL
+      ? 'depl ' + process.env.WEB_REPL_RENEWAL
+      : null;
 
   if (!xReplitToken) {
-    console.error('[Email Service] No REPL_IDENTITY or WEB_REPL_RENEWAL token found');
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+    console.error('[Email Service] No RESEND_API_KEY, REPL_IDENTITY, or WEB_REPL_RENEWAL token found');
+    throw new Error('Email configuration missing. Please set RESEND_API_KEY in .env');
   }
 
   console.log('[Email Service] Fetching connection from Replit API...');
   const url = 'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend';
-  
+
   const response = await fetch(url, {
     headers: {
       'Accept': 'application/json',
       'X_REPLIT_TOKEN': xReplitToken
     }
   });
-  
+
   const data = await response.json();
   console.log('[Email Service] Connection API response:', {
     status: response.status,
     hasItems: !!data.items,
     itemCount: data.items?.length || 0
   });
-  
+
   connectionSettings = data.items?.[0];
 
   if (!connectionSettings || (!connectionSettings.settings?.api_key)) {
@@ -43,21 +53,21 @@ async function getCredentials() {
     });
     throw new Error('Resend not connected');
   }
-  
+
   console.log('[Email Service] Credentials fetched successfully', {
     hasApiKey: !!connectionSettings.settings.api_key,
     hasFromEmail: !!connectionSettings.settings.from_email,
     fromEmail: connectionSettings.settings.from_email
   });
-  
-  return {apiKey: connectionSettings.settings.api_key, fromEmail: connectionSettings.settings.from_email};
+
+  return { apiKey: connectionSettings.settings.api_key, fromEmail: connectionSettings.settings.from_email };
 }
 
 async function getUncachableResendClient() {
   const credentials = await getCredentials();
   return {
     client: new Resend(credentials.apiKey),
-    fromEmail: connectionSettings.settings.from_email
+    fromEmail: credentials.fromEmail
   };
 }
 
@@ -69,9 +79,15 @@ interface SendEmailParams {
 }
 
 export async function sendEmail({ to, subject, text, html }: SendEmailParams) {
+  // Check if AWS SES is enabled
+  if (process.env.AWS_SES_ENABLED === 'true') {
+    console.log('[Email Service] Delegating to AWS SES...');
+    return sendSesEmail({ to, subject, text, html });
+  }
+
   try {
     const { client, fromEmail } = await getUncachableResendClient();
-    
+
     const emailOptions: any = {
       from: fromEmail,
       to,
@@ -84,7 +100,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailParams) {
     if (text) {
       emailOptions.text = text;
     }
-    
+
     const result = await client.emails.send(emailOptions);
 
     console.log('[Email Service] Email sent successfully:', {
