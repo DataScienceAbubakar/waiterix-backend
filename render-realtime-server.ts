@@ -261,6 +261,7 @@ MANDATORY WORKFLOW RULES:
 2. ALWAYS ASK FOR PAYMENT METHOD: Before placing an order, always ask if they want to pay by Cash or Card.
 3. ALWAYS ASK ABOUT TIP: Before placing an order, always ask if they would like to add a tip for the staff.
 4. ALWAYS ASK FOR ORDER NOTE: Before placing an order, always ask if they have any special notes or instructions for the kitchen.
+5. CALLING STAFF: Before calling 'call_chef' or 'call_waiter', ask if there is a specific message or reason they want to convey.
 
 MENU ITEMS AVAILABLE:
 ${menuList || 'Menu items will be provided by the restaurant.'}
@@ -400,16 +401,16 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                     {
                         type: 'function',
                         name: 'call_chef',
-                        description: 'Call the chef or kitchen staff to ask a specific question when you do not know the answer. Use this for specific allergen queries, ingredient details, or customization possibilities that are not in your system context. DO NOT abuse this for general questions.',
+                        description: 'Call the chef or kitchen staff. Use this when the customer wants to speak to the chef or has a specific message, compliment, or complaint for the kitchen.',
                         parameters: {
                             type: 'object',
                             properties: {
-                                question: {
+                                message: {
                                     type: 'string',
-                                    description: 'The specific question to ask the chef',
+                                    description: 'The specific message or question for the chef',
                                 },
                             },
-                            required: ['question'],
+                            required: ['message'],
                         },
                     },
                     {
@@ -429,12 +430,12 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                         parameters: {
                             type: 'object',
                             properties: {
-                                reason: {
+                                message: {
                                     type: 'string',
-                                    description: 'The reason why the waiter is needed (e.g., "Customer needs help with the bill", "Physical assistance needed")',
+                                    description: 'The reason or message for the waiter (e.g., "Customer needs help with the bill", "Physical assistance needed")',
                                 },
                             },
-                            required: [],
+                            required: ['message'],
                         },
                     },
                 ],
@@ -803,44 +804,57 @@ async function handleCallChef(
     event: any,
     args: any
 ) {
-    const question = args.question || "No specific question provided";
-    log(`Calling chef for question: ${question}`);
+    const message = args.message || "No specific message provided";
+    log(`Calling chef with message: ${message}`);
 
     // Notify client (frontend) to show visual feedback
     sendToClient(clientWs, {
         type: 'chef_called',
-        question: question,
+        message: message,
     });
 
-    // Notify chef dashboard via Backend API (Create a Pending Question)
     try {
-        // Create a pending question - this will trigger the 'new-question' event
-        // and show up in the PendingQuestionsPanel for the chef to answer verbally
-        await fetch(`${API_BASE_URL}/api/pending-questions`, {
+        // Create an assistance request for the chef
+        const response = await fetch(`${API_BASE_URL}/api/assistance-requests`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 restaurantId: clientData.restaurantId,
-                customerSessionId: (clientData as any).connectionId || 'unknown-session',
-                question: question,
+                tableId: clientData.tableId || null,
+                customerMessage: message,
+                requestType: 'call_chef',
                 status: 'pending'
             })
         });
-        log('Chef dashboard notified via pending questions');
 
-        // Also notify via WebSocket for immediate visual feedback (optional if PendingQuestionsPanel is already doing this)
-        // wsManager.notifyChefNewQuestion(clientData.restaurantId, { question });
+        if (response.ok) {
+            log('Chef notification sent to backend successfully');
+        } else {
+            log('Failed to send chef notification:', response.status);
+        }
+
+        // Also create a pending question for dashboard visibility
+        await fetch(`${API_BASE_URL}/api/pending-questions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                restaurantId: clientData.restaurantId,
+                customerSessionId: (clientData as any).connectionId || 'unknown-session',
+                question: message,
+                status: 'pending'
+            })
+        });
 
     } catch (err) {
-        log('Error creating pending question:', err);
+        log('Error creating chef request:', err);
     }
 
     sendFunctionResponse(clientData, event.call_id, {
         success: true,
-        message: "Question sent to chef.",
-        system_instruction: "Tell the customer: 'I've asked the chef directly. They will speak the answer to you shortly.'"
+        message: "Message sent to chef.",
+        system_instruction: "Tell the customer: 'I've sent your message to the chef. They will be notified immediately.'"
     });
 }
 
@@ -853,9 +867,9 @@ async function handleCallWaiter(
     event: any,
     args: any
 ) {
-    const reason = args.reason || "Waiter requested by customer";
+    const message = args.message || "Waiter requested by customer";
     const tableInfo = clientData.tableId ? `at table ${clientData.tableId}` : "to their table";
-    const customerMessage = `Waiter is needed ${tableInfo}. Reason: ${reason}`;
+    const customerMessage = `Waiter needed ${tableInfo}. Message: ${message}`;
 
     log(`Calling waiter: ${customerMessage}`);
 
@@ -875,7 +889,7 @@ async function handleCallWaiter(
             body: JSON.stringify({
                 restaurantId: clientData.restaurantId,
                 tableId: clientData.tableId || null,
-                customerMessage: customerMessage,
+                customerMessage: message, // Store the raw user message
                 requestType: 'call_waiter',
                 status: 'pending'
             })
@@ -892,8 +906,8 @@ async function handleCallWaiter(
 
     sendFunctionResponse(clientData, event.call_id, {
         success: true,
-        message: "A waiter has been notified and is on their way.",
-        system_instruction: "Tell the customer: 'I've called a waiter for you. They will be with you in a moment.'"
+        message: "A waiter has been notified.",
+        system_instruction: "Tell the customer: 'I've called a waiter and passed on your message. They will be with you shortly.'"
     });
 }
 
