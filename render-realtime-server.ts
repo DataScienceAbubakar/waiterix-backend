@@ -694,7 +694,7 @@ async function handleConfirmOrder(
         tip: tipAmount.toFixed(2),
         total: total.toFixed(2),
         paymentMethod: args.payment_method || 'cash',
-        customerNote: args.customer_note || 'Order placed via AI Waiter',
+        customerNote: args.customer_note || null,
     };
 
     log('Placing order:', JSON.stringify(orderPayload, null, 2));
