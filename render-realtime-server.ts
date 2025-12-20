@@ -376,6 +376,10 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                                     type: 'string',
                                     description: 'Any general notes or special requests for the entire order',
                                 },
+                                tip_amount: {
+                                    type: 'number',
+                                    description: 'The tip amount to add to the order, if the customer specifies one. Ask the customer if they would like to add a tip before finalizing.',
+                                },
                             },
                             required: [],
                         },
@@ -661,7 +665,15 @@ async function handleConfirmOrder(
     );
     const taxRate = 0.08; // 8% tax - this could be made configurable
     const tax = subtotal * taxRate;
-    const total = subtotal + tax;
+
+    // Parse tip amount - ensure it's a valid number
+    let tipAmount = 0;
+    if (args.tip_amount) {
+        tipAmount = parseFloat(args.tip_amount);
+        if (isNaN(tipAmount)) tipAmount = 0;
+    }
+
+    const total = subtotal + tax + tipAmount;
 
     // Build order payload for backend API
     const orderPayload = {
@@ -676,7 +688,7 @@ async function handleConfirmOrder(
         })),
         subtotal: subtotal.toFixed(2),
         tax: tax.toFixed(2),
-        tip: '0.00',
+        tip: tipAmount.toFixed(2),
         total: total.toFixed(2),
         paymentMethod: args.payment_method || 'cash',
         customerNote: args.customer_note || 'Order placed via AI Waiter',
