@@ -989,6 +989,26 @@ function handleClientMessage(ws: WebSocket, message: any) {
             }
             break;
 
+        case 'request_prompt':
+            // User tapped "Speak with Lela" - have her say a short prompt
+            log('User requested prompt - Lela will ask how she can help');
+            if (clientData.openaiWs?.readyState === WebSocket.OPEN) {
+                // Send a conversation item with user intent, then request a response
+                clientData.openaiWs.send(JSON.stringify({
+                    type: 'conversation.item.create',
+                    item: {
+                        type: 'message',
+                        role: 'user',
+                        content: [{
+                            type: 'input_text',
+                            text: '[User tapped the button to speak with you. Say a very short, friendly prompt like "How may I help you?" or "Yes, how can I assist?" - keep it under 5 words]'
+                        }]
+                    }
+                }));
+                clientData.openaiWs.send(JSON.stringify({ type: 'response.create' }));
+            }
+            break;
+
         case 'end_session':
             if (clientData.openaiWs) {
                 clientData.openaiWs.close();
