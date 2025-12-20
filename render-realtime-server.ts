@@ -137,6 +137,9 @@ interface ClientConnection {
     menuItems: any[];
     cart: CartItem[];  // Track items added to cart
     tableId?: string;  // Table number/ID if provided
+    restaurantName?: string;
+    sessionType?: 'waiter' | 'interviewer';
+    interviewConfig?: any;
 }
 
 const clients = new Map<WebSocket, ClientConnection>();
@@ -984,6 +987,9 @@ function handleClientMessage(ws: WebSocket, message: any) {
             // Store config
             clientData.language = message.language || 'en';
             clientData.menuItems = message.menuItems || [];
+            clientData.restaurantName = message.restaurantName || "Restaurant";
+            clientData.sessionType = message.sessionType || 'waiter';
+            clientData.interviewConfig = message.interviewConfig;
 
             // Connect to OpenAI
             const openaiWs = connectToOpenAI(ws, {
@@ -995,6 +1001,31 @@ function handleClientMessage(ws: WebSocket, message: any) {
                 interviewConfig: message.interviewConfig,
             });
             clientData.openaiWs = openaiWs;
+            break;
+
+        case 'update_session_config':
+            if (message.config && message.config.language) {
+                clientData.language = message.config.language;
+                log(`Updating session language to: ${clientData.language}`);
+
+                if (clientData.openaiWs?.readyState === WebSocket.OPEN) {
+                    // Re-create system prompt with new language
+                    const systemPrompt = createSystemPrompt(
+                        clientData.restaurantName || "Restaurant",
+                        clientData.menuItems || [],
+                        clientData.language,
+                        clientData.sessionType || 'waiter',
+                        clientData.interviewConfig
+                    );
+
+                    clientData.openaiWs.send(JSON.stringify({
+                        type: 'session.update',
+                        session: {
+                            instructions: systemPrompt
+                        }
+                    }));
+                }
+            }
             break;
 
         case 'audio':
