@@ -328,9 +328,9 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                 },
                 turn_detection: {
                     type: 'server_vad',
-                    threshold: 0.5,
+                    threshold: 0.7, // Higher threshold for noisy environments
                     prefix_padding_ms: 300,
-                    silence_duration_ms: 500,
+                    silence_duration_ms: 800, // Longer silence to allow for pauses
                     create_response: true,
                 },
                 tools: config.sessionType === 'interviewer' ? [] : [
