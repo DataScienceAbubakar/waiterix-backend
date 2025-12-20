@@ -920,9 +920,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
       }
 
+      // Resolve tableId - it might be a table number string like "1" or "A5"
+      // We need to convert it to the actual table UUID
+      let resolvedTableId = null;
+      if (tableId) {
+        // First check if it's already a UUID (contains dashes)
+        if (tableId.includes('-')) {
+          resolvedTableId = tableId;
+        } else {
+          // It's a table number, look up the actual table
+          const table = await storage.getTableByNumber(restaurantId, tableId);
+          if (table) {
+            resolvedTableId = table.id;
+          }
+          // If table not found, we'll just store null
+        }
+      }
+
       const request = await storage.createAssistanceRequest({
         restaurantId,
-        tableId: tableId || null,
+        tableId: resolvedTableId,
         orderId: orderId || null,
         customerMessage: customerMessage || null,
         requestType: requestType || 'call_waiter',
