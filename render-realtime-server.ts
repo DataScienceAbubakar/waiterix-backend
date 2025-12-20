@@ -211,7 +211,28 @@ Guidelines:
     // Default: Waiter Mode
     const menuList = menuItems
         .filter(item => item.available !== false)
-        .map(item => `- ${item.name} ($${item.price}): ${item.description || 'No description'}`)
+        .map(item => {
+            let details = `- ${item.name} ($${item.price}): ${item.description || 'No description'}`;
+
+            // Add dietary tags if available
+            const tags = [];
+            if (item.isVegan) tags.push('Vegan');
+            if (item.isVegetarian) tags.push('Vegetarian');
+            if (item.isGlutenFree) tags.push('Gluten-Free');
+            if (item.spicinessLevel && item.spicinessLevel > 0) tags.push(`${item.spicinessLevel}/3 Spicy`);
+            if (tags.length > 0) details += ` [${tags.join(', ')}]`;
+
+            // Add extended details if available (ingredients, pairing, etc)
+            if (item.extendedDetails) {
+                if (item.extendedDetails.ingredients) details += `\n  * Ingredients: ${item.extendedDetails.ingredients}`;
+                if (item.extendedDetails.allergens) details += `\n  * Allergens: ${item.extendedDetails.allergens}`;
+                if (item.extendedDetails.pairingSuggestions) details += `\n  * Pair with: ${item.extendedDetails.pairingSuggestions}`;
+                if (item.extendedDetails.preparationTime) details += `\n  * Prep time: ${item.extendedDetails.preparationTime} mins`;
+                if (item.extendedDetails.story) details += `\n  * Story: ${item.extendedDetails.story}`;
+            }
+
+            return details;
+        })
         .join('\n');
 
     return `You are Lela, a friendly, professional AI waiter at ${restaurantName || 'this restaurant'}. 
