@@ -6,7 +6,7 @@ import { generateWithOpenAI } from "./openai";
 import { synthesizeSpeechWithLanguage } from "./polly";
 import { transcribeAudioBuffer } from "./transcribe";
 import { setupAuth, isAuthenticated } from "./firebaseAuth";
-import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertRestaurantTableSchema, insertAssistanceRequestSchema, insertPendingQuestionSchema, type InsertRestaurant } from "@/shared/schema";
+import { insertRestaurantSchema, insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertRestaurantTableSchema, insertAssistanceRequestSchema, insertPendingQuestionSchema, insertTableScanEventSchema, type InsertRestaurant } from "@/shared/schema";
 import Stripe from "stripe";
 import { Paystack } from "./payments/paystack";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -3985,6 +3985,71 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       usagePricePrefix: process.env.STRIPE_USAGE_PRICE_ID?.substring(0, 25),
       stripeKeyPrefix: process.env.STRIPE_SECRET_KEY?.substring(0, 20),
     });
+  });
+
+  // Analytics Endpoints
+
+  // Record a table scan event (Public)
+  app.post('/api/analytics/table-scan', async (req, res) => {
+    try {
+      const scanData = insertTableScanEventSchema.parse(req.body);
+
+      // Verify restaurant exists
+      const restaurant = await storage.getRestaurant(scanData.restaurantId);
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      await storage.recordTableScan(scanData);
+      res.json({ success: true });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid scan data", errors: error.errors });
+      }
+      console.error("Error recording table scan:", error);
+      res.status(500).json({ message: "Failed to record table scan" });
+    }
+  });
+
+  // Get aggregated analytics stats (Authenticated)
+  app.get('/api/analytics/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const restaurant = await storage.getRestaurantByUserId(userId);
+
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      const period = (req.query.period as string) || 'week';
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+
+      if (period === 'week') {
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7); // Last 7 days
+        endDate = new Date(); // Now
+      } else if (period === 'month') {
+        startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+        endDate = new Date();
+      }
+      // 'lifetime' implies no dates specificed (undefined)
+
+      const [tableScans, aiCalls] = await Promise.all([
+        storage.getTableScanStats(restaurant.id, startDate, endDate),
+        storage.getAiApiCallStats(restaurant.id, startDate, endDate),
+      ]);
+
+      res.json({
+        period,
+        tableScans,
+        aiCalls,
+      });
+    } catch (error) {
+      console.error("Error fetching analytics stats:", error);
+      res.status(500).json({ message: "Failed to fetch analytics stats" });
+    }
   });
 
   const httpServer = createServer(app);
