@@ -3001,6 +3001,36 @@ Guidelines:
     }
   });
 
+  // Delete Pending Question (Chef Dashboard)
+  app.delete('/api/chef/questions/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const questionId = req.params.id;
+
+      // Get the pending question to verify ownership
+      const question = await storage.getPendingQuestionById(questionId);
+      if (!question) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+
+      // Verify that the restaurant belongs to the authenticated user
+      const restaurant = await storage.getRestaurant(question.restaurantId);
+      if (!restaurant || restaurant.userId !== userId) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+
+      const deleted = await storage.deletePendingQuestion(questionId, restaurant.id);
+      if (deleted) {
+        res.status(200).json({ message: 'Question deleted successfully' });
+      } else {
+        res.status(500).json({ error: 'Failed to delete question' });
+      }
+    } catch (error) {
+      console.error('Error deleting pending question:', error);
+      res.status(500).json({ error: 'Failed to delete pending question' });
+    }
+  });
+
   // Create Pending Question - Voice/Text for Chef
   app.post('/api/pending-questions', async (req: any, res) => {
     try {

@@ -185,6 +185,8 @@ export const pendingQuestions = pgTable("pending_questions", {
   menuItemContext: text("menu_item_context"),
   language: text("language").notNull().default('en'),
   status: text("status").notNull().default('pending'),
+  tableId: varchar("table_id").references(() => restaurantTables.id, { onDelete: 'set null' }),
+  tableNumber: text("table_number"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -67,6 +67,7 @@ export interface IStorage {
   getPendingQuestions(restaurantId: string): Promise<PendingQuestion[]>;
   getPendingQuestionById(id: string): Promise<PendingQuestion | undefined>;
   updatePendingQuestionStatus(id: string, status: string): Promise<PendingQuestion>;
+  deletePendingQuestion(id: string, restaurantId: string): Promise<boolean>;
 
   // Chef answers operations
   createChefAnswer(answer: InsertChefAnswer): Promise<ChefAnswer>;
@@ -515,6 +516,19 @@ export class DatabaseStorage implements IStorage {
       .where(eq(pendingQuestions.id, id))
       .returning();
     return question;
+  }
+
+  async deletePendingQuestion(id: string, restaurantId: string): Promise<boolean> {
+    const result = await db
+      .delete(pendingQuestions)
+      .where(
+        and(
+          eq(pendingQuestions.id, id),
+          eq(pendingQuestions.restaurantId, restaurantId)
+        )
+      )
+      .returning();
+    return result.length > 0;
   }
 
   // Chef answers operations

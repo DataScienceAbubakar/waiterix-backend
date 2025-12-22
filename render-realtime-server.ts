@@ -137,6 +137,7 @@ interface ClientConnection {
     menuItems: any[];
     cart: CartItem[];  // Track items added to cart
     tableId?: string;  // Table number/ID if provided
+    tableNumber?: string;
     restaurantName?: string;
     sessionType?: 'waiter' | 'interviewer';
     interviewConfig?: any;
@@ -970,7 +971,9 @@ async function handleCallChef(
                 restaurantId: clientData.restaurantId,
                 customerSessionId: (clientData as any).connectionId || 'unknown-session',
                 question: message,
-                status: 'pending'
+                status: 'pending',
+                tableId: clientData.tableId || null,
+                tableNumber: clientData.tableNumber || null
             })
         });
 
@@ -1110,7 +1113,8 @@ wss.on('connection', (ws: WebSocket, req) => {
         language: 'en',
         menuItems: [],
         cart: [],           // Initialize empty cart
-        tableId: query.tableId as string || undefined,  // Get table ID from query params
+        tableId: query.tableId as string || undefined,  // Get table ID (UUID)
+        tableNumber: query.tableNumber as string || undefined, // Get table number (string)
     });
 
     // Handle messages from client
