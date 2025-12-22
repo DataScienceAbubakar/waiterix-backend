@@ -728,6 +728,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { restaurantId, tableId, items, subtotal, tax, tip, total, paymentMethod, customerNote, stripePaymentIntentId } = req.body;
 
+      // Idempotency check: if an order with this Stripe PaymentIntent already exists, return it
+      if (stripePaymentIntentId) {
+        const existingOrder = await storage.getOrderByStripePaymentIntent(stripePaymentIntentId);
+        if (existingOrder) {
+          console.log('[Create Order] Order already exists for PaymentIntent:', stripePaymentIntentId);
+          return res.json(existingOrder);
+        }
+      }
+
       // Handle demo restaurant - return mock order without saving to database
       if (demoDataService.isDemoRestaurant(restaurantId)) {
         const demoOrder = demoDataService.createDemoOrder({

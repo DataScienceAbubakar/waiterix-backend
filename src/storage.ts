@@ -10,7 +10,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   acceptTerms(userId: string): Promise<User>;
   deleteUser(userId: string): Promise<void>;
-  
+
   // Restaurant operations
   getRestaurant(id: string): Promise<Restaurant | undefined>;
   getRestaurantByUserId(userId: string): Promise<Restaurant | undefined>;
@@ -18,23 +18,24 @@ export interface IStorage {
   createRestaurant(restaurant: InsertRestaurant): Promise<Restaurant>;
   updateRestaurant(id: string, restaurant: Partial<InsertRestaurant>): Promise<Restaurant>;
   deleteRestaurant(id: string): Promise<void>;
-  
+
   // Menu item operations
   getMenuItems(restaurantId: string): Promise<MenuItem[]>;
   getMenuItem(id: string): Promise<MenuItem | undefined>;
   createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem>;
   updateMenuItem(id: string, menuItem: Partial<InsertMenuItem>): Promise<MenuItem>;
   deleteMenuItem(id: string): Promise<void>;
-  
+
   // Order operations
   getOrders(restaurantId: string): Promise<OrderWithTable[]>;
   getOrder(id: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
+  getOrderByStripePaymentIntent(paymentIntentId: string): Promise<Order | undefined>;
   updateOrder(id: string, orderData: Partial<InsertOrder>): Promise<Order>;
   updateOrderStatus(id: string, status: string): Promise<Order>;
   getOrderItems(orderId: string): Promise<OrderItem[]>;
   deleteOldCompletedOrders(restaurantId: string, olderThan: Date): Promise<void>;
-  
+
   // Restaurant table operations
   getRestaurantTables(restaurantId: string): Promise<RestaurantTable[]>;
   getRestaurantTable(id: string): Promise<RestaurantTable | undefined>;
@@ -42,17 +43,17 @@ export interface IStorage {
   createRestaurantTable(table: InsertRestaurantTable): Promise<RestaurantTable>;
   updateRestaurantTable(id: string, table: Partial<InsertRestaurantTable>): Promise<RestaurantTable>;
   deleteRestaurantTable(id: string): Promise<void>;
-  
+
   // Extended menu details operations
   getExtendedMenuDetails(menuItemId: string): Promise<ExtendedMenuDetails | undefined>;
   createExtendedMenuDetails(details: InsertExtendedMenuDetails): Promise<ExtendedMenuDetails>;
   updateExtendedMenuDetails(menuItemId: string, details: Partial<InsertExtendedMenuDetails>): Promise<ExtendedMenuDetails>;
-  
+
   // Restaurant knowledge operations
   getRestaurantKnowledge(restaurantId: string): Promise<RestaurantKnowledge | undefined>;
   createRestaurantKnowledge(knowledge: InsertRestaurantKnowledge): Promise<RestaurantKnowledge>;
   updateRestaurantKnowledge(restaurantId: string, knowledge: Partial<InsertRestaurantKnowledge>): Promise<RestaurantKnowledge>;
-  
+
   // FAQ knowledge base operations
   searchFaqByKeywords(restaurantId: string, keywords: string[], fullQuestion?: string): Promise<FaqKnowledgeBase[]>;
   getAllFaqs(restaurantId: string): Promise<FaqKnowledgeBase[]>;
@@ -60,26 +61,26 @@ export interface IStorage {
   updateFaq(id: string, restaurantId: string, faq: Partial<InsertFaqKnowledgeBase>): Promise<FaqKnowledgeBase | null>;
   incrementFaqUsage(id: string): Promise<void>;
   deleteFaq(id: string, restaurantId: string): Promise<boolean>;
-  
+
   // Pending questions operations
   createPendingQuestion(question: InsertPendingQuestion): Promise<PendingQuestion>;
   getPendingQuestions(restaurantId: string): Promise<PendingQuestion[]>;
   getPendingQuestionById(id: string): Promise<PendingQuestion | undefined>;
   updatePendingQuestionStatus(id: string, status: string): Promise<PendingQuestion>;
-  
+
   // Chef answers operations
   createChefAnswer(answer: InsertChefAnswer): Promise<ChefAnswer>;
   getChefAnswerByQuestionId(pendingQuestionId: string): Promise<ChefAnswer | undefined>;
-  
+
   // Admin password operations
   setAdminPassword(restaurantId: string, password: string): Promise<void>;
   verifyAdminPassword(restaurantId: string, password: string): Promise<boolean>;
   hasAdminPassword(restaurantId: string): Promise<boolean>;
-  
+
   // Restaurant settings operations
   toggleAiWaiter(restaurantId: string, enabled: boolean): Promise<Restaurant>;
   toggleAutoPrint(restaurantId: string, enabled: boolean): Promise<Restaurant>;
-  
+
   // Analytics operations
   recordTableScan(event: InsertTableScanEvent): Promise<TableScanEvent>;
   recordAiApiCall(event: InsertAiApiCallEvent): Promise<AiApiCallEvent>;
@@ -93,13 +94,13 @@ export interface IStorage {
   }>;
   getTotalAiApiCalls(restaurantId: string): Promise<number>;
   getCurrentMonthAiApiCalls(restaurantId: string): Promise<number>;
-  
+
   // Rating operations
   createRating(rating: InsertRating): Promise<Rating>;
   getRatingsByOrder(orderId: string): Promise<Rating[]>;
   getRatingsByRestaurant(restaurantId: string): Promise<Rating[]>;
   hasOrderBeenRated(orderId: string): Promise<boolean>;
-  
+
   // Assistance request operations
   createAssistanceRequest(request: InsertAssistanceRequest): Promise<AssistanceRequest>;
   getAssistanceRequests(restaurantId: string, status?: string): Promise<AssistanceRequestWithTable[]>;
@@ -252,16 +253,21 @@ export class DatabaseStorage implements IStorage {
     return order;
   }
 
+  async getOrderByStripePaymentIntent(paymentIntentId: string): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.stripePaymentIntentId, paymentIntentId));
+    return order;
+  }
+
   async createOrder(orderData: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
     const [order] = await db.insert(orders).values(orderData).returning();
-    
+
     await db.insert(orderItems).values(
       items.map(item => ({
         ...item,
         orderId: order.id,
       }))
     );
-    
+
     return order;
   }
 
@@ -396,7 +402,7 @@ export class DatabaseStorage implements IStorage {
       const faqText = `${faq.question} ${faq.answer}`.toLowerCase();
       const questionLower = faq.question.toLowerCase();
       const fullQuestionLower = fullQuestion?.toLowerCase() || '';
-      
+
       // Factor 1: Keyword matches in FAQ keywords array (highest weight)
       keywords.forEach(keyword => {
         const keywordLower = keyword.toLowerCase();
@@ -404,7 +410,7 @@ export class DatabaseStorage implements IStorage {
           score += 5;
         }
       });
-      
+
       // Factor 2: Keyword matches in question/answer text
       keywords.forEach(keyword => {
         const keywordLower = keyword.toLowerCase();
@@ -414,20 +420,20 @@ export class DatabaseStorage implements IStorage {
           score += 1;
         }
       });
-      
+
       // Factor 3: Question similarity (if full question provided)
       if (fullQuestion && fullQuestionLower.length > 0) {
         // Simple word overlap similarity
         const questionWords = fullQuestionLower.split(/\s+/).filter(w => w.length > 3);
         const faqQuestionWords = questionLower.split(/\s+/).filter(w => w.length > 3);
-        
-        const overlap = questionWords.filter(word => 
+
+        const overlap = questionWords.filter(word =>
           faqQuestionWords.some(faqWord => faqWord.includes(word) || word.includes(faqWord))
         ).length;
-        
+
         score += overlap * 2;
       }
-      
+
       return { faq, score };
     });
 
@@ -557,7 +563,7 @@ export class DatabaseStorage implements IStorage {
   ): Promise<void> {
     const hashedAnswer1 = await bcrypt.hash(answer1.toLowerCase().trim(), 10);
     const hashedAnswer2 = await bcrypt.hash(answer2.toLowerCase().trim(), 10);
-    
+
     await db
       .update(restaurants)
       .set({
@@ -648,7 +654,7 @@ export class DatabaseStorage implements IStorage {
     scansByTable: { tableNumber: string; count: number }[];
   }> {
     let whereCondition;
-    
+
     if (startDate && endDate) {
       whereCondition = and(
         eq(tableScanEvents.restaurantId, restaurantId),
@@ -663,7 +669,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(tableScanEvents)
       .where(whereCondition);
-    
+
     const scansByTable = scans.reduce((acc, scan) => {
       const tableNumber = scan.tableNumber || 'Unknown';
       const existing = acc.find(item => item.tableNumber === tableNumber);
@@ -686,7 +692,7 @@ export class DatabaseStorage implements IStorage {
     callsByType: { callType: string; count: number }[];
   }> {
     let whereCondition;
-    
+
     if (startDate && endDate) {
       whereCondition = and(
         eq(aiApiCallEvents.restaurantId, restaurantId),
@@ -701,7 +707,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(aiApiCallEvents)
       .where(whereCondition);
-    
+
     const callsByType = calls.reduce((acc, call) => {
       const existing = acc.find(item => item.callType === call.callType);
       if (existing) {
@@ -727,7 +733,7 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-    
+
     const stats = await this.getAiApiCallStats(restaurantId, startOfMonth, endOfMonth);
     return stats.totalCalls;
   }
