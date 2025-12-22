@@ -377,6 +377,35 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                     },
                     {
                         type: 'function',
+                        name: 'remove_from_cart',
+                        description: 'Remove a menu item from the customer\'s cart. Use this when the customer wants to cancel or remove an item they previously added.',
+                        parameters: {
+                            type: 'object',
+                            properties: {
+                                items: {
+                                    type: 'array',
+                                    description: 'List of items to remove from the cart',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            item_name: {
+                                                type: 'string',
+                                                description: 'The exact name of the menu item to remove',
+                                            },
+                                            quantity: {
+                                                type: 'integer',
+                                                description: 'Number of items to remove (optional). If not specified, one instance will be removed.',
+                                            },
+                                        },
+                                        required: ['item_name'],
+                                    },
+                                },
+                            },
+                            required: ['items'],
+                        },
+                    },
+                    {
+                        type: 'function',
                         name: 'confirm_order',
                         description: 'Place and confirm the customer\'s order. Use this when the customer says they are done ordering and want to finalize/confirm/place their order. Before calling this, summarize the order and ask for confirmation.',
                         parameters: {
@@ -569,6 +598,8 @@ function handleFunctionCall(clientWs: WebSocket, event: any, config: any) {
 
         if (event.name === 'add_to_cart') {
             handleAddToCart(clientWs, clientData, event, args, config);
+        } else if (event.name === 'remove_from_cart') {
+            handleRemoveFromCart(clientWs, clientData, event, args, config);
         } else if (event.name === 'confirm_order') {
             handleConfirmOrder(clientWs, clientData, event, args, config);
         } else if (event.name === 'call_chef') {
@@ -678,6 +709,87 @@ function handleAddToCart(
         });
     }
 }
+
+/**
+ * Handle remove_from_cart function call
+ */
+function handleRemoveFromCart(
+    clientWs: WebSocket,
+    clientData: ClientConnection,
+    event: any,
+    args: any,
+    config: any
+) {
+    const menuItems = config.menuItems || [];
+    let itemsToRemove: any[] = [];
+
+    // Normalize input to array
+    if (args.items && Array.isArray(args.items)) {
+        itemsToRemove = args.items;
+    } else if (args.item_name) {
+        itemsToRemove = [args];
+    } else {
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: 'No items specified for removal',
+        });
+        return;
+    }
+
+    let removedItems: string[] = [];
+    let notFoundInCart: string[] = [];
+
+    for (const itemRequest of itemsToRemove) {
+        // Find the item in the current cart
+        const cartIndex = clientData.cart.findIndex(
+            (item: any) => item.name.toLowerCase() === itemRequest.item_name?.toLowerCase()
+        );
+
+        if (cartIndex !== -1) {
+            const cartItem = clientData.cart[cartIndex];
+            const quantityToRemove = itemRequest.quantity || 1;
+
+            if (cartItem.quantity > quantityToRemove) {
+                cartItem.quantity -= quantityToRemove;
+                removedItems.push(`${quantityToRemove}x ${cartItem.name}`);
+            } else {
+                // Remove entire entry if quantity to remove >= current quantity
+                removedItems.push(`all ${cartItem.name}`);
+                clientData.cart.splice(cartIndex, 1);
+            }
+
+            // Notify client to update its local cart state
+            sendToClient(clientWs, {
+                type: 'remove_from_cart',
+                item: {
+                    id: cartItem.id,
+                    name: cartItem.name,
+                    quantity: quantityToRemove,
+                },
+            });
+        } else {
+            notFoundInCart.push(itemRequest.item_name || 'Unknown Item');
+        }
+    }
+
+    if (removedItems.length > 0) {
+        let message = `Removed: ${removedItems.join(', ')}.`;
+        if (notFoundInCart.length > 0) {
+            message += ` Could not find in cart: ${notFoundInCart.join(', ')}.`;
+        }
+        sendFunctionResponse(clientData, event.call_id, {
+            success: true,
+            message: message,
+            cart_total: clientData.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0).toFixed(2),
+        });
+    } else {
+        sendFunctionResponse(clientData, event.call_id, {
+            success: false,
+            message: `Could not find these items in your cart: ${notFoundInCart.join(', ')}`,
+        });
+    }
+}
+
 
 /**
  * Handle confirm_order function call - places the order via backend API
