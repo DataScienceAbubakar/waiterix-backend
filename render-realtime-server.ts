@@ -141,6 +141,7 @@ interface ClientConnection {
     restaurantName?: string;
     sessionType?: 'waiter' | 'interviewer';
     interviewConfig?: any;
+    connectionId: string;
 }
 
 const clients = new Map<WebSocket, ClientConnection>();
@@ -944,13 +945,13 @@ async function handleCallChef(
     try {
         // Create an assistance request for the chef
 
-        // Also create a pending question for dashboard visibility
-        await fetch(`${API_BASE_URL}/api/pending-questions`, {
+        log(`Sending question to backend at ${API_BASE_URL}/api/pending-questions`);
+        const response = await fetch(`${API_BASE_URL}/api/pending-questions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 restaurantId: clientData.restaurantId,
-                customerSessionId: (clientData as any).connectionId || 'unknown-session',
+                customerSessionId: clientData.connectionId,
                 question: message,
                 status: 'pending',
                 tableId: clientData.tableId || null,
@@ -958,8 +959,15 @@ async function handleCallChef(
             })
         });
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            log(`Failed to create pending question. Status: ${response.status}, Error: ${errorText}`);
+        } else {
+            log('Successfully created pending question in backend');
+        }
+
     } catch (err) {
-        log('Error creating chef request:', err);
+        log('Error in handleCallChef:', err);
     }
 
     sendFunctionResponse(clientData, event.call_id, {
@@ -1096,6 +1104,7 @@ wss.on('connection', (ws: WebSocket, req) => {
         cart: [],           // Initialize empty cart
         tableId: query.tableId as string || undefined,  // Get table ID (UUID)
         tableNumber: query.tableNumber as string || undefined, // Get table number (string)
+        connectionId: Math.random().toString(36).substring(2, 11), // Simple random ID for session
     });
 
     // Handle messages from client

@@ -3034,6 +3034,7 @@ Guidelines:
   // Create Pending Question - Voice/Text for Chef
   app.post('/api/pending-questions', async (req: any, res) => {
     try {
+      console.log('[PendingQuestion] Received new question request:', req.body);
       const questionData = insertPendingQuestionSchema.parse(req.body);
 
       // Create pending question in database
