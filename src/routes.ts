@@ -3039,8 +3039,14 @@ Guidelines:
       // Create pending question in database
       const question = await storage.createPendingQuestion(questionData);
 
-      // Notify chef dashboard about new question via WebSocket (Serverless/AWS)
-      await apiGatewayWebSocketManager.notifyChefNewQuestion(question.restaurantId, question);
+      // Notify chef dashboard about new question via WebSocket
+      if (wsManager) {
+        wsManager.notifyChefNewQuestion(question.restaurantId, question);
+      }
+
+      if (apiGatewayWebSocketManager) {
+        await apiGatewayWebSocketManager.notifyChefNewQuestion(question.restaurantId, question);
+      }
 
       res.status(201).json(question);
     } catch (error) {

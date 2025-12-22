@@ -943,25 +943,6 @@ async function handleCallChef(
 
     try {
         // Create an assistance request for the chef
-        const response = await fetch(`${API_BASE_URL}/api/assistance-requests`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                restaurantId: clientData.restaurantId,
-                tableId: clientData.tableId || null,
-                customerMessage: message,
-                requestType: 'call_chef',
-                status: 'pending'
-            })
-        });
-
-        if (response.ok) {
-            log('Chef notification sent to backend successfully');
-        } else {
-            log('Failed to send chef notification:', response.status);
-        }
 
         // Also create a pending question for dashboard visibility
         await fetch(`${API_BASE_URL}/api/pending-questions`, {
