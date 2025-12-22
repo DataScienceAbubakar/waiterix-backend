@@ -60,6 +60,37 @@ export function getSession() {
   });
 }
 
+/**
+ * Extract Bearer token from Authorization header
+ */
+function extractBearerToken(req: any): string | null {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader || typeof authHeader !== 'string') {
+    return null;
+  }
+
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+    return null;
+  }
+
+  return parts[1];
+}
+
+/**
+ * Verify Firebase ID token and return the user ID
+ * Returns null if token is invalid or missing
+ */
+async function verifyFirebaseToken(token: string): Promise<string | null> {
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    return decodedToken.uid;
+  } catch (error) {
+    console.warn("[AUTH] Firebase token verification failed:", error);
+    return null;
+  }
+}
+
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
@@ -118,21 +149,55 @@ export async function setupAuth(app: Express) {
   });
 }
 
+/**
+ * Authentication middleware that supports both:
+ * 1. Session cookie (traditional approach)
+ * 2. Firebase ID token in Authorization header (Safari compatibility)
+ * 
+ * Safari's Intelligent Tracking Prevention (ITP) blocks third-party cookies,
+ * including SameSite=None cookies when frontend and backend are on different domains.
+ * The Authorization header approach bypasses this limitation.
+ */
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const userId = (req.session as any).userId;
+  // First, try session-based authentication
+  const sessionUserId = (req.session as any).userId;
 
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  try {
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(401).json({ message: "Unauthorized" });
+  if (sessionUserId) {
+    try {
+      const user = await storage.getUser(sessionUserId);
+      if (user) {
+        (req as any).userId = sessionUserId;
+        return next();
+      }
+    } catch (error) {
+      console.warn("[AUTH] Session user lookup failed:", error);
     }
-    (req as any).userId = userId;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
   }
+
+  // If session auth fails, try Bearer token authentication (Safari fallback)
+  const bearerToken = extractBearerToken(req);
+
+  if (bearerToken) {
+    const tokenUserId = await verifyFirebaseToken(bearerToken);
+
+    if (tokenUserId) {
+      try {
+        // Verify user exists in our database
+        const user = await storage.getUser(tokenUserId);
+        if (user) {
+          (req as any).userId = tokenUserId;
+
+          // Also update the session for future requests (if cookies start working)
+          (req.session as any).userId = tokenUserId;
+
+          return next();
+        }
+      } catch (error) {
+        console.warn("[AUTH] Token user lookup failed:", error);
+      }
+    }
+  }
+
+  // Both authentication methods failed
+  return res.status(401).json({ message: "Unauthorized" });
 };
