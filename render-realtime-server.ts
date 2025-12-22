@@ -953,6 +953,7 @@ async function handleCallChef(
                 restaurantId: clientData.restaurantId,
                 customerSessionId: clientData.connectionId,
                 question: message,
+                language: clientData.language || 'en',
                 status: 'pending',
                 tableId: clientData.tableId || null,
                 tableNumber: clientData.tableNumber || null
@@ -961,9 +962,10 @@ async function handleCallChef(
 
         if (!response.ok) {
             const errorText = await response.text();
-            log(`Failed to create pending question. Status: ${response.status}, Error: ${errorText}`);
+            log(`Failed to create pending question at ${API_BASE_URL}. Status: ${response.status}, Error: ${errorText}`);
         } else {
-            log('Successfully created pending question in backend');
+            const savedQuestion = await response.json();
+            log(`Successfully created pending question for restaurant ${clientData.restaurantId}. ID: ${savedQuestion.id}`);
         }
 
     } catch (err) {
