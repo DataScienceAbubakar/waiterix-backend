@@ -121,6 +121,7 @@ export const orders = pgTable("orders", {
   tip: decimal("tip", { precision: 10, scale: 2 }).default('0').notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull().default('new'),
+  allergies: text("allergies"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -133,6 +134,7 @@ export const orderItems = pgTable("order_items", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   quantity: integer("quantity").notNull(),
   customerNote: text("customer_note"),
+  allergies: text("allergies"),
 });
 
 // Extended menu details for AI knowledge base

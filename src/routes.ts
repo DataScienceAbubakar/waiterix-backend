@@ -726,7 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/orders', async (req, res) => {
     try {
-      const { restaurantId, tableId, items, subtotal, tax, tip, total, paymentMethod, customerNote, stripePaymentIntentId } = req.body;
+      const { restaurantId, tableId, items, subtotal, tax, tip, total, paymentMethod, customerNote, allergies, stripePaymentIntentId } = req.body;
 
       // Idempotency check: if an order with this Stripe PaymentIntent already exists, return it
       if (stripePaymentIntentId) {
@@ -792,6 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentStatus: paymentMethod === 'cash' ? 'pending' :
           (stripePaymentIntentId ? 'completed' : 'pending'),
         stripePaymentIntentId,
+        allergies,
       });
 
       const orderItemsData = items.map((item: any) =>
@@ -801,6 +802,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           price: item.price.toString(),
           quantity: item.quantity,
           customerNote: item.customerNote,
+          allergies: item.allergies,
         })
       );
 

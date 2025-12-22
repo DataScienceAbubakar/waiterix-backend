@@ -127,6 +127,7 @@ interface CartItem {
     price: string;
     quantity: number;
     customerNote?: string;
+    allergies?: string;
 }
 
 // Store OpenAI connections per client
@@ -256,6 +257,7 @@ PERSONALITY & COMMUNICATION STYLE:
 - NOTE: The system has already played a welcome greeting to the customer. When they start speaking, do not repeat the full welcome message. Instead, respond naturally as if you are continuing the conversation.
 - Show enthusiasm for the menu: "The burgers are fantastic today!" or "That's a great choice!"
 - ENCOURAGE TIPS: When placing an order, mention that they can add a tip for the staff if they're happy with the service.
+- ALLERGY SAFETY: Always ask customers if they have any allergies, especially when they express interest in a specific dish. If they mention an allergy, record it in the order notes and confirm how the kitchen will handle it.
 
 YOUR CAPABILITIES:
 - Help customers explore the menu.
@@ -269,7 +271,7 @@ MANDATORY WORKFLOW RULES:
    - If they choose "at the register later" or "cash", use payment_method='cash' in confirm_order.
    - If they choose "pay now online" or "pay here" or "card", you MUST say: "For security reasons, I will bring up the checkout page for you to input your payment details and submit the order yourself." Then call the 'open_checkout' function.
 3. ALWAYS ASK ABOUT TIP: Before placing an order, always ask if they would like to add a tip for the staff.
-4. ALWAYS ASK FOR ORDER NOTE: Before placing an order, always ask if they have any special notes or instructions for the kitchen.
+4. ALWAYS ASK FOR ORDER NOTE & ALLERGIES: Before placing an order, always ask if they have any special notes, instructions, or ALLERGIES the kitchen should be aware of.
 5. CALLING STAFF: Before calling 'call_chef' or 'call_waiter', ask if there is a specific message or reason they want to convey.
 
 MENU ITEMS AVAILABLE:
@@ -369,6 +371,10 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                                                 type: 'string',
                                                 description: 'Any special instructions or modifications for the item',
                                             },
+                                            allergies: {
+                                                type: 'string',
+                                                description: 'Any allergies specifically related to this item',
+                                            },
                                         },
                                         required: ['item_name'],
                                     },
@@ -430,6 +436,10 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                                 tip_amount: {
                                     type: 'number',
                                     description: 'The tip amount to add to the order, if the customer specifies one. Ask the customer if they would like to add a tip before finalizing.',
+                                },
+                                allergies: {
+                                    type: 'string',
+                                    description: 'General allergy information for the entire order',
                                 },
                             },
                             required: [],
@@ -665,6 +675,9 @@ function handleAddToCart(
                 if (itemRequest.special_instructions) {
                     existingItem.customerNote = itemRequest.special_instructions;
                 }
+                if (itemRequest.allergies) {
+                    existingItem.allergies = itemRequest.allergies;
+                }
             } else {
                 clientData.cart.push({
                     id: menuItem.id,
@@ -672,6 +685,7 @@ function handleAddToCart(
                     price: menuItem.price,
                     quantity: quantity,
                     customerNote: itemRequest.special_instructions,
+                    allergies: itemRequest.allergies,
                 });
             }
 
@@ -684,6 +698,7 @@ function handleAddToCart(
                     ...menuItem,
                     quantity: quantity,
                     customerNote: itemRequest.special_instructions,
+                    allergies: itemRequest.allergies,
                 },
             });
         } else {
@@ -838,6 +853,7 @@ async function handleConfirmOrder(
             price: parseFloat(item.price),
             quantity: item.quantity,
             customerNote: item.customerNote,
+            allergies: item.allergies,
         })),
         subtotal: subtotal.toFixed(2),
         tax: tax.toFixed(2),
@@ -845,6 +861,7 @@ async function handleConfirmOrder(
         total: total.toFixed(2),
         paymentMethod: args.payment_method || 'cash',
         customerNote: args.customer_note || null,
+        allergies: args.allergies || null,
     };
 
     log('Placing order:', JSON.stringify(orderPayload, null, 2));
