@@ -961,8 +961,8 @@ async function handleCallChef(
 
     try {
         // Create a pending question for the chef
-        // Note: tableId should be a UUID reference to restaurantTables, not a table number string
-        // If we only have a table number string, send it as tableNumber and leave tableId null
+        // Note: tableId column doesn't exist in database yet
+        // We'll add it in a future migration - for now, just send the basic question data
 
         const payload = {
             restaurantId: clientData.restaurantId,
@@ -970,9 +970,6 @@ async function handleCallChef(
             question: message,
             language: clientData.language || 'en',
             status: 'pending',
-            // Only send tableId if it's a valid UUID (not a table number string)
-            tableId: (clientData.tableId && clientData.tableId.length > 10) ? clientData.tableId : null,
-            tableNumber: clientData.tableNumber || null
         };
 
         log(`Sending question to backend at ${API_BASE_URL}/api/pending-questions`);

@@ -187,8 +187,8 @@ export const pendingQuestions = pgTable("pending_questions", {
   menuItemContext: text("menu_item_context"),
   language: text("language").notNull().default('en'),
   status: text("status").notNull().default('pending'),
-  tableId: varchar("table_id").references(() => restaurantTables.id, { onDelete: 'set null' }),
-  tableNumber: text("table_number"),
+  // tableId and tableNumber don't exist in database yet - will be added in future migration
+  // For now, we simply don't send these fields
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -399,6 +399,10 @@ export type MenuItemTranslation = typeof menuItemTranslations.$inferSelect;
 
 // Extended types with joined data
 export type AssistanceRequestWithTable = AssistanceRequest & {
+  tableNumber: string | null;
+};
+
+export type PendingQuestionWithTable = PendingQuestion & {
   tableNumber: string | null;
 };
 

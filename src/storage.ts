@@ -498,7 +498,8 @@ export class DatabaseStorage implements IStorage {
       .where(and(
         eq(pendingQuestions.restaurantId, restaurantId),
         eq(pendingQuestions.status, 'pending')
-      ));
+      ))
+      .orderBy(desc(pendingQuestions.createdAt));
   }
 
   async getPendingQuestionById(id: string): Promise<PendingQuestion | undefined> {
