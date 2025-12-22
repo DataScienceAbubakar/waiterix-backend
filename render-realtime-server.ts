@@ -425,7 +425,16 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                         description: 'Open the checkout page for the customer to pay online now. Use this when the customer chooses to "pay now online" or "pay here" instead of "pay at the register later". IMPORTANT: Before calling this, you MUST say: "For security reasons, I will bring up the checkout page for you to input your payment details and submit the order yourself."',
                         parameters: {
                             type: 'object',
-                            properties: {},
+                            properties: {
+                                tip_amount: {
+                                    type: 'number',
+                                    description: 'The tip amount to add to the order, if the customer specifies one.',
+                                },
+                                customer_note: {
+                                    type: 'string',
+                                    description: 'Any general notes or special requests for the entire order.',
+                                },
+                            },
                             required: [],
                         },
                     },
@@ -565,7 +574,7 @@ function handleFunctionCall(clientWs: WebSocket, event: any, config: any) {
         } else if (event.name === 'call_chef') {
             handleCallChef(clientWs, clientData, event, args);
         } else if (event.name === 'open_checkout') {
-            handleOpenCheckout(clientWs, clientData, event);
+            handleOpenCheckout(clientWs, clientData, event, args);
         } else if (event.name === 'call_waiter') {
             handleCallWaiter(clientWs, clientData, event, args);
         }
@@ -923,19 +932,22 @@ async function handleCallWaiter(
 function handleOpenCheckout(
     clientWs: WebSocket,
     clientData: ClientConnection,
-    event: any
+    event: any,
+    args: any
 ) {
-    log('Opening checkout page for client');
+    log('Opening checkout page for client', args);
 
     // Notify client to open checkout UI
     sendToClient(clientWs, {
         type: 'checkout',
+        tipAmount: args.tip_amount,
+        customerNote: args.customer_note
     });
 
     sendFunctionResponse(clientData, event.call_id, {
         success: true,
-        message: "Checkout page opened for secure payment.",
-        system_instruction: "The checkout page is now open. The customer can complete their payment securely."
+        message: "Checkout page opened with tip/note applied.",
+        system_instruction: "Confirm to the customer that you have opened the checkout page with their tip/note included."
     });
 }
 
