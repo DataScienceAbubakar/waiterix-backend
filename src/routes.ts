@@ -1223,6 +1223,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint for AI knowledge base - returns everything Leila needs to know
+  // This includes: menu items with extended details, restaurant knowledge, FAQ answers
+  app.get('/api/public/ai/knowledge/:id', async (req, res) => {
+    try {
+      const restaurantId = req.params.id;
+
+      // Handle demo restaurant
+      if (demoDataService.isDemoRestaurant(restaurantId)) {
+        const demoRestaurant = demoDataService.getDemoRestaurant();
+        const demoMenuItems = demoDataService.getDemoMenuItems();
+        return res.json({
+          restaurant: {
+            name: demoRestaurant.name,
+            description: demoRestaurant.description,
+            hours: demoRestaurant.hours,
+            address: demoRestaurant.address,
+            city: demoRestaurant.city,
+            phone: demoRestaurant.phone,
+            state: demoRestaurant.state,
+          },
+          menuItems: demoMenuItems,
+          restaurantKnowledge: null,
+          faqKnowledge: [],
+        });
+      }
+
+      // Fetch all data in parallel for performance
+      const [restaurant, menuItems, restaurantKnowledge, faqKnowledge] = await Promise.all([
+        storage.getRestaurant(restaurantId),
+        storage.getMenuItems(restaurantId),
+        storage.getRestaurantKnowledge(restaurantId),
+        storage.getAllFaqs(restaurantId),
+      ]);
+
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      // Fetch extended details for each menu item
+      const menuItemsWithDetails = await Promise.all(
+        menuItems.map(async (item) => {
+          const extendedDetails = await storage.getExtendedMenuDetails(item.id);
+          return {
+            ...item,
+            extendedDetails: extendedDetails || null,
+          };
+        })
+      );
+
+      res.json({
+        restaurant: {
+          name: restaurant.name,
+          description: restaurant.description,
+          hours: restaurant.hours,
+          address: restaurant.address,
+          city: restaurant.city,
+          phone: restaurant.phone,
+          state: restaurant.state,
+        },
+        menuItems: menuItemsWithDetails,
+        restaurantKnowledge: restaurantKnowledge || null,
+        faqKnowledge: faqKnowledge || [],
+      });
+    } catch (error) {
+      console.error("Error fetching AI knowledge base:", error);
+      res.status(500).json({ message: "Failed to fetch AI knowledge base" });
+    }
+  });
+
   // Public endpoint for AI Waiter greeting (pre-rendered for speed)
   app.get('/api/public/ai/greeting/:id', async (req, res) => {
     try {
