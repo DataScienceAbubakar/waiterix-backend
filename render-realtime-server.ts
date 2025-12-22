@@ -13,6 +13,7 @@ import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import cors from 'cors';
 import { parse } from 'url';
+import { calculateSalesTax } from './src/shared/salesTax';
 // OpenAI API Key
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -140,6 +141,7 @@ interface ClientConnection {
     tableId?: string;  // Table number/ID if provided
     tableNumber?: string;
     restaurantName?: string;
+    restaurantState?: string;
     sessionType?: 'waiter' | 'interviewer';
     interviewConfig?: any;
     connectionId: string;
@@ -831,8 +833,9 @@ async function handleConfirmOrder(
     const subtotal = clientData.cart.reduce(
         (sum, item) => sum + (parseFloat(item.price) * item.quantity), 0
     );
-    const taxRate = 0.08; // 8% tax - this could be made configurable
-    const tax = subtotal * taxRate;
+
+    // Calculate tax based on restaurant's US state
+    const tax = calculateSalesTax(subtotal, clientData.restaurantState);
 
     // Parse tip amount - ensure it's a valid number
     let tipAmount = 0;
@@ -1169,6 +1172,7 @@ function handleClientMessage(ws: WebSocket, message: any) {
             clientData.language = message.language || 'en';
             clientData.menuItems = message.menuItems || [];
             clientData.restaurantName = message.restaurantName || "Restaurant";
+            clientData.restaurantState = message.restaurantState;
             clientData.sessionType = message.sessionType || 'waiter';
             clientData.interviewConfig = message.interviewConfig;
 

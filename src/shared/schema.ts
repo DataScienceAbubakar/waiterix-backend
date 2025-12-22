@@ -34,6 +34,7 @@ export const restaurants = pgTable("restaurants", {
   description: text("description"),
   address: text("address"),
   city: text("city"),
+  state: text("state"), // US state code (e.g., 'CA', 'NY', 'TX') for sales tax calculation
   country: text("country"),
   phone: text("phone"),
   hours: text("hours"),
