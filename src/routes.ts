@@ -3036,28 +3036,39 @@ Guidelines:
   // Create Pending Question - Voice/Text for Chef
   app.post('/api/pending-questions', async (req: any, res) => {
     try {
-      console.log('[PendingQuestion] Received new question request:', req.body);
+      console.log('[PendingQuestion] Received new question request:', JSON.stringify(req.body, null, 2));
+
+      // Validate with Zod schema
       const questionData = insertPendingQuestionSchema.parse(req.body);
+      console.log('[PendingQuestion] Validation passed, creating question in database...');
 
       // Create pending question in database
       const question = await storage.createPendingQuestion(questionData);
+      console.log('[PendingQuestion] Question created successfully:', question.id);
 
       // Notify chef dashboard about new question via WebSocket
       if (wsManager) {
         wsManager.notifyChefNewQuestion(question.restaurantId, question);
+        console.log('[PendingQuestion] Notified wsManager');
       }
 
       if (apiGatewayWebSocketManager) {
         await apiGatewayWebSocketManager.notifyChefNewQuestion(question.restaurantId, question);
+        console.log('[PendingQuestion] Notified apiGatewayWebSocketManager');
       }
 
       res.status(201).json(question);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
+        console.error('[PendingQuestion] Zod validation error:', JSON.stringify(error.errors, null, 2));
+        return res.status(400).json({ error: 'Validation failed', details: error.errors });
       }
-      console.error('Error creating pending question:', error);
-      res.status(500).json({ error: 'Failed to create pending question' });
+      console.error('[PendingQuestion] Error creating pending question:', error);
+      console.error('[PendingQuestion] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      res.status(500).json({
+        error: 'Failed to create pending question',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

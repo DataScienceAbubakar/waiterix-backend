@@ -964,20 +964,24 @@ async function handleCallChef(
         // Note: tableId should be a UUID reference to restaurantTables, not a table number string
         // If we only have a table number string, send it as tableNumber and leave tableId null
 
+        const payload = {
+            restaurantId: clientData.restaurantId,
+            customerSessionId: clientData.connectionId,
+            question: message,
+            language: clientData.language || 'en',
+            status: 'pending',
+            // Only send tableId if it's a valid UUID (not a table number string)
+            tableId: (clientData.tableId && clientData.tableId.length > 10) ? clientData.tableId : null,
+            tableNumber: clientData.tableNumber || null
+        };
+
         log(`Sending question to backend at ${API_BASE_URL}/api/pending-questions`);
+        log(`Payload: ${JSON.stringify(payload, null, 2)}`);
+
         const response = await fetch(`${API_BASE_URL}/api/pending-questions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                restaurantId: clientData.restaurantId,
-                customerSessionId: clientData.connectionId,
-                question: message,
-                language: clientData.language || 'en',
-                status: 'pending',
-                // Only send tableId if it's a valid UUID (not a table number string)
-                tableId: (clientData.tableId && clientData.tableId.length > 10) ? clientData.tableId : null,
-                tableNumber: clientData.tableNumber || null
-            })
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
