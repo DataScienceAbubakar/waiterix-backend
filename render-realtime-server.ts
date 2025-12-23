@@ -673,6 +673,13 @@ function handleOpenAIEvent(clientWs: WebSocket, event: any, config: any) {
 
         case 'response.audio_transcript.done':
             log('AI said:', event.transcript);
+            // Send AI transcript to client for interview recording
+            sendToClient(clientWs, {
+                type: 'transcript',
+                transcript: event.transcript || '',
+                role: 'assistant',
+                isFinal: true,
+            });
             break;
 
         case 'response.function_call_arguments.done':
