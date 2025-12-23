@@ -359,7 +359,10 @@ MANDATORY WORKFLOW RULES:
    - If they choose "at the register later" or "cash", use payment_method='cash' in confirm_order.
    - If they choose "pay now online" or "pay here" or "card", you MUST say: "For security reasons, I will bring up the checkout page for you to input your payment details and submit the order yourself." Then call the 'open_checkout' function.
 3. ALWAYS ASK ABOUT TIP: Before placing an order, always ask if they would like to add a tip for the staff.
-4. ALWAYS ASK FOR ORDER NOTE & ALLERGIES: Before placing an order, always ask if they have any special notes, instructions, or ALLERGIES the kitchen should be aware of.
+4. CAPTURE SPECIAL NOTES & ALLERGIES PROPERLY:
+   - At ADD-TO-CART TIME: If a customer mentions any modifications, special requests, or allergies for a specific item (e.g., "no onions", "extra spicy", "I'm allergic to nuts"), you MUST include this in the 'special_instructions' and 'allergies' parameters when calling add_to_cart.
+   - At ORDER TIME: Before finalizing with confirm_order, ask if they have any GENERAL notes or allergies for the entire order. Include these in the 'customer_note' and 'allergies' parameters of confirm_order.
+   - CRITICAL: If customer says something like "no cheese on the burger" or "I'm allergic to shellfish", you MUST pass this information in the function call, not just acknowledge it verbally.
 5. CALLING STAFF: Before calling 'call_chef' or 'call_waiter', ask if there is a specific message or reason they want to convey.
 
 MENU ITEMS AVAILABLE:
@@ -739,6 +742,10 @@ function handleAddToCart(
     const menuItems = config.menuItems || [];
     let itemsToAdd: any[] = [];
 
+    // Debug: Log raw args from AI
+    log('[add_to_cart] Raw args from AI:', JSON.stringify(args, null, 2));
+
+
     // Normalize input to array
     if (args.items && Array.isArray(args.items)) {
         itemsToAdd = args.items;
@@ -786,6 +793,15 @@ function handleAddToCart(
             }
 
             addedItems.push(`${quantity}x ${menuItem.name}`);
+
+            // Log special instructions for debugging
+            if (itemRequest.special_instructions || itemRequest.allergies) {
+                log(`[Cart] Item "${menuItem.name}" has notes:`, {
+                    special_instructions: itemRequest.special_instructions,
+                    allergies: itemRequest.allergies
+                });
+            }
+
 
             // Notify client for each item added
             sendToClient(clientWs, {
@@ -961,7 +977,12 @@ async function handleConfirmOrder(
         allergies: args.allergies || null,
     };
 
+    // Log notes and allergies specifically for debugging
+    log('[Order] Notes from args:', { customer_note: args.customer_note, allergies: args.allergies });
+    log('[Order] Item notes:', clientData.cart.map(item => ({ name: item.name, customerNote: item.customerNote, allergies: item.allergies })));
+
     log('Placing order:', JSON.stringify(orderPayload, null, 2));
+
 
     try {
         // Call the backend API to create the order
