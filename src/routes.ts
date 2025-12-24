@@ -854,6 +854,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cancel order and issue refund
+  app.post('/api/orders/:id/cancel', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const { reason } = req.body;
+      const order = await storage.getOrder(req.params.id);
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const restaurant = await storage.getRestaurant(order.restaurantId);
+      if (!restaurant || restaurant.userId !== userId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Check if order can be cancelled (not already completed or cancelled)
+      if (order.status === 'completed' || order.status === 'cancelled') {
+        return res.status(400).json({
+          message: `Cannot cancel order that is already ${order.status}`
+        });
+      }
+
+      let refundResult = null;
+
+      // If order was paid online via Stripe, issue a refund
+      if (order.stripePaymentIntentId && order.paymentStatus === 'completed') {
+        try {
+          console.log('[Cancel Order] Issuing Stripe refund for PaymentIntent:', order.stripePaymentIntentId);
+
+          refundResult = await stripe.refunds.create({
+            payment_intent: order.stripePaymentIntentId,
+            reason: 'requested_by_customer',
+          });
+
+          console.log('[Cancel Order] Refund successful:', refundResult.id);
+        } catch (stripeError: any) {
+          console.error('[Cancel Order] Stripe refund failed:', stripeError.message);
+          return res.status(500).json({
+            message: "Failed to process refund",
+            error: stripeError.message
+          });
+        }
+      }
+
+      // Update order status to cancelled and payment status to refunded
+      const updateData: any = {
+        status: 'cancelled',
+        customerNote: order.customerNote
+          ? `${order.customerNote}\n---\nCancelled: ${reason || 'No reason provided'}`
+          : `Cancelled: ${reason || 'No reason provided'}`
+      };
+
+      if (refundResult) {
+        updateData.paymentStatus = 'refunded';
+      }
+
+      const updated = await storage.updateOrder(req.params.id, updateData);
+
+      // Emit WebSocket event for order cancellation
+      if (wsManager) {
+        wsManager.notifyOrderStatusChange(order.restaurantId, {
+          orderId: updated.id,
+          status: 'cancelled',
+          order: updated,
+        });
+      }
+
+      if (apiGatewayWebSocketManager) {
+        await apiGatewayWebSocketManager.notifyOrderStatusChange(order.restaurantId, {
+          orderId: updated.id,
+          status: 'cancelled',
+          order: updated,
+        });
+      }
+
+      res.json({
+        success: true,
+        order: updated,
+        refunded: !!refundResult,
+        refundId: refundResult?.id
+      });
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      res.status(500).json({ message: "Failed to cancel order" });
+    }
+  });
+
   // Rating routes
   app.post('/api/ratings', async (req, res) => {
     try {
