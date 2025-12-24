@@ -878,24 +878,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       let refundResult = null;
+      let refundSkipped = false;
 
       // If order was paid online via Stripe, issue a refund
       if (order.stripePaymentIntentId && order.paymentStatus === 'completed') {
-        try {
-          console.log('[Cancel Order] Issuing Stripe refund for PaymentIntent:', order.stripePaymentIntentId);
+        // Check if restaurant wants to skip refund (e.g., if already refunded manually)
+        const skipRefund = req.body.skipRefund === true;
 
-          refundResult = await stripe.refunds.create({
-            payment_intent: order.stripePaymentIntentId,
-            reason: 'requested_by_customer',
-          });
+        if (!skipRefund) {
+          try {
+            console.log('[Cancel Order] Issuing Stripe refund for PaymentIntent:', order.stripePaymentIntentId);
 
-          console.log('[Cancel Order] Refund successful:', refundResult.id);
-        } catch (stripeError: any) {
-          console.error('[Cancel Order] Stripe refund failed:', stripeError.message);
-          return res.status(500).json({
-            message: "Failed to process refund",
-            error: stripeError.message
-          });
+            refundResult = await stripe.refunds.create({
+              payment_intent: order.stripePaymentIntentId,
+              reason: 'requested_by_customer',
+            });
+
+            console.log('[Cancel Order] Refund successful:', refundResult.id);
+          } catch (stripeError: any) {
+            console.error('[Cancel Order] Stripe refund failed:', stripeError.message);
+
+            // Provide more helpful error messages
+            let errorMessage = stripeError.message;
+            let canProceedWithoutRefund = false;
+
+            if (stripeError.message?.includes('No such payment_intent')) {
+              errorMessage = 'Payment not found in Stripe. This could mean the payment was made in a different Stripe mode (test vs live), or the payment was never completed. You can cancel without refund if needed.';
+              canProceedWithoutRefund = true;
+            } else if (stripeError.message?.includes('already been refunded') || stripeError.message?.includes('charge has already been refunded')) {
+              // Payment already refunded - allow cancellation to proceed
+              console.log('[Cancel Order] Payment already refunded, proceeding with cancellation');
+              refundSkipped = true;
+              canProceedWithoutRefund = true;
+            }
+
+            // If we can't proceed without refund, return error
+            if (!canProceedWithoutRefund) {
+              return res.status(500).json({
+                message: "Failed to process refund",
+                error: errorMessage,
+                canSkipRefund: true
+              });
+            }
+
+            // For 'already refunded' cases, we continue with cancellation
+            if (!refundSkipped) {
+              return res.status(500).json({
+                message: "Failed to process refund",
+                error: errorMessage,
+                canSkipRefund: true
+              });
+            }
+          }
+        } else {
+          console.log('[Cancel Order] Skipping refund as requested');
+          refundSkipped = true;
         }
       }
 
