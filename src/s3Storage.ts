@@ -237,17 +237,26 @@ export class S3StorageService {
       });
 
       await s3Client.send(aclCommand);
+      console.log(`[S3] ACL set to ${aclPolicy.visibility} for ${objectInfo.key}`);
 
       // Add metadata for owner tracking
       if (aclPolicy.owner) {
-        // Note: S3 doesn't support custom metadata updates without copying the object
-        // For now, we'll track ownership in the database or use S3 tags
-        console.log(`Object ${objectInfo.key} ownership set to ${aclPolicy.owner}`);
+        console.log(`[S3] Object ${objectInfo.key} ownership set to ${aclPolicy.owner}`);
       }
 
       return normalizedPath;
-    } catch (error) {
-      console.error("Error setting S3 object ACL:", error);
+    } catch (error: any) {
+      // Log detailed error for debugging image loading issues
+      console.error("[S3] Error setting object ACL:", {
+        path: normalizedPath,
+        visibility: aclPolicy.visibility,
+        error: error?.message || error,
+        code: error?.name || error?.$metadata?.httpStatusCode,
+        hint: error?.name === 'AccessDenied'
+          ? 'Check S3 bucket ACL settings - Object Ownership might need to be set to "Bucket owner preferred"'
+          : undefined
+      });
+      // Return path anyway - the object proxy will still serve it
       return normalizedPath;
     }
   }
