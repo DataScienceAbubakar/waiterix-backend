@@ -6,9 +6,11 @@ import { registerRoutes } from '../routes';
 // Create Express app
 const app = express();
 
-// CORS configuration
+// CORS configuration - Ensure the frontend URL matches exactly
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://main.d182r8qb7g7hdy.amplifyapp.com';
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'https://main.d1234567890.amplifyapp.com',
+  origin: FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [
@@ -25,6 +27,18 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Explicit OPTIONS preflight handler for all routes
+app.options('*', cors(corsOptions));
+
+// Add CORS headers to EVERY response as a safety net
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', FRONTEND_URL);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', corsOptions.allowedHeaders.join(', '));
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
