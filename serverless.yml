@@ -66,6 +66,8 @@ provider:
     AWS_S3_BUCKET: waiterix-storage
     AWS_S3_TRANSCRIBE_BUCKET: waiterix-transcribe-temp
     AWS_S3_REGION: us-east-1
+    # 🌐 CloudFront CDN (set after creating distribution)
+    CLOUDFRONT_DOMAIN: 'd28t3m3h6bw2ok.cloudfront.net' 
      
     # 📧 SES
     SES_FROM_EMAIL: noreply@nomagro.com

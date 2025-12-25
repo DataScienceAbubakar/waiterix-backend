@@ -33,11 +33,34 @@ import { ObjectAclPolicy, ObjectPermission } from "./objectAcl";
 export class S3StorageService {
   private publicBucket: string;
   private privateBucket: string;
+  private cloudfrontDomain: string | null;
 
   constructor() {
     // Use AWS_S3_BUCKET from serverless.yml, or fall back to specific bucket env vars
     this.publicBucket = process.env.S3_PUBLIC_BUCKET || process.env.AWS_S3_BUCKET || 'waiterix-storage';
     this.privateBucket = process.env.S3_PRIVATE_BUCKET || process.env.AWS_S3_BUCKET || 'waiterix-storage';
+    // CloudFront domain for CDN URLs (optional)
+    this.cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN || null;
+
+    if (this.cloudfrontDomain) {
+      console.log(`[S3Storage] CloudFront CDN enabled: ${this.cloudfrontDomain}`);
+    }
+  }
+
+  // Get CloudFront domain if configured
+  getCloudFrontDomain(): string | null {
+    return this.cloudfrontDomain;
+  }
+
+  // Convert an object key to a CloudFront URL (if CDN is configured)
+  // Returns null if CloudFront is not configured
+  getCloudFrontUrl(objectKey: string): string | null {
+    if (!this.cloudfrontDomain) {
+      return null;
+    }
+    // Ensure no leading slash on the key
+    const cleanKey = objectKey.startsWith('/') ? objectKey.substring(1) : objectKey;
+    return `https://${this.cloudfrontDomain}/${cleanKey}`;
   }
 
   // Get public object search paths (S3 buckets)
@@ -273,6 +296,15 @@ export class S3StorageService {
       // Add metadata for owner tracking
       if (aclPolicy.owner) {
         console.log(`[S3] Object ${objectInfo.key} ownership set to ${aclPolicy.owner}`);
+      }
+
+      // If CloudFront is configured and this is a public object, return CloudFront URL
+      if (this.cloudfrontDomain && aclPolicy.visibility === 'public') {
+        const cdnUrl = this.getCloudFrontUrl(objectInfo.key);
+        if (cdnUrl) {
+          console.log(`[S3] Returning CloudFront URL for ${objectInfo.key}: ${cdnUrl}`);
+          return cdnUrl;
+        }
       }
 
       return normalizedPath;

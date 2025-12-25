@@ -50,6 +50,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public configuration endpoint (no auth required)
+  // Returns CDN domain and other public config
+  app.get('/api/config', (req, res) => {
+    try {
+      res.json({
+        cdnDomain: s3StorageService.getCloudFrontDomain(),
+        // Add other public config here as needed
+      });
+    } catch (error) {
+      console.error("Error fetching config:", error);
+      res.status(500).json({ message: "Failed to fetch config" });
+    }
+  });
+
   app.delete('/api/auth/delete-account', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.userId;
