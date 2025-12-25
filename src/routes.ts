@@ -1053,6 +1053,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Financial Reports endpoint
+  app.get('/api/reports/financial', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const { startDate, endDate } = req.query;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "Start date and end date are required" });
+      }
+
+      // Get restaurant
+      const restaurant = await storage.getRestaurantByUserId(userId);
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      // Get all orders for the date range
+      const allOrders = await storage.getOrders(restaurant.id);
+
+      // Filter orders by date range
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+      end.setHours(23, 59, 59, 999); // Include the entire end day
+
+      const filteredOrders = allOrders.filter(order => {
+        const orderDate = new Date(order.createdAt);
+        return orderDate >= start && orderDate <= end;
+      });
+
+      // Calculate summary statistics
+      const totalOrders = filteredOrders.length;
+      const completedOrders = filteredOrders.filter(o => o.status === 'completed').length;
+      const cancelledOrders = filteredOrders.filter(o => o.status === 'cancelled').length;
+      const totalSubtotal = filteredOrders.reduce((sum, o) => sum + parseFloat(o.subtotal || '0'), 0);
+      const totalTax = filteredOrders.reduce((sum, o) => sum + parseFloat(o.tax || '0'), 0);
+      const totalTips = filteredOrders.reduce((sum, o) => sum + parseFloat(o.tip || '0'), 0);
+      const totalRevenue = filteredOrders.reduce((sum, o) => sum + parseFloat(o.total || '0'), 0);
+      const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+      const onlinePayments = filteredOrders.filter(o => o.paymentMethod === 'online').length;
+      const cashPayments = filteredOrders.filter(o => o.paymentMethod === 'cash').length;
+
+      // Get order items for each order
+      const ordersWithItems = await Promise.all(
+        filteredOrders.map(async (order) => {
+          const items = await storage.getOrderItems(order.id);
+          return { ...order, items };
+        })
+      );
+
+      // Generate CSV content
+      const csvLines: string[] = [];
+
+      // Add header/summary section
+      csvLines.push(`Financial Report for ${restaurant.name}`);
+      csvLines.push(`Period: ${startDate} to ${endDate}`);
+      csvLines.push(`Generated: ${new Date().toISOString()}`);
+      csvLines.push('');
+      csvLines.push('=== SUMMARY ===');
+      csvLines.push(`Total Orders,${totalOrders}`);
+      csvLines.push(`Completed Orders,${completedOrders}`);
+      csvLines.push(`Cancelled Orders,${cancelledOrders}`);
+      csvLines.push('');
+      csvLines.push(`Total Subtotal,${totalSubtotal.toFixed(2)}`);
+      csvLines.push(`Total Tax,${totalTax.toFixed(2)}`);
+      csvLines.push(`Total Tips,${totalTips.toFixed(2)}`);
+      csvLines.push(`Total Revenue,${totalRevenue.toFixed(2)}`);
+      csvLines.push(`Average Order Value,${avgOrderValue.toFixed(2)}`);
+      csvLines.push('');
+      csvLines.push('=== PAYMENT METHODS ===');
+      csvLines.push(`Online Payments,${onlinePayments}`);
+      csvLines.push(`Cash Payments,${cashPayments}`);
+      csvLines.push('');
+      csvLines.push('=== ORDER DETAILS ===');
+      csvLines.push('Order ID,Date,Time,Table,Status,Items,Subtotal,Tax,Tip,Total,Payment Method,Payment Status');
+
+      // Add each order
+      ordersWithItems.forEach(order => {
+        const orderDate = new Date(order.createdAt);
+        const dateStr = orderDate.toISOString().split('T')[0];
+        const timeStr = orderDate.toTimeString().split(' ')[0];
+        const itemsSummary = order.items.map(item => `${item.quantity}x ${item.name}`).join('; ');
+
+        csvLines.push([
+          order.id,
+          dateStr,
+          timeStr,
+          order.tableNumber || 'N/A',
+          order.status,
+          `"${itemsSummary}"`,
+          order.subtotal || '0.00',
+          order.tax || '0.00',
+          order.tip || '0.00',
+          order.total || '0.00',
+          order.paymentMethod || 'unknown',
+          order.paymentStatus || 'unknown',
+        ].join(','));
+      });
+
+      // Set response headers for CSV download
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="financial_report_${startDate}_to_${endDate}.csv"`);
+      res.send(csvLines.join('\n'));
+    } catch (error) {
+      console.error("Error generating financial report:", error);
+      res.status(500).json({ message: "Failed to generate report" });
+    }
+  });
+
   // Assistance request routes
   app.post('/api/assistance-requests', async (req, res) => {
     try {
