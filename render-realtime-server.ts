@@ -224,10 +224,10 @@ Focus areas:
 
 Guidelines:
 - Ask ONE targeted question at a time.
-- Start with a warm greeting: "Hi! I'm here to help you capture the magic behind your ${interviewConfig.itemName}. Let's dive in."
+- You MUST start with this exact greeting: "Hi! I'm here to help you capture the magic behind your ${interviewConfig.itemName}. Let's dive in."
 - Be professional, curious, and appreciative.
 - If they give a short answer, dig deeper.
-- Speak in ${language === 'en' ? 'English' : language}.`;
+- IMPORTANT: Always speak in English only. Do not use any other language.`;
         } else {
             return `You are a Senior Restaurant Brand Consultant. You are interviewing the owner of "${restaurantName}" to capture the "Soul of the House" for their AI Waiter.
 
@@ -246,8 +246,8 @@ Guidelines:
 - Ask deep, open-ended questions.
 - ONE question at a time.
 - Act as a biographer capturing a legacy.
-- Start with: "Hello! I'd love to learn more about the story behind ${restaurantName}. What inspired you to start this journey?"
-- Speak in ${language === 'en' ? 'English' : language}.`;
+- You MUST start with this exact greeting: "Hello! I'd love to learn more about the story behind ${restaurantName}. What inspired you to start this journey?"
+- IMPORTANT: Always speak in English only. Do not use any other language.`;
         }
     }
 
@@ -622,6 +622,11 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
             },
         }));
 
+        // For interview mode, trigger immediate AI greeting
+        if (config.sessionType === 'interviewer') {
+            log('Interview mode: triggering initial AI greeting');
+            openaiWs.send(JSON.stringify({ type: 'response.create' }));
+        }
     });
 
     openaiWs.on('message', (data: Buffer) => {
