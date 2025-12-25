@@ -888,11 +888,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!skipRefund) {
           try {
             console.log('[Cancel Order] Issuing Stripe refund for PaymentIntent:', order.stripePaymentIntentId);
+            console.log('[Cancel Order] Restaurant Stripe Account:', restaurant.stripeAccountId || 'Platform account');
 
-            refundResult = await stripe.refunds.create({
+            // Build refund options - include stripeAccount if using Stripe Connect
+            const refundOptions: any = {
               payment_intent: order.stripePaymentIntentId,
               reason: 'requested_by_customer',
-            });
+            };
+
+            // If the restaurant has a connected Stripe account, we need to specify it
+            // This is required for Stripe Connect where payments go to connected accounts
+            if (restaurant.stripeAccountId) {
+              refundResult = await stripe.refunds.create(refundOptions, {
+                stripeAccount: restaurant.stripeAccountId,
+              });
+            } else {
+              refundResult = await stripe.refunds.create(refundOptions);
+            }
 
             console.log('[Cancel Order] Refund successful:', refundResult.id);
           } catch (stripeError: any) {
