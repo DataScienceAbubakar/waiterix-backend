@@ -229,15 +229,46 @@ export class S3StorageService {
     try {
       const objectInfo = await this.getObjectEntityFile(normalizedPath);
 
-      // Set S3 object ACL based on visibility
-      const aclCommand = new PutObjectAclCommand({
-        Bucket: objectInfo.bucket,
-        Key: objectInfo.key,
-        ACL: aclPolicy.visibility === "public" ? "public-read" : "private",
-      });
+      // First, verify the object exists by checking its metadata
+      try {
+        const headCommand = new HeadObjectCommand({
+          Bucket: objectInfo.bucket,
+          Key: objectInfo.key,
+        });
+        await s3Client.send(headCommand);
+      } catch (headError: any) {
+        if (headError.name === 'NotFound' || headError.$metadata?.httpStatusCode === 404) {
+          console.error("[S3] Object not found when setting ACL:", objectInfo.key);
+          // Return the path anyway - it might exist soon (eventual consistency)
+          return normalizedPath;
+        }
+        throw headError;
+      }
 
-      await s3Client.send(aclCommand);
-      console.log(`[S3] ACL set to ${aclPolicy.visibility} for ${objectInfo.key}`);
+      // Try to set S3 object ACL based on visibility
+      // This may fail if bucket has BucketOwnerEnforced, which is fine -
+      // the proxy endpoint will still serve the object
+      try {
+        const aclCommand = new PutObjectAclCommand({
+          Bucket: objectInfo.bucket,
+          Key: objectInfo.key,
+          ACL: aclPolicy.visibility === "public" ? "public-read" : "private",
+        });
+
+        await s3Client.send(aclCommand);
+        console.log(`[S3] ACL set to ${aclPolicy.visibility} for ${objectInfo.key}`);
+      } catch (aclError: any) {
+        // AccessControlListNotSupported - bucket uses BucketOwnerEnforced
+        // This is expected for modern S3 buckets
+        if (aclError.name === 'AccessControlListNotSupported') {
+          console.log(`[S3] ACLs not supported for bucket (BucketOwnerEnforced). Object will be served via proxy: ${objectInfo.key}`);
+        } else if (aclError.name === 'AccessDenied') {
+          console.warn(`[S3] ACL access denied for ${objectInfo.key}. Check bucket policy. Object will be served via proxy.`);
+        } else {
+          console.warn(`[S3] ACL setting failed for ${objectInfo.key}:`, aclError.name, aclError.message);
+        }
+        // Don't throw - the object proxy will still serve it
+      }
 
       // Add metadata for owner tracking
       if (aclPolicy.owner) {
@@ -247,14 +278,11 @@ export class S3StorageService {
       return normalizedPath;
     } catch (error: any) {
       // Log detailed error for debugging image loading issues
-      console.error("[S3] Error setting object ACL:", {
+      console.error("[S3] Error in trySetObjectEntityAclPolicy:", {
         path: normalizedPath,
         visibility: aclPolicy.visibility,
         error: error?.message || error,
         code: error?.name || error?.$metadata?.httpStatusCode,
-        hint: error?.name === 'AccessDenied'
-          ? 'Check S3 bucket ACL settings - Object Ownership might need to be set to "Bucket owner preferred"'
-          : undefined
       });
       // Return path anyway - the object proxy will still serve it
       return normalizedPath;
