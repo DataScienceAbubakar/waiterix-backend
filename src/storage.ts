@@ -237,6 +237,7 @@ export class DatabaseStorage implements IStorage {
         tip: orders.tip,
         total: orders.total,
         status: orders.status,
+        allergies: orders.allergies,
         createdAt: orders.createdAt,
         updatedAt: orders.updatedAt,
         tableNumber: restaurantTables.tableNumber,

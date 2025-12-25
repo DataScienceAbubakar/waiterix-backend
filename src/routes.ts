@@ -768,10 +768,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate tableId exists in restaurant_tables if provided
+      // Note: tableId from frontend is the table's UUID, not the table number
       let validatedTableId = null;
       if (tableId) {
-        const table = await storage.getTableByNumber(restaurantId, tableId);
-        if (table) {
+        // First try to find by UUID (the expected format from frontend)
+        let table = await storage.getRestaurantTable(tableId);
+
+        // Fallback: try by table number for legacy compatibility
+        if (!table) {
+          table = await storage.getTableByNumber(restaurantId, tableId);
+        }
+
+        if (table && table.restaurantId === restaurantId) {
           validatedTableId = table.id;
         }
         // If table doesn't exist, validatedTableId stays null (order without table reference)

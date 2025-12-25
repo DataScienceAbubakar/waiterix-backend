@@ -386,6 +386,7 @@ export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type OrderWithTable = Order & {
   tableNumber: string | null;
+  allergies?: string | null;
 };
 export type ExtendedMenuDetails = typeof extendedMenuDetails.$inferSelect;
 export type RestaurantKnowledge = typeof restaurantKnowledge.$inferSelect;
