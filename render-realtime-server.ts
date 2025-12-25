@@ -200,7 +200,8 @@ function createSystemPrompt(
             question: string;
             answer: string;
         }>;
-    }
+    },
+    currentCart?: CartItem[]
 ): string {
     if (sessionType === 'interviewer' && interviewConfig) {
         if (interviewConfig.type === 'menu_item') {
@@ -332,6 +333,26 @@ Guidelines:
         });
     }
 
+    // Build current cart section - this is for session awareness
+    let currentCartSection = '';
+    if (currentCart && currentCart.length > 0) {
+        currentCartSection = '\n=== CUSTOMER\'S CURRENT CART ===\n';
+        currentCartSection += 'IMPORTANT: The customer already has items in their cart from a previous browsing session!\n';
+        currentCartSection += 'Current items:\n';
+        const cartTotal = currentCart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        currentCart.forEach(item => {
+            currentCartSection += `- ${item.quantity}x ${item.name} ($${item.price} each)`;
+            if (item.customerNote) currentCartSection += ` [Note: ${item.customerNote}]`;
+            if (item.allergies) currentCartSection += ` [Allergies: ${item.allergies}]`;
+            currentCartSection += '\n';
+        });
+        currentCartSection += `Cart Total: $${cartTotal.toFixed(2)}\n\n`;
+        currentCartSection += 'MANDATORY CART NOTIFICATION RULE:\n';
+        currentCartSection += 'When the customer starts speaking or wants to add items, you MUST first acknowledge their existing cart. Example:\n';
+        currentCartSection += '"I see you already have some items in your cart - [summarize items briefly]. Would you like to add to this order, or should we start fresh?"\n';
+        currentCartSection += 'This notification is REQUIRED before adding any new items to ensure the customer is aware of their existing selections.\n';
+    }
+
     return `You are Lela, a friendly, professional AI waiter at ${restaurantName || 'this restaurant'}. 
 
 PERSONALITY & COMMUNICATION STYLE:
@@ -344,7 +365,7 @@ PERSONALITY & COMMUNICATION STYLE:
 - Show enthusiasm for the menu: "The burgers are fantastic today!" or "That's a great choice!"
 - ENCOURAGE TIPS: When placing an order, mention that they can add a tip for the staff if they're happy with the service.
 - ALLERGY SAFETY: Always ask customers if they have any allergies, especially when they express interest in a specific dish. If they mention an allergy, record it in the order notes and confirm how the kitchen will handle it.
-${restaurantInfo}${restaurantStory}
+${currentCartSection}${restaurantInfo}${restaurantStory}
 YOUR CAPABILITIES:
 - Help customers explore the menu.
 - Answer questions about ingredients, allergens, and dietary options (Halal, Kosher, Vegan, etc.).
@@ -352,6 +373,7 @@ YOUR CAPABILITIES:
 - Answer frequently asked questions using the FAQ knowledge below.
 - Add items to cart (use add_to_cart function).
 - Confirm and place orders (use confirm_order).
+- View and acknowledge existing cart items before adding new ones.
 
 MANDATORY WORKFLOW RULES:
 1. ALWAYS ASK FOR CONFIRMATION: Before calling the 'add_to_cart' or 'confirm_order' tools, you MUST ask the customer for explicit confirmation (e.g., "Shall I add that to your cart for you?" or "Are you ready for me to place this order?").
@@ -364,6 +386,7 @@ MANDATORY WORKFLOW RULES:
    - At ORDER TIME: Before finalizing with confirm_order, ask if they have any GENERAL notes or allergies for the entire order. Include these in the 'customer_note' and 'allergies' parameters of confirm_order.
    - CRITICAL: If customer says something like "no cheese on the burger" or "I'm allergic to shellfish", you MUST pass this information in the function call, not just acknowledge it verbally.
 5. CALLING STAFF: Before calling 'call_chef' or 'call_waiter', ask if there is a specific message or reason they want to convey.
+6. CART AWARENESS: If the customer has existing items in their cart (shown in CUSTOMER'S CURRENT CART section), you MUST notify them about these items when they first speak or try to add new items. Ask if they want to continue with the existing order or start fresh.
 
 MENU ITEMS AVAILABLE:
 ${menuList || 'Menu items will be provided by the restaurant.'}
@@ -422,7 +445,8 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                 restaurantAddress: config.restaurantAddress,
                 restaurantKnowledge: config.restaurantKnowledge,
                 faqKnowledge: config.faqKnowledge,
-            }
+            },
+            config.currentCart || []
         );
 
         openaiWs.send(JSON.stringify({
@@ -1304,6 +1328,19 @@ function handleClientMessage(ws: WebSocket, message: any) {
             clientData.sessionType = message.sessionType || 'waiter';
             clientData.interviewConfig = message.interviewConfig;
 
+            // Initialize cart with existing items from frontend (if any)
+            if (message.currentCart && Array.isArray(message.currentCart) && message.currentCart.length > 0) {
+                clientData.cart = message.currentCart.map((item: any) => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity || 1,
+                    customerNote: item.customerNote,
+                    allergies: item.allergies,
+                }));
+                log(`Initialized cart with ${clientData.cart.length} existing items:`, clientData.cart.map(i => `${i.quantity}x ${i.name}`));
+            }
+
             // Connect to OpenAI
             const openaiWs = connectToOpenAI(ws, {
                 restaurantId: clientData.restaurantId,
@@ -1316,6 +1353,7 @@ function handleClientMessage(ws: WebSocket, message: any) {
                 restaurantAddress: clientData.restaurantAddress,
                 restaurantKnowledge: clientData.restaurantKnowledge,
                 faqKnowledge: clientData.faqKnowledge,
+                currentCart: clientData.cart,  // Pass existing cart to system prompt
                 sessionType: message.sessionType || 'waiter',
                 interviewConfig: message.interviewConfig,
             });
@@ -1342,7 +1380,8 @@ function handleClientMessage(ws: WebSocket, message: any) {
                             restaurantAddress: clientData.restaurantAddress,
                             restaurantKnowledge: clientData.restaurantKnowledge,
                             faqKnowledge: clientData.faqKnowledge,
-                        }
+                        },
+                        clientData.cart  // Include current cart for awareness
                     );
 
                     clientData.openaiWs.send(JSON.stringify({
