@@ -310,7 +310,8 @@ export class DatabaseStorage implements IStorage {
   async getRestaurantTables(restaurantId: string): Promise<RestaurantTable[]> {
     return await db.select().from(restaurantTables)
       .where(eq(restaurantTables.restaurantId, restaurantId))
-      .orderBy(sql`CAST(${restaurantTables.tableNumber} AS INTEGER)`);
+      // Simple case-insensitive sort - works with any table name (1, 10, VIP, A1, etc.)
+      .orderBy(sql`LOWER(${restaurantTables.tableNumber})`);
   }
 
   async getRestaurantTable(id: string): Promise<RestaurantTable | undefined> {
