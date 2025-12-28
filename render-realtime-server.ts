@@ -1115,15 +1115,13 @@ async function handleCallChef(
 
     try {
         // Create a pending question for the chef
-        // Note: tableId column doesn't exist in database yet
-        // We'll add it in a future migration - for now, just send the basic question data
-
         const payload = {
             restaurantId: clientData.restaurantId,
             customerSessionId: clientData.connectionId,
             question: message,
             language: clientData.language || 'en',
             status: 'pending',
+            tableNumber: clientData.tableNumber || null,
         };
 
         log(`Sending question to backend at ${API_BASE_URL}/api/pending-questions`);

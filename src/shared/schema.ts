@@ -188,8 +188,7 @@ export const pendingQuestions = pgTable("pending_questions", {
   menuItemContext: text("menu_item_context"),
   language: text("language").notNull().default('en'),
   status: text("status").notNull().default('pending'),
-  // tableId and tableNumber don't exist in database yet - will be added in future migration
-  // For now, we simply don't send these fields
+  tableNumber: text("table_number"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
