@@ -20,6 +20,7 @@ import bcrypt from "bcryptjs";
 import { demoDataService } from "./demoDataService";
 import { sendSupportEmail, sendReceiptEmail } from "./emailService";
 import { getCurrencyForCountry } from "./utils/currencyMapping";
+import { registerVapiWebhookRoutes, setVapiWebSocketManagers } from "./vapiWebhook";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -4528,6 +4529,10 @@ After adding items to cart, when the customer seems ready, ask: "Would you like 
       res.status(500).json({ message: "Failed to fetch analytics stats" });
     }
   });
+
+  // Register VAPI webhook routes for voice AI integration
+  registerVapiWebhookRoutes(app, storage);
+  setVapiWebSocketManagers(wsManager, apiGatewayWebSocketManager);
 
   const httpServer = createServer(app);
 
