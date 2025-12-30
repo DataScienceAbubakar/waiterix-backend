@@ -318,17 +318,24 @@ async function handleConfirmOrder(
         // Validate table if provided
         let validatedTableId = null;
         const resolvedTableNumber = table_number || tableNumber;
+
+        console.log('[VAPI confirm_order] Table context:', { tableId, tableNumber, table_number, resolvedTableNumber });
+
         if (tableId) {
             const table = await storage.getRestaurantTable(tableId);
+            console.log('[VAPI confirm_order] Found table by ID:', table?.id, table?.tableNumber);
             if (table && table.restaurantId === restaurantId) {
                 validatedTableId = table.id;
             }
         } else if (resolvedTableNumber) {
             const table = await storage.getTableByNumber(restaurantId, resolvedTableNumber);
+            console.log('[VAPI confirm_order] Found table by number:', table?.id, table?.tableNumber);
             if (table) {
                 validatedTableId = table.id;
             }
         }
+
+        console.log('[VAPI confirm_order] Validated table ID:', validatedTableId);
 
         // Create order
         const orderData = insertOrderSchema.parse({
