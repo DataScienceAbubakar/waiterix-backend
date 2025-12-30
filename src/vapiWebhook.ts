@@ -369,13 +369,21 @@ async function handleConfirmOrder(
         );
 
         const order = await storage.createOrder(orderData, orderItemsData);
+        console.log('[VAPI confirm_order] Order created:', order.id);
 
-        // Notify via WebSocket
-        if (wsManager) {
-            wsManager.notifyNewOrder(restaurantId, order);
-        }
-        if (apiGatewayWebSocketManager) {
-            await apiGatewayWebSocketManager.notifyNewOrder(restaurantId, order);
+        // Notify via WebSocket (with proper null checks)
+        try {
+            if (wsManager && typeof wsManager.notifyNewOrder === 'function') {
+                wsManager.notifyNewOrder(restaurantId, order);
+                console.log('[VAPI confirm_order] Notified via wsManager');
+            }
+            if (apiGatewayWebSocketManager && typeof apiGatewayWebSocketManager.notifyNewOrder === 'function') {
+                await apiGatewayWebSocketManager.notifyNewOrder(restaurantId, order);
+                console.log('[VAPI confirm_order] Notified via API Gateway WebSocket');
+            }
+        } catch (notifyError) {
+            // Don't fail the order if notification fails
+            console.warn('[VAPI confirm_order] WebSocket notification failed:', notifyError);
         }
 
         const itemsSummary = cart_items
