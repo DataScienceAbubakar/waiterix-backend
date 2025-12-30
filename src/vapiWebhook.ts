@@ -267,7 +267,12 @@ async function handleConfirmOrder(
     const { restaurantId, tableId, tableNumber, restaurantState } = context;
     const { payment_method, table_number, customer_note, tip_amount, allergies, cart_items, cart_total } = parameters;
 
+    console.log('[VAPI confirm_order] Context:', JSON.stringify(context));
+    console.log('[VAPI confirm_order] Parameters:', JSON.stringify(parameters));
+    console.log('[VAPI confirm_order] Cart items count:', cart_items?.length);
+
     if (!restaurantId) {
+        console.log('[VAPI confirm_order] Error: No restaurantId');
         return res.json({
             result: {
                 success: false,
@@ -277,6 +282,7 @@ async function handleConfirmOrder(
     }
 
     if (!cart_items || !Array.isArray(cart_items) || cart_items.length === 0) {
+        console.log('[VAPI confirm_order] Error: Empty cart');
         return res.json({
             result: {
                 success: false,
@@ -392,12 +398,18 @@ async function handleConfirmOrder(
                 message: `Order placed successfully! Your order number is ${order.id.slice(0, 8).toUpperCase()}. Total: $${total.toFixed(2)}. Estimated wait time: 15-20 minutes.`
             }
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('[VAPI] Error placing order:', error);
+        console.error('[VAPI] Error details:', {
+            name: error?.name,
+            message: error?.message,
+            stack: error?.stack,
+            cause: error?.cause,
+        });
         return res.json({
             result: {
                 success: false,
-                message: 'Sorry, there was an issue placing your order. Please try again or speak with the staff.'
+                message: `Sorry, there was an issue placing your order. Error: ${error?.message || 'Unknown error'}. Please try again or speak with the staff.`
             }
         });
     }
