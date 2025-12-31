@@ -1580,7 +1580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         restaurantName = restaurant.name;
       }
 
-      const greetingText = `Hello there! Welcome to ${restaurantName}. We’re happy to have you today. I’m Lela, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you’re ready. You can tap the “Talk to Lelah” button right of your screen to talk with me anytime.`;
+      const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Leila, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Leila" button on your screen to talk with me anytime.`;
 
       console.log(`[Greeting] Generating speech for ${restaurantName} in ${language}`);
       const audioStream = await synthesizeSpeechWithLanguage(greetingText, language);

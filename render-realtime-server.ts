@@ -49,6 +49,7 @@ app.get('/', (req, res) => {
 });
 
 // AI Waiter greeting endpoint (pre-rendered audio for instant playback)
+// Uses Deepgram Asteria voice to match VAPI's Leila voice
 app.get('/api/public/ai/greeting/:id', async (req, res) => {
     try {
         const restaurantId = req.params.id;
@@ -66,36 +67,71 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
             log('Could not fetch restaurant name, using default:', fetchError);
         }
 
-        const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Lela, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Lelah" button right of your screen to talk with me anytime.`;
+        const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Leila, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Leila" button on your screen to talk with me anytime.`;
 
-        log(`[Greeting] Generating OpenAI speech for ${restaurantName} in ${language}`);
+        log(`[Greeting] Generating Deepgram Asteria speech for ${restaurantName} in ${language}`);
 
-        if (!OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is not configured');
+        const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
+
+        if (!DEEPGRAM_API_KEY) {
+            // Fallback to OpenAI if Deepgram not configured
+            log('[Greeting] Deepgram API key not found, falling back to OpenAI TTS');
+
+            if (!OPENAI_API_KEY) {
+                throw new Error('Neither DEEPGRAM_API_KEY nor OPENAI_API_KEY is configured');
+            }
+
+            const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'tts-1',
+                    voice: 'nova', // Female voice similar to Asteria
+                    input: greetingText,
+                    response_format: 'mp3'
+                })
+            });
+
+            if (!ttsResponse.ok) {
+                const errorText = await ttsResponse.text();
+                throw new Error(`OpenAI TTS Error: ${ttsResponse.status} ${errorText}`);
+            }
+
+            const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
+
+            res.set({
+                'Content-Type': 'audio/mpeg',
+                'Content-Length': audioBuffer.length.toString(),
+                'Cache-Control': 'public, max-age=3600',
+                'Access-Control-Allow-Origin': '*'
+            });
+
+            return res.send(audioBuffer);
         }
 
-        const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+        // Use Deepgram Aura Asteria for matching VAPI voice
+        const ttsResponse = await fetch('https://api.deepgram.com/v1/speak?model=aura-asteria-en', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Authorization': `Token ${DEEPGRAM_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'tts-1',
-                voice: 'alloy', // Matches the real-time session voice
-                input: greetingText,
-                response_format: 'mp3'
+                text: greetingText
             })
         });
 
         if (!ttsResponse.ok) {
             const errorText = await ttsResponse.text();
-            throw new Error(`OpenAI TTS Error: ${ttsResponse.status} ${errorText}`);
+            throw new Error(`Deepgram TTS Error: ${ttsResponse.status} ${errorText}`);
         }
 
         const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
 
-        log(`[Greeting] Generated audio buffer of size: ${audioBuffer.length} bytes`);
+        log(`[Greeting] Generated Deepgram audio buffer of size: ${audioBuffer.length} bytes`);
 
         res.set({
             'Content-Type': 'audio/mpeg',
@@ -113,7 +149,7 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
         res.status(500).json({
             error: 'Failed to generate greeting',
             details: errorMessage,
-            hint: 'Check OPENAI_API_KEY environment variable'
+            hint: 'Check DEEPGRAM_API_KEY or OPENAI_API_KEY environment variable'
         });
     }
 });
