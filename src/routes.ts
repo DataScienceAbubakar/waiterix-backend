@@ -1492,7 +1492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint for AI knowledge base - returns everything Leila needs to know
+  // Public endpoint for AI knowledge base - returns everything Leilah needs to know
   // This includes: menu items with extended details, restaurant knowledge, FAQ answers
   app.get('/api/public/ai/knowledge/:id', async (req, res) => {
     try {
@@ -1580,7 +1580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         restaurantName = restaurant.name;
       }
 
-      const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Leila, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Leila" button on your screen to talk with me anytime.`;
+      const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Leilah, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Leilah" button on your screen to talk with me anytime.`;
 
       console.log(`[Greeting] Generating speech for ${restaurantName} in ${language}`);
       const audioStream = await synthesizeSpeechWithLanguage(greetingText, language);
