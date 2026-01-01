@@ -13,6 +13,7 @@ import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import cors from 'cors';
 import { parse } from 'url';
+import { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { calculateSalesTax } from './src/shared/salesTax';
 // OpenAI API Key
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -30,6 +31,13 @@ app.use(express.json());
 
 // Backend API URL for placing orders (used by greeting endpoint and order placement)
 const API_BASE_URL = process.env.API_BASE_URL || 'https://kf3yhq6qn6.execute-api.us-east-1.amazonaws.com/dev';
+
+// S3 client for caching greeting audio files
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION || 'us-east-1',
+});
+const GREETING_CACHE_BUCKET = process.env.AWS_S3_BUCKET || 'waiterix-storage';
+const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN || null;
 
 function log(message: string, ...args: any[]) {
     console.log(`[${new Date().toISOString()}] ${message}`, ...args);
@@ -49,11 +57,13 @@ app.get('/', (req, res) => {
 });
 
 // AI Waiter greeting endpoint (pre-rendered audio for instant playback)
-// Uses Deepgram Asteria voice to match VAPI's Leila voice
+// Uses S3/CloudFront caching to save costs and load faster
+// Only generates new audio if not cached or if restaurant name changes
 app.get('/api/public/ai/greeting/:id', async (req, res) => {
     try {
         const restaurantId = req.params.id;
         const language = (req.query.lang as string) || 'en';
+        const forceRefresh = req.query.refresh === 'true';
 
         // Fetch restaurant name from the main API
         let restaurantName = 'this restaurant';
@@ -67,15 +77,75 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
             log('Could not fetch restaurant name, using default:', fetchError);
         }
 
+        // Create a hash-based cache key using restaurant name (so cache invalidates when name changes)
+        const nameHash = Buffer.from(restaurantName).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+        const cacheKey = `greetings/${restaurantId}/${language}/${nameHash}.mp3`;
+
+        // Check if CloudFront is configured - redirect to CDN for faster loading
+        if (CLOUDFRONT_DOMAIN && !forceRefresh) {
+            const cdnUrl = `https://${CLOUDFRONT_DOMAIN}/${cacheKey}`;
+
+            // Check if cached version exists in S3
+            try {
+                await s3Client.send(new HeadObjectCommand({
+                    Bucket: GREETING_CACHE_BUCKET,
+                    Key: cacheKey,
+                }));
+
+                log(`[Greeting] Cache HIT - Redirecting to CloudFront: ${cdnUrl}`);
+                return res.redirect(302, cdnUrl);
+            } catch (headError: any) {
+                // Cache miss - continue to generate
+                if (headError.name !== 'NotFound' && headError.$metadata?.httpStatusCode !== 404) {
+                    log('[Greeting] S3 HeadObject error (continuing to generate):', headError.message);
+                }
+            }
+        }
+
+        // Check if cached version exists in S3 (without CloudFront)
+        if (!forceRefresh) {
+            try {
+                const getResponse = await s3Client.send(new GetObjectCommand({
+                    Bucket: GREETING_CACHE_BUCKET,
+                    Key: cacheKey,
+                }));
+
+                log(`[Greeting] Cache HIT - Serving from S3: ${cacheKey}`);
+
+                // Stream from S3 directly
+                res.set({
+                    'Content-Type': 'audio/mpeg',
+                    'Content-Length': getResponse.ContentLength?.toString() || '0',
+                    'Cache-Control': 'public, max-age=86400', // 24 hour browser cache
+                    'Access-Control-Allow-Origin': '*',
+                    'X-Cache': 'HIT',
+                });
+
+                // Stream the response
+                if (getResponse.Body) {
+                    const stream = getResponse.Body as any;
+                    stream.pipe(res);
+                    return;
+                }
+            } catch (getError: any) {
+                // Cache miss - continue to generate
+                if (getError.name !== 'NoSuchKey' && getError.$metadata?.httpStatusCode !== 404) {
+                    log('[Greeting] S3 GetObject error (continuing to generate):', getError.message);
+                }
+            }
+        }
+
+        // CACHE MISS - Generate new audio
+        log(`[Greeting] Cache MISS - Generating audio for ${restaurantName} in ${language}`);
+
         const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Leila, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Leila" button on your screen to talk with me anytime.`;
 
-        log(`[Greeting] Generating Deepgram Asteria speech for ${restaurantName} in ${language}`);
-
         const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
+        let audioBuffer: Buffer;
 
         if (!DEEPGRAM_API_KEY) {
             // Fallback to OpenAI if Deepgram not configured
-            log('[Greeting] Deepgram API key not found, falling back to OpenAI TTS');
+            log('[Greeting] Using OpenAI TTS (Deepgram not configured)');
 
             if (!OPENAI_API_KEY) {
                 throw new Error('Neither DEEPGRAM_API_KEY nor OPENAI_API_KEY is configured');
@@ -89,7 +159,7 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
                 },
                 body: JSON.stringify({
                     model: 'tts-1',
-                    voice: 'nova', // Female voice similar to Asteria
+                    voice: 'nova',
                     input: greetingText,
                     response_format: 'mp3'
                 })
@@ -100,44 +170,50 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
                 throw new Error(`OpenAI TTS Error: ${ttsResponse.status} ${errorText}`);
             }
 
-            const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
+            audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
+        } else {
+            // Use Deepgram Aura Asteria for matching VAPI voice
+            log('[Greeting] Using Deepgram Asteria TTS');
 
-            res.set({
-                'Content-Type': 'audio/mpeg',
-                'Content-Length': audioBuffer.length.toString(),
-                'Cache-Control': 'public, max-age=3600',
-                'Access-Control-Allow-Origin': '*'
+            const ttsResponse = await fetch('https://api.deepgram.com/v1/speak?model=aura-asteria-en', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Token ${DEEPGRAM_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: greetingText })
             });
 
-            return res.send(audioBuffer);
+            if (!ttsResponse.ok) {
+                const errorText = await ttsResponse.text();
+                throw new Error(`Deepgram TTS Error: ${ttsResponse.status} ${errorText}`);
+            }
+
+            audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
         }
 
-        // Use Deepgram Aura Asteria for matching VAPI voice
-        const ttsResponse = await fetch('https://api.deepgram.com/v1/speak?model=aura-asteria-en', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Token ${DEEPGRAM_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: greetingText
-            })
+        log(`[Greeting] Generated audio: ${audioBuffer.length} bytes`);
+
+        // Upload to S3 for caching (async, don't block response)
+        s3Client.send(new PutObjectCommand({
+            Bucket: GREETING_CACHE_BUCKET,
+            Key: cacheKey,
+            Body: audioBuffer,
+            ContentType: 'audio/mpeg',
+            CacheControl: 'public, max-age=604800', // 7 days in CDN cache
+        })).then(() => {
+            log(`[Greeting] Cached to S3: ${cacheKey}`);
+        }).catch((uploadError) => {
+            log('[Greeting] Failed to cache to S3 (non-blocking):', uploadError.message);
         });
 
-        if (!ttsResponse.ok) {
-            const errorText = await ttsResponse.text();
-            throw new Error(`Deepgram TTS Error: ${ttsResponse.status} ${errorText}`);
-        }
-
-        const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
-
-        log(`[Greeting] Generated Deepgram audio buffer of size: ${audioBuffer.length} bytes`);
-
+        // Send response immediately
         res.set({
             'Content-Type': 'audio/mpeg',
             'Content-Length': audioBuffer.length.toString(),
-            'Cache-Control': 'public, max-age=3600',
-            'Access-Control-Allow-Origin': '*'
+            'Cache-Control': 'public, max-age=86400',
+            'Access-Control-Allow-Origin': '*',
+            'X-Cache': 'MISS',
         });
 
         res.send(audioBuffer);
