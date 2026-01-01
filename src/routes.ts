@@ -1561,6 +1561,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint for customers to poll for chef responses to their questions
+  // This enables popup notifications on the customer's screen even when Leilah is turned off
+  app.get('/api/public/chef-answers/:customerSessionId', async (req, res) => {
+    try {
+      const { customerSessionId } = req.params;
+      const { since } = req.query; // Optional: only get answers after a certain timestamp
+
+      if (!customerSessionId) {
+        return res.status(400).json({ error: 'Customer session ID is required' });
+      }
+
+      // Get answered questions for this customer session
+      const answeredQuestions = await storage.getAnsweredQuestionsBySession(customerSessionId);
+
+      // If 'since' timestamp provided, filter to only new answers
+      let filteredAnswers = answeredQuestions;
+      if (since && typeof since === 'string') {
+        const sinceDate = new Date(since);
+        filteredAnswers = answeredQuestions.filter(
+          item => new Date(item.answer.createdAt) > sinceDate
+        );
+      }
+
+      // Transform to a simpler format for the frontend
+      const answers = filteredAnswers.map(item => ({
+        questionId: item.question.id,
+        question: item.question.question,
+        answer: item.answer.answer,
+        answeredAt: item.answer.createdAt,
+      }));
+
+      res.json({ answers });
+    } catch (error) {
+      console.error("Error fetching chef answers:", error);
+      res.status(500).json({ error: "Failed to fetch chef answers" });
+    }
+  });
+
   // Public endpoint for AI Waiter greeting (pre-rendered for speed)
   app.get('/api/public/ai/greeting/:id', async (req, res) => {
     try {

@@ -1384,6 +1384,11 @@ wss.on('connection', (ws: WebSocket, req) => {
     log(`Client connected for restaurant: ${restaurantId}`);
 
     // Initialize client data
+    // Customer session ID can be provided by client (for consistent tracking across connections)
+    // or generated on first connection
+    const customerSessionId = query.customerSessionId as string
+        || `session-${Math.random().toString(36).substring(2, 11)}`;
+
     clients.set(ws, {
         openaiWs: null,
         restaurantId,
@@ -1392,7 +1397,7 @@ wss.on('connection', (ws: WebSocket, req) => {
         cart: [],           // Initialize empty cart
         tableId: query.tableId as string || undefined,  // Get table ID (UUID)
         tableNumber: query.tableNumber as string || undefined, // Get table number (string)
-        connectionId: Math.random().toString(36).substring(2, 11), // Simple random ID for session
+        connectionId: customerSessionId, // Use the session ID for chef question tracking
     });
 
     // Handle messages from client

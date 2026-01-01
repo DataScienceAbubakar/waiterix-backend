@@ -72,6 +72,7 @@ export interface IStorage {
   // Chef answers operations
   createChefAnswer(answer: InsertChefAnswer): Promise<ChefAnswer>;
   getChefAnswerByQuestionId(pendingQuestionId: string): Promise<ChefAnswer | undefined>;
+  getAnsweredQuestionsBySession(customerSessionId: string): Promise<Array<{ question: PendingQuestion; answer: ChefAnswer }>>;
 
   // Admin password operations
   setAdminPassword(restaurantId: string, password: string): Promise<void>;
@@ -546,6 +547,29 @@ export class DatabaseStorage implements IStorage {
       .from(chefAnswers)
       .where(eq(chefAnswers.pendingQuestionId, pendingQuestionId));
     return answer;
+  }
+
+  // Get all answered questions for a customer session (for chef response notifications)
+  async getAnsweredQuestionsBySession(customerSessionId: string): Promise<Array<{ question: PendingQuestion; answer: ChefAnswer }>> {
+    // Get all questions from this session that have been answered
+    const questions = await db
+      .select()
+      .from(pendingQuestions)
+      .where(and(
+        eq(pendingQuestions.customerSessionId, customerSessionId),
+        eq(pendingQuestions.status, 'answered')
+      ))
+      .orderBy(desc(pendingQuestions.createdAt));
+
+    // Get the corresponding answers
+    const results: Array<{ question: PendingQuestion; answer: ChefAnswer }> = [];
+    for (const question of questions) {
+      const answer = await this.getChefAnswerByQuestionId(question.id);
+      if (answer) {
+        results.push({ question, answer });
+      }
+    }
+    return results;
   }
 
   // Admin password operations
