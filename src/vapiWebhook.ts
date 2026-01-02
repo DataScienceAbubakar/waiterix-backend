@@ -28,9 +28,11 @@ interface VapiCallMetadata {
     sessionId?: string;
 }
 
+
 interface VapiFunctionCallRequest {
     type: string;
     functionCall: {
+        id?: string;  // Tool call ID for response matching
         name: string;
         parameters: any;
     };
@@ -40,6 +42,29 @@ interface VapiFunctionCallRequest {
             variableValues?: VapiCallMetadata;
         };
     };
+}
+
+/**
+ * Helper function to send VAPI-formatted response
+ * VAPI expects: { results: [{ toolCallId: "X", result: "Y" }] }
+ */
+function sendVapiResponse(res: Response, toolCallId: string | undefined, result: string | object) {
+    const resultString = typeof result === 'string' ? result : JSON.stringify(result);
+
+    // If we have a toolCallId, use VAPI's expected format
+    if (toolCallId) {
+        return res.json({
+            results: [{
+                toolCallId,
+                result: resultString
+            }]
+        });
+    }
+
+    // Fallback for calls without toolCallId
+    return res.json({
+        result: resultString
+    });
 }
 
 /**
@@ -64,14 +89,16 @@ export function registerVapiWebhookRoutes(app: Express, storage: IStorage) {
 
             // Handle function calls
             if (type === 'function-call' && functionCall) {
-                const { name, parameters } = functionCall;
+                const { id: toolCallId, name, parameters } = functionCall;
+
+                console.log('[VAPI Webhook] Processing function:', name, 'toolCallId:', toolCallId);
 
                 switch (name) {
                     case 'add_to_cart':
-                        return handleAddToCart(res, parameters);
+                        return handleAddToCart(res, parameters, toolCallId);
 
                     case 'remove_from_cart':
-                        return handleRemoveFromCart(res, parameters);
+                        return handleRemoveFromCart(res, parameters, toolCallId);
 
                     case 'confirm_order':
                         return await handleConfirmOrder(res, parameters, {
@@ -79,32 +106,27 @@ export function registerVapiWebhookRoutes(app: Express, storage: IStorage) {
                             tableId,
                             tableNumber,
                             restaurantState,
-                        }, storage);
+                        }, storage, toolCallId);
 
                     case 'call_chef':
                         return await handleCallChef(res, parameters, {
                             restaurantId,
                             tableNumber,
                             sessionId: sessionId || call?.id,
-                        }, storage);
+                        }, storage, toolCallId);
 
                     case 'call_waiter':
                         return await handleCallWaiter(res, parameters, {
                             restaurantId,
                             tableId,
-                        }, storage);
+                        }, storage, toolCallId);
 
                     case 'open_checkout':
-                        return handleOpenCheckout(res, parameters);
+                        return handleOpenCheckout(res, parameters, toolCallId);
 
                     default:
                         console.log('[VAPI Webhook] Unknown function:', name);
-                        return res.json({
-                            result: {
-                                success: false,
-                                message: `Unknown function: ${name}`
-                            }
-                        });
+                        return sendVapiResponse(res, toolCallId, `Unknown function: ${name}`);
                 }
             }
 
@@ -202,57 +224,33 @@ export function registerVapiWebhookRoutes(app: Express, storage: IStorage) {
  * Handle add_to_cart function
  * Note: This is processed client-side, we just return success
  */
-function handleAddToCart(res: Response, parameters: any) {
+function handleAddToCart(res: Response, parameters: any, toolCallId?: string) {
     const { items } = parameters;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.json({
-            result: {
-                success: false,
-                message: 'No items provided'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'No items provided');
     }
 
     // Items are added to cart on the frontend
     // We just confirm the action here
     const itemNames = items.map((i: any) => `${i.quantity || 1}x ${i.item_name}`).join(', ');
 
-    return res.json({
-        result: {
-            success: true,
-            action: 'add_to_cart',
-            items: items,
-            message: `Added to cart: ${itemNames}. Ask the customer if they would like anything else.`
-        }
-    });
+    return sendVapiResponse(res, toolCallId, `Added to cart: ${itemNames}. Ask the customer if they would like anything else.`);
 }
 
 /**
  * Handle remove_from_cart function
  */
-function handleRemoveFromCart(res: Response, parameters: any) {
+function handleRemoveFromCart(res: Response, parameters: any, toolCallId?: string) {
     const { items } = parameters;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.json({
-            result: {
-                success: false,
-                message: 'No items specified for removal'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'No items specified for removal');
     }
 
     const itemNames = items.map((i: any) => i.item_name).join(', ');
 
-    return res.json({
-        result: {
-            success: true,
-            action: 'remove_from_cart',
-            items: items,
-            message: `Removed from cart: ${itemNames}. Is there anything else you'd like to change?`
-        }
-    });
+    return sendVapiResponse(res, toolCallId, `Removed from cart: ${itemNames}. Is there anything else you'd like to change?`);
 }
 
 /**
@@ -262,7 +260,8 @@ async function handleConfirmOrder(
     res: Response,
     parameters: any,
     context: { restaurantId?: string; tableId?: string; tableNumber?: string; restaurantState?: string },
-    storage: IStorage
+    storage: IStorage,
+    toolCallId?: string
 ) {
     const { restaurantId, tableId, tableNumber, restaurantState } = context;
     const { payment_method, table_number, customer_note, tip_amount, allergies, cart_items, cart_total } = parameters;
@@ -273,44 +272,24 @@ async function handleConfirmOrder(
 
     if (!restaurantId) {
         console.log('[VAPI confirm_order] Error: No restaurantId');
-        return res.json({
-            result: {
-                success: false,
-                message: 'Restaurant context not found. Please try again.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'Restaurant context not found. Please try again.');
     }
 
     if (!cart_items || !Array.isArray(cart_items) || cart_items.length === 0) {
         console.log('[VAPI confirm_order] Error: Empty cart');
-        return res.json({
-            result: {
-                success: false,
-                message: 'The cart is empty. Please add items before placing an order.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'The cart is empty. Please add items before placing an order.');
     }
 
     try {
         // Check restaurant subscription status
         const restaurant = await storage.getRestaurant(restaurantId);
         if (!restaurant) {
-            return res.json({
-                result: {
-                    success: false,
-                    message: 'Restaurant not found. Please try again.'
-                }
-            });
+            return sendVapiResponse(res, toolCallId, 'Restaurant not found. Please try again.');
         }
 
         const validStatuses = ['trialing', 'active'];
         if (!restaurant.subscriptionStatus || !validStatuses.includes(restaurant.subscriptionStatus)) {
-            return res.json({
-                result: {
-                    success: false,
-                    message: 'Sorry, this restaurant is not currently accepting orders. Please speak with the staff directly.'
-                }
-            });
+            return sendVapiResponse(res, toolCallId, 'Sorry, this restaurant is not currently accepting orders. Please speak with the staff directly.');
         }
 
         // Calculate totals
@@ -390,22 +369,7 @@ async function handleConfirmOrder(
             .map((item: any) => `${item.quantity || 1}x ${item.name}`)
             .join(', ');
 
-        return res.json({
-            result: {
-                success: true,
-                action: 'order_confirmed',
-                orderId: order.id,
-                order_id_short: order.id.slice(0, 8).toUpperCase(),
-                items_ordered: itemsSummary,
-                subtotal: `$${subtotal.toFixed(2)}`,
-                tax: `$${tax.toFixed(2)}`,
-                tip: `$${tip.toFixed(2)}`,
-                total: `$${total.toFixed(2)}`,
-                payment_method: payment_method || 'cash',
-                estimated_wait: '15-20 minutes',
-                message: `Order placed successfully! Your order number is ${order.id.slice(0, 8).toUpperCase()}. Total: $${total.toFixed(2)}. Estimated wait time: 15-20 minutes.`
-            }
-        });
+        return sendVapiResponse(res, toolCallId, `Order placed successfully! Your order number is ${order.id.slice(0, 8).toUpperCase()}. Total: $${total.toFixed(2)}. Estimated wait time: 15-20 minutes.`);
     } catch (error: any) {
         console.error('[VAPI] Error placing order:', error);
         console.error('[VAPI] Error details:', {
@@ -414,12 +378,7 @@ async function handleConfirmOrder(
             stack: error?.stack,
             cause: error?.cause,
         });
-        return res.json({
-            result: {
-                success: false,
-                message: `Sorry, there was an issue placing your order. Error: ${error?.message || 'Unknown error'}. Please try again or speak with the staff.`
-            }
-        });
+        return sendVapiResponse(res, toolCallId, `Sorry, there was an issue placing your order. Error: ${error?.message || 'Unknown error'}. Please try again or speak with the staff.`);
     }
 }
 
@@ -430,27 +389,18 @@ async function handleCallChef(
     res: Response,
     parameters: any,
     context: { restaurantId?: string; tableNumber?: string; sessionId?: string },
-    storage: IStorage
+    storage: IStorage,
+    toolCallId?: string
 ) {
     const { restaurantId, tableNumber, sessionId } = context;
     const { message } = parameters;
 
     if (!restaurantId) {
-        return res.json({
-            result: {
-                success: false,
-                message: 'Restaurant context not found.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'Restaurant context not found.');
     }
 
     if (!message) {
-        return res.json({
-            result: {
-                success: false,
-                message: 'Please provide a message for the chef.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'Please provide a message for the chef.');
     }
 
     try {
@@ -475,22 +425,10 @@ async function handleCallChef(
 
         console.log('[VAPI] Created pending question:', question.id);
 
-        return res.json({
-            result: {
-                success: true,
-                action: 'chef_called',
-                questionId: question.id,
-                message: "I've sent your message to the chef. They will be notified immediately. Is there anything else I can help you with while we wait?"
-            }
-        });
+        return sendVapiResponse(res, toolCallId, "I've sent your message to the chef. They will be notified immediately. Is there anything else I can help you with while we wait?");
     } catch (error) {
         console.error('[VAPI] Error calling chef:', error);
-        return res.json({
-            result: {
-                success: false,
-                message: 'Sorry, I could not reach the chef. Please ask a staff member directly.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'Sorry, I could not reach the chef. Please ask a staff member directly.');
     }
 }
 
@@ -501,18 +439,14 @@ async function handleCallWaiter(
     res: Response,
     parameters: any,
     context: { restaurantId?: string; tableId?: string },
-    storage: IStorage
+    storage: IStorage,
+    toolCallId?: string
 ) {
     const { restaurantId, tableId } = context;
     const { message } = parameters;
 
     if (!restaurantId) {
-        return res.json({
-            result: {
-                success: false,
-                message: 'Restaurant context not found.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'Restaurant context not found.');
     }
 
     try {
@@ -535,38 +469,20 @@ async function handleCallWaiter(
 
         console.log('[VAPI] Created assistance request:', request.id);
 
-        return res.json({
-            result: {
-                success: true,
-                action: 'waiter_called',
-                requestId: request.id,
-                message: "I've called a waiter and passed on your message. They will be with you shortly. Is there anything else I can help with in the meantime?"
-            }
-        });
+        return sendVapiResponse(res, toolCallId, "I've called a waiter and passed on your message. They will be with you shortly. Is there anything else I can help with in the meantime?");
     } catch (error) {
         console.error('[VAPI] Error calling waiter:', error);
-        return res.json({
-            result: {
-                success: false,
-                message: 'Sorry, I could not reach a waiter. Please wave to get the attention of nearby staff.'
-            }
-        });
+        return sendVapiResponse(res, toolCallId, 'Sorry, I could not reach a waiter. Please wave to get the attention of nearby staff.');
     }
 }
 
 /**
  * Handle open_checkout function - signals frontend to open checkout UI
  */
-function handleOpenCheckout(res: Response, parameters: any) {
+function handleOpenCheckout(res: Response, parameters: any, toolCallId?: string) {
     const { tip_amount, customer_note } = parameters;
 
-    return res.json({
-        result: {
-            success: true,
-            action: 'open_checkout',
-            tipAmount: tip_amount,
-            customerNote: customer_note,
-            message: "I've opened the checkout page for you. Please enter your payment details to complete your order."
-        }
-    });
+    console.log('[VAPI open_checkout] Opening checkout with tip:', tip_amount, 'note:', customer_note);
+
+    return sendVapiResponse(res, toolCallId, "I've opened the checkout page for you. Please enter your payment details to complete your order.");
 }
