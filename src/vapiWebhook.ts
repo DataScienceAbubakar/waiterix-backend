@@ -477,5 +477,12 @@ function handleOpenCheckout(res: Response, parameters: any, toolCallId?: string)
 
     console.log('[VAPI open_checkout] Opening checkout with tip:', tip_amount, 'note:', customer_note);
 
-    return sendVapiResponse(res, toolCallId, "I've opened the checkout page for you. Please enter your payment details to complete your order.");
+    // Return explicit success - this helps the AI understand the action completed
+    return res.json({
+        result: {
+            success: true,
+            status: 'completed',
+            message: "SUCCESS: The checkout page has been opened on the customer's screen. They can now see the payment form and complete their order. Tell them you've opened the checkout page and wish them a great meal."
+        }
+    });
 }

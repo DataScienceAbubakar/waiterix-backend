@@ -138,7 +138,7 @@ app.get('/api/public/ai/greeting/:id', async (req, res) => {
         // CACHE MISS - Generate new audio
         log(`[Greeting] Cache MISS - Generating audio for ${restaurantName} in ${language}`);
 
-        const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Leilah, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Leilah" button on your screen to talk with me anytime.`;
+        const greetingText = `Hello there! Welcome to ${restaurantName}. We're happy to have you today. I'm Lelah, your AI waiter. I can help you explore the menu, answer questions about any menu items, and take your order whenever you're ready. You can tap the "Talk to Lelah" button on your screen to talk with me anytime.`;
 
         const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
         let audioBuffer: Buffer;
@@ -465,7 +465,7 @@ Guidelines:
         currentCartSection += 'This notification is REQUIRED before adding any new items to ensure the customer is aware of their existing selections.\n';
     }
 
-    return `You are Leilah, a friendly, professional AI waiter at ${restaurantName || 'this restaurant'}. 
+    return `You are Lelah, a friendly, professional AI waiter at ${restaurantName || 'this restaurant'}. 
 
 PERSONALITY & COMMUNICATION STYLE:
 - Warm, welcoming, and naturally conversational - sound like a real human waiter.
@@ -1546,8 +1546,8 @@ function handleClientMessage(ws: WebSocket, message: any) {
             break;
 
         case 'request_prompt':
-            // User tapped "Speak with Leilah" - have her say a short prompt
-            log('User requested prompt - Leilah will ask how she can help');
+            // User tapped "Speak with Lelah" - have her say a short prompt
+            log('User requested prompt - Lelah will ask how she can help');
             if (clientData.openaiWs?.readyState === WebSocket.OPEN) {
                 // Send a conversation item with user intent, then request a response
                 clientData.openaiWs.send(JSON.stringify({
