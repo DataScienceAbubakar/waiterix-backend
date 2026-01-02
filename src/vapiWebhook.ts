@@ -46,24 +46,17 @@ interface VapiFunctionCallRequest {
 
 /**
  * Helper function to send VAPI-formatted response
- * VAPI expects: { results: [{ toolCallId: "X", result: "Y" }] }
+ * Using the original format that was working: { result: { success, message } }
  */
 function sendVapiResponse(res: Response, toolCallId: string | undefined, result: string | object) {
-    const resultString = typeof result === 'string' ? result : JSON.stringify(result);
+    const message = typeof result === 'string' ? result : JSON.stringify(result);
 
-    // If we have a toolCallId, use VAPI's expected format
-    if (toolCallId) {
-        return res.json({
-            results: [{
-                toolCallId,
-                result: resultString
-            }]
-        });
-    }
-
-    // Fallback for calls without toolCallId
+    // Use the original format that was working
     return res.json({
-        result: resultString
+        result: {
+            success: true,
+            message: message
+        }
     });
 }
 
