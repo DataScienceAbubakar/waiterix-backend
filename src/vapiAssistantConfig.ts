@@ -100,7 +100,11 @@ export const VAPI_WAITER_TOOLS = [
                     },
                     tip_amount: {
                         type: 'number',
-                        description: 'The tip amount to add to the order. Ask the customer if they would like to add a tip before finalizing.'
+                        description: 'The tip as a DOLLAR AMOUNT (e.g., 5 for $5 tip). Use this when customer says a dollar amount like "$5" or "five dollars".'
+                    },
+                    tip_percent: {
+                        type: 'number',
+                        description: 'The tip as a PERCENTAGE (e.g., 20 for 20%). Use this when customer says a percentage like "20%" or "twenty percent". The system will calculate the dollar amount from the cart subtotal.'
                     },
                     allergies: {
                         type: 'string',
@@ -340,7 +344,9 @@ When customer indicates they are done ordering ("that's all", "I'm ready", "I'm 
 - "Any special instructions or requests for the kitchen?"
 
 **STEP 4: ASK ABOUT TIP**
-- "Would you like to add a tip for the staff?"
+- "Would you like to add a tip for the staff? You can say a dollar amount or a percentage."
+- If customer says a DOLLAR amount (e.g., "$5"): use tip_amount parameter
+- If customer says a PERCENTAGE (e.g., "20%"): use tip_percent parameter
 
 **STEP 5: ASK PAYMENT METHOD - MANDATORY, NEVER SKIP**
 - Say: "How would you like to pay - cash at the register, or card online?"

@@ -257,7 +257,7 @@ async function handleConfirmOrder(
     toolCallId?: string
 ) {
     const { restaurantId, tableId, tableNumber, restaurantState } = context;
-    const { payment_method, table_number, customer_note, tip_amount, allergies, cart_items, cart_total } = parameters;
+    const { payment_method, table_number, customer_note, tip_amount, tip_percent, allergies, cart_items, cart_total } = parameters;
 
     console.log('[VAPI confirm_order] Context:', JSON.stringify(context));
     console.log('[VAPI confirm_order] Parameters:', JSON.stringify(parameters));
@@ -290,7 +290,18 @@ async function handleConfirmOrder(
             sum + (parseFloat(item.price) * (item.quantity || 1)), 0
         );
         const tax = calculateSalesTax(subtotal, restaurantState);
-        const tip = parseFloat(tip_amount) || 0;
+
+        // Calculate tip - support both dollar amount and percentage
+        let tip = 0;
+        if (tip_percent && parseFloat(tip_percent) > 0) {
+            // Percentage tip: calculate from subtotal
+            tip = (subtotal * parseFloat(tip_percent)) / 100;
+            console.log('[VAPI confirm_order] Calculated tip from percentage:', tip_percent, '% =', tip.toFixed(2));
+        } else if (tip_amount && parseFloat(tip_amount) > 0) {
+            // Dollar amount tip
+            tip = parseFloat(tip_amount);
+            console.log('[VAPI confirm_order] Using dollar tip amount:', tip);
+        }
         const total = subtotal + tax + tip;
 
         // Validate table if provided

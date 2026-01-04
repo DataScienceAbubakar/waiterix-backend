@@ -523,7 +523,9 @@ When customer indicates they are done ordering ("that's all", "I'm ready", "I'm 
 - "Any special instructions or requests for the kitchen?"
 
 **STEP 4: ASK ABOUT TIP**
-- "Would you like to add a tip for the staff?"
+- "Would you like to add a tip for the staff? You can say a dollar amount or a percentage."
+- If customer says a DOLLAR amount (e.g., "$5"): use tip_amount parameter
+- If customer says a PERCENTAGE (e.g., "20%"): use tip_percent parameter
 
 **STEP 5: ASK PAYMENT METHOD - MANDATORY, NEVER SKIP**
 - Say: "How would you like to pay - cash at the register, or card online?"
@@ -721,7 +723,11 @@ function connectToOpenAI(clientWs: WebSocket, config: any): WebSocket | null {
                                 },
                                 tip_amount: {
                                     type: 'number',
-                                    description: 'The tip amount to add to the order, if the customer specifies one.',
+                                    description: 'The tip as a DOLLAR AMOUNT (e.g., 5 for $5 tip). Use when customer says a dollar amount.',
+                                },
+                                tip_percent: {
+                                    type: 'number',
+                                    description: 'The tip as a PERCENTAGE (e.g., 20 for 20%). Use when customer says a percentage. System calculates the dollar amount from subtotal.',
                                 },
                                 allergies: {
                                     type: 'string',
@@ -1146,11 +1152,17 @@ async function handleConfirmOrder(
     // Calculate tax based on restaurant's US state
     const tax = calculateSalesTax(subtotal, clientData.restaurantState);
 
-    // Parse tip amount - ensure it's a valid number
+    // Calculate tip - support both dollar amount and percentage
     let tipAmount = 0;
-    if (args.tip_amount) {
+    if (args.tip_percent && parseFloat(args.tip_percent) > 0) {
+        // Percentage tip: calculate from subtotal
+        tipAmount = (subtotal * parseFloat(args.tip_percent)) / 100;
+        log('[Order] Calculated tip from percentage:', args.tip_percent, '% =', tipAmount.toFixed(2));
+    } else if (args.tip_amount && parseFloat(args.tip_amount) > 0) {
+        // Dollar amount tip
         tipAmount = parseFloat(args.tip_amount);
         if (isNaN(tipAmount)) tipAmount = 0;
+        log('[Order] Using dollar tip amount:', tipAmount);
     }
 
     const total = subtotal + tax + tipAmount;
